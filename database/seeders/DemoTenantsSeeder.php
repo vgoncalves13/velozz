@@ -41,7 +41,7 @@ class DemoTenantsSeeder extends Seeder
             'email' => 'admin@demo1.test',
             'password' => Hash::make('password'),
             'phone' => '+351912345678',
-            'role' => 'admin_cliente',
+            'role' => 'admin_client',
             'status' => 'active',
         ]);
 
@@ -74,7 +74,7 @@ class DemoTenantsSeeder extends Seeder
             'email' => 'admin@demo2.test',
             'password' => Hash::make('password'),
             'phone' => '+351923456789',
-            'role' => 'admin_cliente',
+            'role' => 'admin_client',
             'status' => 'active',
         ]);
     }

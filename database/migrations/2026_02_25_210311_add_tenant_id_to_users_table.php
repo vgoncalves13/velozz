@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('tenant_id')->nullable()->after('id')->constrained('tenants')->nullOnDelete();
             $table->string('phone')->nullable()->after('email');
-            $table->enum('role', ['admin_master', 'admin_cliente', 'supervisor', 'operador', 'financeiro'])->default('operador')->after('phone');
+            $table->enum('role', ['admin_master', 'admin_client', 'supervisor', 'operator', 'financial'])->default('operator')->after('phone');
             $table->enum('status', ['active', 'invited', 'suspended', 'temporary'])->default('active')->after('role');
             $table->string('photo')->nullable()->after('status');
             $table->string('invite_token')->nullable()->after('remember_token');

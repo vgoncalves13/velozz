@@ -123,10 +123,10 @@ From Admin Panel (http://velozz.test/admin):
 
 The system has 5 roles:
 1. **admin_master** - Full access to Admin Panel, manages all tenants
-2. **admin_cliente** - Tenant admin, full access to their Client Panel
+2. **admin_client** - Tenant admin, full access to their Client Panel
 3. **supervisor** - Supervisor level access (Phase 2)
-4. **operador** - Operator level access (Phase 2)
-5. **financeiro** - Financial level access (Phase 2)
+4. **operator** - Operator level access (Phase 2)
+5. **financial** - Financial level access (Phase 2)
 
 ---
 

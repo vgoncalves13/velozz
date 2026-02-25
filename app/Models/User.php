@@ -3,17 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'tenant_id',
@@ -59,7 +60,7 @@ class User extends Authenticatable implements FilamentUser
 
         if ($panel->getId() === 'client') {
             // Must have appropriate role
-            if (!in_array($this->role, ['admin_cliente', 'supervisor', 'operador', 'financeiro'])) {
+            if (! in_array($this->role, ['admin_client', 'supervisor', 'operator', 'financial'])) {
                 return false;
             }
 
@@ -67,13 +68,13 @@ class User extends Authenticatable implements FilamentUser
             // Get tenant from container or directly from database
             $currentTenant = app()->bound('tenant') ? app('tenant') : null;
 
-            if (!$currentTenant) {
+            if (! $currentTenant) {
                 // Fallback: get tenant directly from request host
                 $host = request()->getHost();
                 $currentTenant = Tenant::where('domain', $host)->first();
             }
 
-            if (!$currentTenant) {
+            if (! $currentTenant) {
                 return false;
             }
 
@@ -88,9 +89,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'admin_master';
     }
 
-    public function isAdminCliente(): bool
+    public function isAdminClient(): bool
     {
-        return $this->role === 'admin_cliente';
+        return $this->role === 'admin_client';
     }
 
     public function isSupervisor(): bool
@@ -98,13 +99,13 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'supervisor';
     }
 
-    public function isOperador(): bool
+    public function isOperator(): bool
     {
-        return $this->role === 'operador';
+        return $this->role === 'operator';
     }
 
-    public function isFinanceiro(): bool
+    public function isFinancial(): bool
     {
-        return $this->role === 'financeiro';
+        return $this->role === 'financial';
     }
 }
