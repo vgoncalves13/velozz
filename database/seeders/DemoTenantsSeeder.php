@@ -35,7 +35,7 @@ class DemoTenantsSeeder extends Seeder
         ]);
 
         // Create admin user for tenant1
-        User::create([
+        $user1 = User::create([
             'tenant_id' => $tenant1->id,
             'name' => 'John Admin',
             'email' => 'admin@demo1.test',
@@ -44,6 +44,7 @@ class DemoTenantsSeeder extends Seeder
             'role' => 'admin_client',
             'status' => 'active',
         ]);
+        $user1->assignRole('admin_client');
 
         // Create second demo tenant
         $tenant2 = Tenant::create([
@@ -68,7 +69,7 @@ class DemoTenantsSeeder extends Seeder
         ]);
 
         // Create admin user for tenant2
-        User::create([
+        $user2 = User::create([
             'tenant_id' => $tenant2->id,
             'name' => 'Jane Manager',
             'email' => 'admin@demo2.test',
@@ -77,5 +78,6 @@ class DemoTenantsSeeder extends Seeder
             'role' => 'admin_client',
             'status' => 'active',
         ]);
+        $user2->assignRole('admin_client');
     }
 }
