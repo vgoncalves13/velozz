@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class SalesFunnelWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Sales Funnel';
+    protected ?string $heading = 'Sales Funnel';
 
     protected static ?int $sort = 3;
 

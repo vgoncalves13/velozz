@@ -40,7 +40,7 @@ class RevenueForecastWidget extends StatsOverviewWidget
         return [
             Stat::make('Predicted Revenue', '€' . number_format($predictedRevenue, 2, ',', '.'))
                 ->description('Based on probability weighted value')
-                ->descriptionIcon('heroicon-o-trending-up')
+                ->descriptionIcon('heroicon-o-arrow-trending-up')
                 ->color('info'),
 
             Stat::make('Closed Revenue', '€' . number_format($closedRevenue, 2, ',', '.'))
