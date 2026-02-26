@@ -17,17 +17,7 @@ return new class extends Migration
             $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
 
             // Activity type
-            $table->enum('type', [
-                'created',
-                'updated',
-                'assigned',
-                'stage_changed',
-                'message_sent',
-                'message_received',
-                'note_added',
-                'field_updated',
-                'imported',
-            ]);
+            $table->string('type');
 
             $table->text('description');
             $table->json('metadata')->nullable(); // field, old_value, new_value, etc

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\LeadActivityType;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\PipelineStage;
@@ -69,7 +70,7 @@ class KanbanBoard extends Page
         LeadActivity::create([
             'tenant_id' => $lead->tenant_id,
             'lead_id' => $lead->id,
-            'type' => 'stage_changed',
+            'type' => LeadActivityType::StageChanged,
             'description' => "Stage changed from {$oldStage?->name} to {$newStage->name}",
             'metadata' => [
                 'old_stage_id' => $oldStageId,

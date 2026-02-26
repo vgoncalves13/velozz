@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LeadActivityType;
 use App\Models\Traits\HasTenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ class LeadActivity extends Model
     protected function casts(): array
     {
         return [
+            'type' => LeadActivityType::class,
             'metadata' => 'array',
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\LeadActivityType;
 use App\Models\Lead;
 
 class LeadObserver
@@ -14,7 +15,7 @@ class LeadObserver
         \App\Models\LeadActivity::create([
             'tenant_id' => $lead->tenant_id,
             'lead_id' => $lead->id,
-            'type' => 'created',
+            'type' => LeadActivityType::Creation,
             'description' => 'Lead created',
             'metadata' => [
                 'source' => $lead->source,
@@ -52,7 +53,7 @@ class LeadObserver
                 \App\Models\LeadActivity::create([
                     'tenant_id' => $lead->tenant_id,
                     'lead_id' => $lead->id,
-                    'type' => 'assigned',
+                    'type' => LeadActivityType::Assigned,
                     'description' => $newValue && $lead->assignedUser
                         ? "Lead assigned to {$lead->assignedUser->name}"
                         : 'Lead unassigned',
@@ -71,7 +72,7 @@ class LeadObserver
                 \App\Models\LeadActivity::create([
                     'tenant_id' => $lead->tenant_id,
                     'lead_id' => $lead->id,
-                    'type' => 'stage_changed',
+                    'type' => LeadActivityType::StageChanged,
                     'description' => $newValue
                         ? "Lead moved to {$lead->pipelineStage->name}"
                         : 'Lead removed from pipeline',
@@ -89,7 +90,7 @@ class LeadObserver
             \App\Models\LeadActivity::create([
                 'tenant_id' => $lead->tenant_id,
                 'lead_id' => $lead->id,
-                'type' => 'field_updated',
+                'type' => LeadActivityType::FieldUpdated,
                 'description' => "Field '{$field}' updated",
                 'metadata' => [
                     'field' => $field,

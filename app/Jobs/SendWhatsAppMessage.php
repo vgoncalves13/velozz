@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\LeadActivityType;
+use App\Events\MessageSent;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\WhatsAppInstance;
@@ -98,11 +100,14 @@ class SendWhatsAppMessage implements ShouldQueue
                 'remote_message_id' => $response['messageId'] ?? null,
             ]);
 
+            // Broadcast event for real-time update
+            broadcast(new MessageSent($whatsappMessage->fresh()));
+
             // Register activity
             LeadActivity::create([
                 'tenant_id' => $this->lead->tenant_id,
                 'lead_id' => $this->lead->id,
-                'type' => 'message_sent',
+                'type' => LeadActivityType::MessageSent,
                 'description' => 'WhatsApp message sent',
                 'metadata' => [
                     'message_id' => $whatsappMessage->id,

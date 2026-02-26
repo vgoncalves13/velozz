@@ -11,6 +11,8 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -18,10 +20,29 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class ClientPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            fn (): string => Vite::useHotFile('hot')
+                ->useBuildDirectory('build')
+                ->withEntryPoints(['resources/js/app.js'])
+                ->toHtml(),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn (): string => auth()->check() && auth()->user()->tenant_id
+                ? '<meta name="tenant-id" content="'.auth()->user()->tenant_id.'">'
+                : '',
+        );
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel

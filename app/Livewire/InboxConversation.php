@@ -1,0 +1,193 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Enums\LeadActivityType;
+use App\Jobs\SendWhatsAppMessage;
+use App\Models\Lead;
+use App\Models\LeadActivity;
+use App\Models\User;
+use App\Models\WhatsAppMessage;
+use Livewire\Component;
+
+class InboxConversation extends Component
+{
+    public int $leadId;
+
+    public Lead $lead;
+
+    public string $newMessage = '';
+
+    public string $internalNote = '';
+
+    public bool $showTransferModal = false;
+
+    public ?int $transferToUserId = null;
+
+    public int $refreshKey = 0;
+
+    public function mount(int $leadId): void
+    {
+        $this->leadId = $leadId;
+        $this->lead = Lead::with('assignedUser', 'whatsappMessages')->findOrFail($leadId);
+    }
+
+    public function getMessagesProperty()
+    {
+        return WhatsAppMessage::where('lead_id', $this->leadId)
+            ->orderBy('created_at')
+            ->get();
+    }
+
+    public function getListeners(): array
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        return [
+            'conversation-updated' => 'refreshConversationList',
+            "echo-private:tenant.{$tenantId}.inbox,MessageReceived" => 'onMessageReceived',
+            "echo-private:tenant.{$tenantId}.inbox,MessageSent" => 'onMessageSent',
+        ];
+    }
+
+    public function onMessageReceived($event): void
+    {
+        // Update the conversation list
+        $this->refreshKey++;
+    }
+
+    public function onMessageSent($event): void
+    {
+        // Update the conversation list
+        $this->refreshKey++;
+    }
+
+    public function refreshConversationList(): void
+    {
+        // Called by child component when a message is sent/received
+        // This updates the conversation list sidebar
+        $this->refreshKey++;
+    }
+
+    public function sendMessage(): void
+    {
+        $this->validate([
+            'newMessage' => 'required|string|min:1',
+        ]);
+
+        if ($this->lead->opt_out || $this->lead->do_not_contact) {
+            $this->addError('newMessage', 'Cannot send message. Lead has opted out or is marked as do not contact.');
+
+            return;
+        }
+
+        SendWhatsAppMessage::dispatch($this->lead, $this->newMessage, auth()->id());
+
+        $this->newMessage = '';
+
+        $this->dispatch('message-sent');
+    }
+
+    public function addInternalNote(): void
+    {
+        $this->validate([
+            'internalNote' => 'required|string|min:1',
+        ]);
+
+        WhatsAppMessage::create([
+            'tenant_id' => $this->lead->tenant_id,
+            'lead_id' => $this->lead->id,
+            'type' => 'internal_note',
+            'direction' => 'outgoing',
+            'content' => $this->internalNote,
+            'status' => 'sent',
+            'sent_by_user_id' => auth()->id(),
+        ]);
+
+        LeadActivity::create([
+            'tenant_id' => $this->lead->tenant_id,
+            'lead_id' => $this->lead->id,
+            'type' => LeadActivityType::Note,
+            'description' => 'Internal note added',
+            'metadata' => ['note' => $this->internalNote],
+            'user_id' => auth()->id(),
+        ]);
+
+        $this->internalNote = '';
+    }
+
+    public function assumeConversation(): void
+    {
+        $this->lead->update([
+            'assigned_user_id' => auth()->id(),
+        ]);
+
+        LeadActivity::create([
+            'tenant_id' => $this->lead->tenant_id,
+            'lead_id' => $this->lead->id,
+            'type' => LeadActivityType::Transfer,
+            'description' => 'Conversation assumed by '.auth()->user()->name,
+            'user_id' => auth()->id(),
+        ]);
+
+        $this->lead->refresh();
+
+        $this->dispatch('conversation-assumed');
+    }
+
+    public function openTransferModal(): void
+    {
+        $this->showTransferModal = true;
+    }
+
+    public function closeTransferModal(): void
+    {
+        $this->showTransferModal = false;
+        $this->transferToUserId = null;
+    }
+
+    public function transferConversation(): void
+    {
+        $this->validate([
+            'transferToUserId' => 'required|exists:users,id',
+        ]);
+
+        $newUser = User::findOrFail($this->transferToUserId);
+
+        $this->lead->update([
+            'assigned_user_id' => $this->transferToUserId,
+        ]);
+
+        LeadActivity::create([
+            'tenant_id' => $this->lead->tenant_id,
+            'lead_id' => $this->lead->id,
+            'type' => LeadActivityType::Transfer,
+            'description' => "Conversation transferred to {$newUser->name}",
+            'user_id' => auth()->id(),
+        ]);
+
+        $this->lead->refresh();
+        $this->closeTransferModal();
+
+        $this->dispatch('conversation-transferred');
+    }
+
+
+    public function refreshMessages(): void
+    {
+        // Manual refresh for debugging
+        $this->refreshKey++;
+    }
+
+    public function getOperatorsProperty()
+    {
+        return User::where('tenant_id', auth()->user()->tenant_id)
+            ->where('id', '!=', auth()->id())
+            ->get();
+    }
+
+    public function render()
+    {
+        return view('livewire.inbox-conversation');
+    }
+}

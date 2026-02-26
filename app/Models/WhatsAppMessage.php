@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\MessageDirection;
+use App\Enums\MessageStatus;
+use App\Enums\MessageType;
 use App\Models\Traits\HasTenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +28,15 @@ class WhatsAppMessage extends Model
         'remote_message_id',
         'sent_by_user_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => MessageType::class,
+            'direction' => MessageDirection::class,
+            'status' => MessageStatus::class,
+        ];
+    }
 
     public function tenant(): BelongsTo
     {
@@ -51,7 +63,7 @@ class WhatsAppMessage extends Model
      */
     public function isIncoming(): bool
     {
-        return $this->direction === 'incoming';
+        return $this->direction === MessageDirection::Incoming;
     }
 
     /**
@@ -59,7 +71,7 @@ class WhatsAppMessage extends Model
      */
     public function isOutgoing(): bool
     {
-        return $this->direction === 'outgoing';
+        return $this->direction === MessageDirection::Outgoing;
     }
 
     /**
@@ -67,7 +79,7 @@ class WhatsAppMessage extends Model
      */
     public function isDelivered(): bool
     {
-        return in_array($this->status, ['delivered', 'read']);
+        return in_array($this->status, [MessageStatus::Delivered, MessageStatus::Read]);
     }
 
     /**
@@ -75,6 +87,6 @@ class WhatsAppMessage extends Model
      */
     public function hasFailed(): bool
     {
-        return $this->status === 'failed';
+        return $this->status === MessageStatus::Failed;
     }
 }

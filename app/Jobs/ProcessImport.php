@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\LeadActivityType;
 use App\Helpers\NormalizationHelper;
 use App\Models\Import;
 use App\Models\Lead;
@@ -132,7 +133,7 @@ class ProcessImport implements ShouldQueue
                     LeadActivity::create([
                         'tenant_id' => $this->import->tenant_id,
                         'lead_id' => $lead->id,
-                        'type' => 'created',
+                        'type' => LeadActivityType::Creation,
                         'description' => 'Lead created via import',
                         'metadata' => [
                             'import_id' => $this->import->id,

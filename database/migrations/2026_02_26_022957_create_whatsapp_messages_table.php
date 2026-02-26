@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->foreignId('lead_id')->constrained('leads')->cascadeOnDelete();
-            $table->foreignId('whatsapp_instance_id')->constrained('whatsapp_instances')->cascadeOnDelete();
-            $table->enum('type', ['text', 'image', 'audio', 'video', 'document', 'internal_note'])->default('text');
-            $table->enum('direction', ['incoming', 'outgoing'])->default('outgoing');
+            $table->foreignId('whatsapp_instance_id')->nullable()->constrained('whatsapp_instances')->cascadeOnDelete();
+            $table->string('type')->default('text');
+            $table->string('direction')->default('outgoing');
             $table->text('content')->nullable();
             $table->string('media_url')->nullable();
-            $table->enum('status', ['pending', 'sent', 'delivered', 'read', 'failed'])->default('pending');
+            $table->string('status')->default('pending');
             $table->text('error_message')->nullable();
             $table->string('remote_message_id')->nullable(); // Z-API message ID
             $table->foreignId('sent_by_user_id')->nullable()->constrained('users')->nullOnDelete();
