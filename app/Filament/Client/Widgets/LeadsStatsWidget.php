@@ -7,7 +7,7 @@ use App\Models\WhatsAppMessage;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class StatsOverviewWidget extends StatsOverviewWidget
+class LeadsStatsWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
