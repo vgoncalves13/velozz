@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'zapi' => [
+        'enabled' => env('ZAPI_ENABLED', false),
+        'token' => env('ZAPI_TOKEN'),
+        'client_token' => env('ZAPI_CLIENT_TOKEN'),
+    ],
+
 ];

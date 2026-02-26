@@ -11,10 +11,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind ZApi Service (Mock for development, Real for production)
+        // Bind ZApi Service - Real when enabled, Mock otherwise
         $this->app->bind(
             \App\Services\ZApi\ZApiServiceInterface::class,
-            \App\Services\ZApi\ZApiMockService::class
+            config('services.zapi.enabled')
+                ? \App\Services\ZApi\ZApiRealService::class
+                : \App\Services\ZApi\ZApiMockService::class
         );
     }
 
