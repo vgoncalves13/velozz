@@ -1,4 +1,20 @@
-<div class="flex flex-col h-full">
+<div class="flex flex-col h-full"
+     wire:poll.3s
+     x-data="{
+         playNotification() {
+             const audio = this.$refs.notificationSound;
+             if (audio) {
+                 audio.play().catch(() => {});
+             }
+         }
+     }"
+     @new-incoming-message.window="playNotification()">
+
+    {{-- Notification Sound --}}
+    <audio x-ref="notificationSound" preload="auto">
+        <source src="{{ asset('sounds/notification-sound.wav') }}" type="audio/wav">
+    </audio>
+
     {{-- Header with Lead Info and Actions --}}
     <div class="border-b border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center justify-between">
@@ -19,17 +35,6 @@
             </div>
 
             <div class="flex gap-3">
-                <button
-                    wire:click="refreshMessages"
-                    class="inline-flex items-center px-4 py-2.5 border border-yellow-300 dark:border-yellow-600 text-sm font-medium rounded-lg text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/30 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors"
-                    title="DEBUG: Manual refresh"
-                >
-                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Refresh
-                </button>
-
                 @if(!$lead->assigned_user_id || $lead->assigned_user_id !== auth()->id())
                     <button
                         wire:click="assumeConversation"
@@ -83,11 +88,14 @@
                 </div>
             @else
                 {{-- Regular Message --}}
-                <div @class([
-                    'flex',
-                    'justify-end' => $message->direction === \App\Enums\MessageDirection::Outgoing,
-                    'justify-start' => $message->direction === \App\Enums\MessageDirection::Incoming,
-                ])>
+                <div
+                    data-message-id="{{ $message->id }}"
+                    data-direction="{{ $message->direction->value }}"
+                    @class([
+                        'flex',
+                        'justify-end' => $message->direction === \App\Enums\MessageDirection::Outgoing,
+                        'justify-start' => $message->direction === \App\Enums\MessageDirection::Incoming,
+                    ])>
                     <div @class([
                         'max-w-xl px-4 py-3 rounded-2xl shadow-sm',
                         'bg-blue-100 dark:bg-blue-900/30 text-gray-900 dark:text-gray-100' => $message->direction === \App\Enums\MessageDirection::Outgoing,

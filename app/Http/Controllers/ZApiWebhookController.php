@@ -26,21 +26,34 @@ class ZApiWebhookController extends Controller
         try {
             // Log the incoming webhook for debugging
             Log::info('Z-API Webhook received', [
-                'payload' => $request->all(),
+                'type' => $request->input('type'),
+                'phone' => $request->input('phone'),
+                'fromMe' => $request->input('fromMe'),
             ]);
 
-            // Validate required fields
+            // Get webhook type
+            $type = $request->input('type');
+
+            // Handle message delivery status (sent, delivered, read)
+            if ($type === 'DeliveryCallback') {
+                return $this->handleMessageStatus($request);
+            }
+
+            // Validate required fields for ReceivedCallback
             $request->validate([
                 'instanceId' => 'required|string',
-                'message' => 'required|array',
-                'message.fromMe' => 'required|boolean',
-                'message.from' => 'required|string',
-                'message.body' => 'nullable|string',
+                'phone' => 'required|string',
+                'fromMe' => 'required|boolean',
             ]);
 
-            // Skip if message is from us
-            if ($request->input('message.fromMe')) {
+            // Skip if message is from us (only for ReceivedCallback)
+            if ($type === 'ReceivedCallback' && $request->input('fromMe')) {
                 return response()->json(['status' => 'skipped', 'reason' => 'message from me']);
+            }
+
+            // Skip if not a received message
+            if ($type !== 'ReceivedCallback') {
+                return response()->json(['status' => 'skipped', 'reason' => 'unknown type: ' . $type]);
             }
 
             // Find WhatsApp instance and tenant
@@ -48,11 +61,11 @@ class ZApiWebhookController extends Controller
             $instance = WhatsAppInstance::where('instance_id', $instanceId)->firstOrFail();
             $tenant = $instance->tenant;
 
-            // Extract phone number (remove @c.us suffix if present)
-            $phone = str_replace('@c.us', '', $request->input('message.from'));
+            // Extract phone number (clean format)
+            $phone = $request->input('phone');
 
             // Find or create lead
-            $lead = $this->findOrCreateLead($tenant, $phone);
+            $lead = $this->findOrCreateLead($tenant, $phone, $request->input('chatName'));
 
             // Create message
             $message = WhatsAppMessage::create([
@@ -61,10 +74,10 @@ class ZApiWebhookController extends Controller
                 'whatsapp_instance_id' => $instance->id,
                 'type' => $this->determineMessageType($request),
                 'direction' => MessageDirection::Incoming,
-                'content' => $request->input('message.body', ''),
-                'media_url' => $request->input('message.mediaUrl'),
+                'content' => $request->input('text.message', ''),
+                'media_url' => $request->input('image.imageUrl') ?? $request->input('video.videoUrl') ?? $request->input('audio.audioUrl') ?? null,
                 'status' => MessageStatus::Delivered,
-                'remote_message_id' => $request->input('message.id'),
+                'remote_message_id' => $request->input('messageId'),
             ]);
 
             // Broadcast event for real-time updates
@@ -107,7 +120,7 @@ class ZApiWebhookController extends Controller
     /**
      * Find or create lead by phone number
      */
-    private function findOrCreateLead(Tenant $tenant, string $phone): Lead
+    private function findOrCreateLead(Tenant $tenant, string $phone, ?string $chatName = null): Lead
     {
         // Try to find lead by any whatsapp field
         $lead = Lead::where('tenant_id', $tenant->id)
@@ -126,9 +139,9 @@ class ZApiWebhookController extends Controller
         // Create new lead if not found
         $lead = Lead::create([
             'tenant_id' => $tenant->id,
-            'full_name' => 'Unknown Contact',
+            'full_name' => $chatName ?: 'Unknown Contact (' . substr($phone, -4) . ')',
             'whatsapps' => [$phone],
-            'primary_whatsapp_index' => 1,
+            'primary_whatsapp_index' => 0,
             'source' => 'whatsapp',
             'consent_status' => 'pending',
         ]);
@@ -148,18 +161,74 @@ class ZApiWebhookController extends Controller
      */
     private function determineMessageType(Request $request): MessageType
     {
-        if ($request->has('message.image')) {
+        if ($request->has('image')) {
             return MessageType::Image;
         }
 
-        if ($request->has('message.audio')) {
+        if ($request->has('audio')) {
             return MessageType::Audio;
         }
 
-        if ($request->has('message.document')) {
+        if ($request->has('video')) {
+            return MessageType::Image; // Treat video as image for now
+        }
+
+        if ($request->has('document')) {
             return MessageType::Document;
         }
 
         return MessageType::Text;
+    }
+
+    /**
+     * Handle message status updates (sent, delivered, read)
+     * DeliveryCallback format from Z-API
+     */
+    private function handleMessageStatus(Request $request): JsonResponse
+    {
+        try {
+            $messageId = $request->input('messageId');
+            $type = $request->input('type'); // DeliveryCallback
+
+            Log::info('Delivery callback received', [
+                'messageId' => $messageId,
+                'type' => $type,
+                'phone' => $request->input('phone'),
+            ]);
+
+            if (! $messageId) {
+                return response()->json(['status' => 'skipped', 'reason' => 'no message ID']);
+            }
+
+            // Find message by remote_message_id
+            $message = WhatsAppMessage::where('remote_message_id', $messageId)->first();
+
+            if (! $message) {
+                Log::warning('Message not found for delivery callback', [
+                    'messageId' => $messageId,
+                ]);
+
+                return response()->json(['status' => 'not_found']);
+            }
+
+            // DeliveryCallback means message was delivered
+            $oldStatus = $message->status;
+            $message->update(['status' => MessageStatus::Delivered]);
+
+            Log::info('Message status updated via delivery callback', [
+                'message_id' => $message->id,
+                'old_status' => $oldStatus,
+                'new_status' => 'delivered',
+            ]);
+
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error('Error handling delivery callback', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['status' => 'error'], 500);
+        }
     }
 }

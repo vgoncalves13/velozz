@@ -26,10 +26,15 @@ class InboxConversation extends Component
 
     public int $refreshKey = 0;
 
+    private ?int $previousIncomingCount = null;
+
     public function mount(int $leadId): void
     {
         $this->leadId = $leadId;
         $this->lead = Lead::with('assignedUser', 'whatsappMessages')->findOrFail($leadId);
+
+        // Initialize incoming count on mount
+        $this->previousIncomingCount = $this->getIncomingMessageCount();
     }
 
     public function getMessagesProperty()
@@ -37,6 +42,26 @@ class InboxConversation extends Component
         return WhatsAppMessage::where('lead_id', $this->leadId)
             ->orderBy('created_at')
             ->get();
+    }
+
+    private function getIncomingMessageCount(): int
+    {
+        return WhatsAppMessage::where('lead_id', $this->leadId)
+            ->where('direction', 'incoming')
+            ->count();
+    }
+
+    public function hydrate(): void
+    {
+        // Check for new incoming messages after every render
+        $currentIncomingCount = $this->getIncomingMessageCount();
+
+        if ($this->previousIncomingCount !== null && $currentIncomingCount > $this->previousIncomingCount) {
+            // New incoming message detected - dispatch browser event
+            $this->dispatch('new-incoming-message');
+        }
+
+        $this->previousIncomingCount = $currentIncomingCount;
     }
 
     public function getListeners(): array
@@ -170,13 +195,6 @@ class InboxConversation extends Component
         $this->closeTransferModal();
 
         $this->dispatch('conversation-transferred');
-    }
-
-
-    public function refreshMessages(): void
-    {
-        // Manual refresh for debugging
-        $this->refreshKey++;
     }
 
     public function getOperatorsProperty()
