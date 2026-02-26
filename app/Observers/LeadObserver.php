@@ -44,11 +44,16 @@ class LeadObserver
 
             // Special handling for assigned user change
             if ($field === 'assigned_user_id' && $oldValue !== $newValue) {
+                // Load the assigned user if needed
+                if ($newValue && ! $lead->relationLoaded('assignedUser')) {
+                    $lead->load('assignedUser');
+                }
+
                 \App\Models\LeadActivity::create([
                     'tenant_id' => $lead->tenant_id,
                     'lead_id' => $lead->id,
                     'type' => 'assigned',
-                    'description' => $newValue
+                    'description' => $newValue && $lead->assignedUser
                         ? "Lead assigned to {$lead->assignedUser->name}"
                         : 'Lead unassigned',
                     'metadata' => [
