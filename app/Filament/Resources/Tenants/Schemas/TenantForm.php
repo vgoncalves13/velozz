@@ -23,7 +23,7 @@ class TenantForm
                             ->afterStateUpdated(function (string $operation, $state, Set $set) {
                                 if ($operation === 'create') {
                                     $set('slug', Str::slug($state));
-                                    $set('domain', Str::slug($state) . '.velozz.test');
+                                    $set('domain', Str::slug($state).'.velozz.test');
                                 }
                             }),
 

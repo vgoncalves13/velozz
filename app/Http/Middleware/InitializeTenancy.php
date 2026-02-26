@@ -14,7 +14,7 @@ class InitializeTenancy
         $host = $request->getHost();
 
         // Check if this is a tenant subdomain
-        if (!str_ends_with($host, '.velozz.test') || $host === 'velozz.test') {
+        if (! str_ends_with($host, '.velozz.test') || $host === 'velozz.test') {
             // Not a tenant request, continue normally
             return $next($request);
         }
@@ -22,7 +22,7 @@ class InitializeTenancy
         // Find tenant by domain
         $tenant = Tenant::where('domain', $host)->first();
 
-        if (!$tenant) {
+        if (! $tenant) {
             abort(404, 'Tenant not found');
         }
 

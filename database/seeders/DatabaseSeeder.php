@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class, // 2. Create roles and permissions (needed by users)
             AdminMasterSeeder::class,         // 3. Create admin master user (needs roles)
             DemoTenantsSeeder::class,         // 4. Create demo tenants and users (needs plans and roles)
+            PipelineStagesSeeder::class,
         ]);
     }
 }
