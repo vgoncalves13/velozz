@@ -10,6 +10,8 @@ class WhatsAppTemplate extends Model
 {
     use HasTenantScope;
 
+    protected $table = 'whatsapp_templates';
+
     protected $fillable = [
         'tenant_id',
         'name',

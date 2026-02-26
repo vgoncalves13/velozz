@@ -10,6 +10,8 @@ class WhatsAppMessage extends Model
 {
     use HasTenantScope;
 
+    protected $table = 'whatsapp_messages';
+
     protected $fillable = [
         'tenant_id',
         'lead_id',

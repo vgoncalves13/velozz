@@ -11,6 +11,8 @@ class WhatsAppInstance extends Model
 {
     use HasTenantScope;
 
+    protected $table = 'whatsapp_instances';
+
     protected $fillable = [
         'tenant_id',
         'instance_id',
