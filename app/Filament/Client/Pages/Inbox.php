@@ -4,6 +4,8 @@ namespace App\Filament\Client\Pages;
 
 use App\Models\Lead;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 
@@ -44,7 +46,7 @@ class Inbox extends Page
 
     public function getLeadsWithMessages()
     {
-        return Lead::where('tenant_id', auth()->user()->tenant_id)
+        $leadsWithMessages = Lead::where('tenant_id', auth()->user()->tenant_id)
             ->whereHas('whatsappMessages')
             ->withCount(['whatsappMessages as unread_count' => function ($query) {
                 $query->where('direction', 'incoming')
@@ -53,10 +55,29 @@ class Inbox extends Page
             ->with(['whatsappMessages' => function ($query) {
                 $query->latest()->limit(1);
             }])
-            ->get()
-            ->sortByDesc(function ($lead) {
-                return $lead->whatsappMessages->first()?->created_at;
-            });
+            ->get();
+
+        // If a lead is selected but not in the list (no messages yet), add it
+        if ($this->selectedLeadId) {
+            $selectedLead = Lead::where('id', $this->selectedLeadId)
+                ->where('tenant_id', auth()->user()->tenant_id)
+                ->withCount(['whatsappMessages as unread_count' => function ($query) {
+                    $query->where('direction', 'incoming')
+                        ->where('status', '!=', 'read');
+                }])
+                ->with(['whatsappMessages' => function ($query) {
+                    $query->latest()->limit(1);
+                }])
+                ->first();
+
+            if ($selectedLead && ! $leadsWithMessages->contains('id', $selectedLead->id)) {
+                $leadsWithMessages->prepend($selectedLead);
+            }
+        }
+
+        return $leadsWithMessages->sortByDesc(function ($lead) {
+            return $lead->whatsappMessages->first()?->created_at ?? $lead->created_at;
+        });
     }
 
     public function getListeners(): array
@@ -87,5 +108,39 @@ class Inbox extends Page
     {
         // Update the conversation list
         $this->refreshKey++;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('newConversation')
+                ->label('New Conversation')
+                ->icon('heroicon-o-plus-circle')
+                ->color('primary')
+                ->form([
+                    Select::make('lead_id')
+                        ->label('Select Lead')
+                        ->searchable()
+                        ->getSearchResultsUsing(function (string $search): array {
+                            return Lead::where('tenant_id', auth()->user()->tenant_id)
+                                ->where(function ($query) use ($search) {
+                                    $query->where('full_name', 'like', "%{$search}%")
+                                        ->orWhere('email', 'like', "%{$search}%")
+                                        ->orWhereJsonContains('phones', $search)
+                                        ->orWhereJsonContains('whatsapps', $search);
+                                })
+                                ->limit(50)
+                                ->pluck('full_name', 'id')
+                                ->toArray();
+                        })
+                        ->getOptionLabelUsing(fn ($value): ?string => Lead::find($value)?->full_name)
+                        ->required()
+                        ->helperText('Search by name, email, phone or WhatsApp number'),
+                ])
+                ->action(function (array $data): void {
+                    $this->selectedLeadId = $data['lead_id'];
+                    $this->refreshKey++;
+                }),
+        ];
     }
 }
