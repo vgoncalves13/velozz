@@ -104,6 +104,11 @@ class Lead extends Model
         return $this->hasMany(WhatsAppMessage::class);
     }
 
+    public function opportunities(): HasMany
+    {
+        return $this->hasMany(Opportunity::class);
+    }
+
     /**
      * Get the primary WhatsApp number
      */
