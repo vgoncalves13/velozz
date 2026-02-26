@@ -51,6 +51,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Tenant::class);
     }
 
+    public function assignedLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Lead::class, 'assigned_user_id');
+    }
+
+    public function sentMessages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WhatsAppMessage::class, 'sent_by_user_id');
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
