@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\LeadActivityType;
 use App\Helpers\AuditHelper;
 use App\Helpers\NormalizationHelper;
+use App\Helpers\WebhookHelper;
 use App\Models\Import;
 use App\Models\Lead;
 use App\Models\LeadActivity;
@@ -192,6 +193,17 @@ class ProcessImport implements ShouldQueue
                 tenantId: $this->import->tenant_id,
                 userId: $this->import->user_id
             );
+
+            // Dispatch webhook for import completion
+            WebhookHelper::dispatch('import_completed', [
+                'import_id' => $this->import->id,
+                'filename' => $this->import->filename,
+                'total_rows' => $this->import->total_rows,
+                'imported' => $imported,
+                'duplicated' => $duplicated,
+                'errors' => $errors,
+                'completed_at' => now()->toIso8601String(),
+            ], $this->import->tenant_id);
 
             // Clean up file after processing
             if (Storage::disk('local')->exists($this->import->filename)) {

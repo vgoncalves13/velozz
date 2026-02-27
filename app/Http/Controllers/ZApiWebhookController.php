@@ -7,6 +7,7 @@ use App\Enums\MessageDirection;
 use App\Enums\MessageStatus;
 use App\Enums\MessageType;
 use App\Events\MessageReceived;
+use App\Helpers\WebhookHelper;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\Tenant;
@@ -53,7 +54,7 @@ class ZApiWebhookController extends Controller
 
             // Skip if not a received message
             if ($type !== 'ReceivedCallback') {
-                return response()->json(['status' => 'skipped', 'reason' => 'unknown type: ' . $type]);
+                return response()->json(['status' => 'skipped', 'reason' => 'unknown type: '.$type]);
             }
 
             // Find WhatsApp instance and tenant
@@ -94,6 +95,17 @@ class ZApiWebhookController extends Controller
                     'content_preview' => substr($message->content, 0, 50),
                 ],
             ]);
+
+            // Dispatch webhook for message received
+            WebhookHelper::dispatch('message_received', [
+                'message_id' => $message->id,
+                'lead_id' => $lead->id,
+                'lead_name' => $lead->full_name,
+                'phone' => $phone,
+                'content' => $message->content,
+                'type' => $message->type->value,
+                'received_at' => $message->created_at->toIso8601String(),
+            ], $tenant->id);
 
             // TODO: Notify assigned operator if exists
             // if ($lead->assigned_user_id) {
@@ -139,7 +151,7 @@ class ZApiWebhookController extends Controller
         // Create new lead if not found
         $lead = Lead::create([
             'tenant_id' => $tenant->id,
-            'full_name' => $chatName ?: 'Unknown Contact (' . substr($phone, -4) . ')',
+            'full_name' => $chatName ?: 'Unknown Contact ('.substr($phone, -4).')',
             'whatsapps' => [$phone],
             'primary_whatsapp_index' => 0,
             'source' => 'whatsapp',

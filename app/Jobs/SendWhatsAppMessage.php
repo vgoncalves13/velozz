@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\LeadActivityType;
 use App\Events\MessageSent;
 use App\Helpers\AuditHelper;
+use App\Helpers\WebhookHelper;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\WhatsAppInstance;
@@ -133,6 +134,17 @@ class SendWhatsAppMessage implements ShouldQueue
                 ],
                 'user_id' => $this->userId,
             ]);
+
+            // Dispatch webhook for message sent
+            WebhookHelper::dispatch('message_sent', [
+                'message_id' => $whatsappMessage->id,
+                'lead_id' => $this->lead->id,
+                'lead_name' => $this->lead->full_name,
+                'phone' => $phone,
+                'content' => $this->message,
+                'type' => $this->type,
+                'sent_at' => $whatsappMessage->created_at->toIso8601String(),
+            ], $this->lead->tenant_id);
         } catch (\Exception $e) {
             Log::error('Failed to send WhatsApp message', [
                 'lead_id' => $this->lead->id,

@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Enums\LeadActivityType;
 use App\Helpers\AuditHelper;
+use App\Helpers\WebhookHelper;
 use App\Models\Lead;
 use App\Models\User;
 
@@ -25,6 +26,18 @@ class LeadObserver
             ],
             'user_id' => auth()->id(),
         ]);
+
+        // Dispatch webhook for lead creation
+        WebhookHelper::dispatch('lead_created', [
+            'lead_id' => $lead->id,
+            'full_name' => $lead->full_name,
+            'email' => $lead->email,
+            'phones' => $lead->phones,
+            'whatsapps' => $lead->whatsapps,
+            'source' => $lead->source,
+            'assigned_user_id' => $lead->assigned_user_id,
+            'created_at' => $lead->created_at->toIso8601String(),
+        ], $lead->tenant_id);
     }
 
     /**
@@ -78,17 +91,32 @@ class LeadObserver
                     $newUser ? ['assigned_user_id' => $newValue, 'user_name' => $newUser->name] : null
                 );
 
+                // Dispatch webhook for lead transfer
+                WebhookHelper::dispatch('lead_transferred', [
+                    'lead_id' => $lead->id,
+                    'full_name' => $lead->full_name,
+                    'old_user' => $oldUser ? ['id' => $oldUser->id, 'name' => $oldUser->name] : null,
+                    'new_user' => $newUser ? ['id' => $newUser->id, 'name' => $newUser->name] : null,
+                ], $lead->tenant_id);
+
                 continue;
             }
 
             // Special handling for pipeline stage change
             if ($field === 'pipeline_stage_id' && $oldValue !== $newValue) {
+                // Load stage if needed
+                if ($newValue && ! $lead->relationLoaded('pipelineStage')) {
+                    $lead->load('pipelineStage');
+                }
+
+                $stageName = $newValue && $lead->pipelineStage ? $lead->pipelineStage->name : null;
+
                 \App\Models\LeadActivity::create([
                     'tenant_id' => $lead->tenant_id,
                     'lead_id' => $lead->id,
                     'type' => LeadActivityType::StageChanged,
                     'description' => $newValue
-                        ? "Lead moved to {$lead->pipelineStage->name}"
+                        ? "Lead moved to {$stageName}"
                         : 'Lead removed from pipeline',
                     'metadata' => [
                         'old_stage_id' => $oldValue,
@@ -96,6 +124,15 @@ class LeadObserver
                     ],
                     'user_id' => auth()->id(),
                 ]);
+
+                // Dispatch webhook for stage change
+                WebhookHelper::dispatch('stage_changed', [
+                    'lead_id' => $lead->id,
+                    'full_name' => $lead->full_name,
+                    'old_stage_id' => $oldValue,
+                    'new_stage_id' => $newValue,
+                    'stage_name' => $stageName,
+                ], $lead->tenant_id);
 
                 continue;
             }
