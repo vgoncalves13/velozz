@@ -18,11 +18,13 @@ class WhatsAppConfig extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
 
-    protected static ?string $navigationLabel = 'WhatsApp';
+    protected static ?string $navigationLabel = 'WhatsApp Config';
+
+    protected static string|null|\UnitEnum $navigationGroup = 'WhatsApp';
 
     protected static ?string $title = 'WhatsApp Configuration';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public ?WhatsAppInstance $instance = null;
 

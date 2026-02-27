@@ -22,7 +22,9 @@ class OpportunityResource extends Resource
 
     protected static ?string $navigationLabel = 'Opportunities';
 
-    protected static ?int $navigationSort = 7;
+    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
+
+    protected static ?int $navigationSort = 4;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

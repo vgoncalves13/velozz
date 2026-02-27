@@ -13,6 +13,8 @@ class Inbox extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
+    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
+
     protected string $view = 'filament.client.pages.inbox';
 
     protected static ?int $navigationSort = 1;

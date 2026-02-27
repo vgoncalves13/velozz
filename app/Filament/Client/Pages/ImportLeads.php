@@ -36,6 +36,8 @@ class ImportLeads extends Page
 
     protected static ?string $navigationLabel = 'Import Leads';
 
+    protected static string|null|\UnitEnum $navigationGroup = 'System';
+
     protected static ?string $title = 'Import Leads';
 
     protected static ?int $navigationSort = 2;

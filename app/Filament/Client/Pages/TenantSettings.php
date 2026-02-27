@@ -34,9 +34,11 @@ class TenantSettings extends Page implements HasActions, HasForms
 
     protected static ?string $navigationLabel = 'Settings';
 
+    protected static string|null|\UnitEnum $navigationGroup = 'Configuration';
+
     protected static ?string $title = 'Settings';
 
-    protected static ?int $navigationSort = 99;
+    protected static ?int $navigationSort = 3;
 
     public ?array $data = [];
 

@@ -22,7 +22,9 @@ class ProductResource extends Resource
 
     protected static ?string $navigationLabel = 'Products';
 
-    protected static ?int $navigationSort = 6;
+    protected static string|null|\UnitEnum $navigationGroup = 'Catalog';
+
+    protected static ?int $navigationSort = 1;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

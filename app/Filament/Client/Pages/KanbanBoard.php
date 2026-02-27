@@ -18,6 +18,8 @@ class KanbanBoard extends Page
 
     protected static ?string $navigationLabel = 'Kanban Board';
 
+    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
+
     protected static ?int $navigationSort = 3;
 
     protected string $view = 'filament.client.pages.kanban-board';

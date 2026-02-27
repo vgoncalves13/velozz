@@ -26,7 +26,9 @@ class LeadResource extends Resource
 
     protected static ?string $navigationLabel = 'Leads';
 
-    protected static ?int $navigationSort = 1;
+    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

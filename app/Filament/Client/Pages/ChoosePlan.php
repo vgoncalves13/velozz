@@ -4,13 +4,19 @@ namespace App\Filament\Client\Pages;
 
 use App\Models\Plan;
 use App\Models\Tenant;
+use BackedEnum;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 
 class ChoosePlan extends Page
 {
     protected string $view = 'filament.client.pages.choose-plan';
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
+
     protected static ?string $navigationLabel = 'Choose Plan';
+
+    protected static string|null|\UnitEnum $navigationGroup = 'System';
 
     protected static ?string $title = 'Choose Your Plan';
 
