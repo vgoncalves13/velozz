@@ -26,5 +26,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \App\Models\Lead::observe(\App\Observers\LeadObserver::class);
+
+        // Listen to Stripe webhook events to update tenant plan
+        \Illuminate\Support\Facades\Event::listen(
+            \Laravel\Cashier\Events\WebhookReceived::class,
+            \App\Listeners\UpdateTenantPlanOnSubscription::class,
+        );
     }
 }
