@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Products\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -64,6 +65,16 @@ class ProductsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No products yet')
+            ->emptyStateDescription('Create your product catalog to start tracking opportunities and generating revenue.')
+            ->emptyStateIcon('heroicon-o-shopping-bag')
+            ->emptyStateActions([
+                Action::make('create')
+                    ->label('Create Product')
+                    ->url(fn (): string => \App\Filament\Client\Resources\Products\ProductResource::getUrl('create'))
+                    ->icon('heroicon-o-plus')
+                    ->color('primary'),
+            ]);
     }
 }

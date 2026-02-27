@@ -4,9 +4,9 @@ namespace App\Filament\Client\Resources\Products\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ProductForm
@@ -16,6 +16,7 @@ class ProductForm
         return $schema
             ->components([
                 Section::make('Basic Information')
+                    ->icon('heroicon-o-information-circle')
                     ->schema([
                         TextInput::make('name')
                             ->required()
@@ -27,18 +28,22 @@ class ProductForm
                             ->helperText('Display title (leave empty to use name)'),
 
                         TextInput::make('category')
+                            ->helperText('Product category for organization and filtering')
                             ->maxLength(255)
                             ->datalist(['Service', 'Product', 'Subscription', 'Consultation']),
 
                         Textarea::make('description')
+                            ->helperText('Detailed product description visible to your team')
                             ->rows(3)
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(['default' => 1, 'md' => 2]),
 
                 Section::make('Pricing')
+                    ->icon('heroicon-o-currency-euro')
                     ->schema([
                         TextInput::make('price')
+                            ->helperText('Base price per unit')
                             ->required()
                             ->numeric()
                             ->prefix('€')
@@ -47,6 +52,7 @@ class ProductForm
                             ->default(0),
 
                         Select::make('currency')
+                            ->helperText('Currency for pricing')
                             ->options([
                                 'EUR' => 'EUR (€)',
                                 'USD' => 'USD ($)',
@@ -61,6 +67,7 @@ class ProductForm
                             ->helperText('Unit of measurement'),
 
                         Select::make('status')
+                            ->helperText('Active products are available for creating opportunities')
                             ->options([
                                 'active' => 'Active',
                                 'inactive' => 'Inactive',
@@ -68,12 +75,14 @@ class ProductForm
                             ->default('active')
                             ->required(),
                     ])
-                    ->columns(2),
+                    ->columns(['default' => 1, 'md' => 2]),
 
                 Section::make('Image')
+                    ->icon('heroicon-o-photo')
                     ->schema([
                         FileUpload::make('image_url')
                             ->label('Product Image')
+                            ->helperText('Optional product image (max 2MB)')
                             ->image()
                             ->imageEditor()
                             ->directory('products')

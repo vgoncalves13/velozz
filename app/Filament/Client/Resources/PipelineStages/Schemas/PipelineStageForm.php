@@ -13,18 +13,20 @@ class PipelineStageForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(2)
+            ->columns(['default' => 1, 'md' => 2])
             ->components([
                 Section::make('Basic Information')
                     ->icon('heroicon-o-information-circle')
-                    ->columns(2)
+                    ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextInput::make('name')
+                            ->helperText('Stage name (e.g., "New Lead", "Contacted", "Proposal Sent", "Closed Won")')
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
 
                         ColorPicker::make('color')
+                            ->helperText('Color used to identify this stage in the Kanban board')
                             ->required()
                             ->default('#3b82f6'),
 
@@ -36,6 +38,7 @@ class PipelineStageForm
                             ->helperText('Order in which this stage appears in the pipeline'),
 
                         Select::make('icon')
+                            ->helperText('Icon displayed in the Kanban board header')
                             ->options([
                                 'heroicon-o-inbox' => 'Inbox',
                                 'heroicon-o-phone' => 'Phone',

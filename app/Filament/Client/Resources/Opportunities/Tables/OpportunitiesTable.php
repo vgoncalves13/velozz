@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Opportunities\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -85,6 +86,21 @@ class OpportunitiesTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No opportunities yet')
+            ->emptyStateDescription('Start tracking potential sales by creating opportunities from your leads.')
+            ->emptyStateIcon('heroicon-o-currency-euro')
+            ->emptyStateActions([
+                Action::make('create')
+                    ->label('Create Opportunity')
+                    ->url(fn (): string => \App\Filament\Client\Resources\Opportunities\OpportunityResource::getUrl('create'))
+                    ->icon('heroicon-o-plus')
+                    ->color('primary'),
+                Action::make('view_leads')
+                    ->label('View Leads')
+                    ->url('/app/leads')
+                    ->icon('heroicon-o-user-group')
+                    ->color('gray'),
+            ]);
     }
 }

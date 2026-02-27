@@ -9,7 +9,6 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,6 +17,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
@@ -33,6 +33,8 @@ class TenantSettings extends Page implements HasActions, HasForms
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static ?string $navigationLabel = 'Settings';
+
+    protected static ?string $title = 'Settings';
 
     protected static ?int $navigationSort = 99;
 
@@ -53,6 +55,7 @@ class TenantSettings extends Page implements HasActions, HasForms
         return $schema
             ->schema([
                 Section::make('Company Information')
+                    ->icon('heroicon-o-building-office')
                     ->description('Configure your company details and branding')
                     ->schema([
                         TextInput::make('name')
@@ -76,6 +79,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ->columns(2),
 
                 Section::make('Business Hours')
+                    ->icon('heroicon-o-clock')
                     ->description('Set your customer service hours')
                     ->schema([
                         TimePicker::make('settings.business_hours.start')
@@ -95,6 +99,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ->collapsible(),
 
                 Section::make('Custom Fields')
+                    ->icon('heroicon-o-squares-plus')
                     ->description('Add custom fields to your leads')
                     ->schema([
                         Repeater::make('settings.custom_fields')
@@ -127,6 +132,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ->collapsible(),
 
                 Section::make('Outbound Webhooks')
+                    ->icon('heroicon-o-arrow-up-right')
                     ->description('Configure webhooks to receive notifications about events')
                     ->schema([
                         Repeater::make('settings.webhooks')
@@ -163,6 +169,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ->collapsible(),
 
                 Section::make('GDPR Compliance')
+                    ->icon('heroicon-o-shield-check')
                     ->description('Configure data retention and privacy settings')
                     ->schema([
                         TextInput::make('settings.gdpr.anonymize_leads_inactive_months')
@@ -188,6 +195,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ->collapsible(),
 
                 Section::make('API Access')
+                    ->icon('heroicon-o-key')
                     ->description('Manage your API credentials')
                     ->schema([
                         TextInput::make('settings.api_key')

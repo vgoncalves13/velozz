@@ -4,8 +4,8 @@ namespace App\Filament\Client\Resources\Opportunities\Schemas;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -16,6 +16,7 @@ class OpportunityForm
         return $schema
             ->components([
                 Section::make('Opportunity Information')
+                    ->icon('heroicon-o-light-bulb')
                     ->schema([
                         Select::make('lead_id')
                             ->label('Lead')
@@ -36,12 +37,14 @@ class OpportunityForm
                             ->searchable()
                             ->helperText('Assign an operator to this opportunity'),
                     ])
-                    ->columns(2),
+                    ->columns(['default' => 1, 'md' => 2]),
 
                 Section::make('Value & Stage')
+                    ->icon('heroicon-o-chart-bar')
                     ->schema([
                         TextInput::make('value')
                             ->label('Value')
+                            ->helperText('Estimated revenue from this opportunity')
                             ->required()
                             ->numeric()
                             ->prefix('€')
@@ -51,6 +54,7 @@ class OpportunityForm
 
                         Select::make('stage')
                             ->label('Stage')
+                            ->helperText('Current stage in the sales process')
                             ->options([
                                 'proposal' => 'Proposal',
                                 'negotiation' => 'Negotiation',
@@ -74,9 +78,10 @@ class OpportunityForm
                             ->label('Expected Close Date')
                             ->helperText('When do you expect to close this deal?'),
                     ])
-                    ->columns(2),
+                    ->columns(['default' => 1, 'md' => 2]),
 
                 Section::make('Additional Information')
+                    ->icon('heroicon-o-document-text')
                     ->schema([
                         Textarea::make('notes')
                             ->label('Notes')

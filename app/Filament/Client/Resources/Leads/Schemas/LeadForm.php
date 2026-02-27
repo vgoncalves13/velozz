@@ -18,11 +18,12 @@ class LeadForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(2)
+            ->columns(['default' => 1, 'sm' => 1, 'md' => 2])
             ->components([
                 // Basic Information Section
                 Section::make('Basic Information')
-                    ->columns(2)
+                    ->icon('heroicon-o-user')
+                    ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextInput::make('full_name')
                             ->required()
@@ -31,7 +32,8 @@ class LeadForm
 
                         TextInput::make('email')
                             ->email()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->helperText('Email address for notifications and communication'),
 
                         Select::make('source')
                             ->options([
@@ -41,16 +43,19 @@ class LeadForm
                                 'form' => 'Form',
                             ])
                             ->default('manual')
+                            ->helperText('How this lead was acquired')
                             ->required(),
                     ]),
 
                 // Phone Numbers Section
                 Section::make('Contact Information')
+                    ->icon('heroicon-o-phone')
                     ->columns(1)
                     ->collapsible()
                     ->schema([
                         Repeater::make('phones')
                             ->label('Phone Numbers')
+                            ->helperText('Regular phone numbers for voice calls')
                             ->simple(
                                 TextInput::make('phone')
                                     ->tel()
@@ -65,6 +70,7 @@ class LeadForm
 
                         Repeater::make('whatsapps')
                             ->label('WhatsApp Numbers')
+                            ->helperText('WhatsApp numbers for messaging (must include country code)')
                             ->simple(
                                 TextInput::make('whatsapp')
                                     ->tel()
@@ -107,7 +113,8 @@ class LeadForm
 
                 // Address Section
                 Section::make('Address')
-                    ->columns(3)
+                    ->icon('heroicon-o-map-pin')
+                    ->columns(['default' => 1, 'md' => 2, 'lg' => 3])
                     ->collapsible()
                     ->schema([
                         TextInput::make('street_type')
@@ -137,16 +144,19 @@ class LeadForm
 
                 // Lead Management Section
                 Section::make('Lead Management')
-                    ->columns(2)
+                    ->icon('heroicon-o-briefcase')
+                    ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         Select::make('assigned_user_id')
                             ->label('Assigned To')
+                            ->helperText('Team member responsible for this lead')
                             ->relationship('assignedUser', 'name')
                             ->searchable()
                             ->preload(),
 
                         Select::make('pipeline_stage_id')
                             ->label('Pipeline Stage')
+                            ->helperText('Current stage in your sales pipeline')
                             ->relationship('pipelineStage', 'name')
                             ->searchable()
                             ->preload(),
@@ -158,18 +168,21 @@ class LeadForm
                                 'high' => 'High',
                                 'urgent' => 'Urgent',
                             ])
+                            ->helperText('Urgent: immediate action required | High: contact within 24h | Medium: contact within week | Low: standard follow-up')
                             ->default('medium')
                             ->required(),
 
                         TagsInput::make('tags')
                             ->separator(',')
+                            ->helperText('Add keywords for easy filtering (e.g., vip, hot-lead, follow-up)')
                             ->placeholder('Add tags...')
                             ->columnSpanFull(),
                     ]),
 
                 // Consent & Privacy Section
                 Section::make('Consent & Privacy')
-                    ->columns(2)
+                    ->icon('heroicon-o-shield-check')
+                    ->columns(['default' => 1, 'md' => 2])
                     ->collapsible()
                     ->schema([
                         Select::make('consent_status')
@@ -178,37 +191,46 @@ class LeadForm
                                 'granted' => 'Granted',
                                 'refused' => 'Refused',
                             ])
+                            ->helperText('GDPR consent status for communication')
                             ->default('pending')
                             ->required(),
 
-                        DatePicker::make('consent_date'),
+                        DatePicker::make('consent_date')
+                            ->helperText('Date when consent was given or refused'),
 
                         Toggle::make('opt_out')
-                            ->label('Opted Out'),
+                            ->label('Opted Out')
+                            ->helperText('Lead requested to stop receiving communications'),
 
                         Toggle::make('do_not_contact')
-                            ->label('Do Not Contact'),
+                            ->label('Do Not Contact')
+                            ->helperText('Internal flag to prevent all contact (e.g., legal restriction)'),
 
                         TextInput::make('opt_out_reason')
+                            ->helperText('Reason for opting out')
                             ->maxLength(255)
                             ->columnSpanFull(),
 
                         DatePicker::make('opt_out_date')
+                            ->helperText('Date when lead opted out')
                             ->columnSpanFull(),
                     ]),
 
                 // Notes & Custom Fields Section
                 Section::make('Additional Information')
+                    ->icon('heroicon-o-document-text')
                     ->columns(1)
                     ->collapsible()
                     ->schema([
                         Textarea::make('notes')
+                            ->helperText('Internal notes about this lead (not visible to the lead)')
                             ->rows(4)
                             ->columnSpanFull(),
 
                         KeyValue::make('custom_fields')
                             ->keyLabel('Field Name')
                             ->valueLabel('Value')
+                            ->helperText('Add any additional information specific to your business needs')
                             ->addButtonLabel('Add Custom Field')
                             ->columnSpanFull(),
                     ]),

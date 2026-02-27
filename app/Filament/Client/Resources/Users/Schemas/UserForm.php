@@ -3,9 +3,9 @@
 namespace App\Filament\Client\Resources\Users\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class UserForm

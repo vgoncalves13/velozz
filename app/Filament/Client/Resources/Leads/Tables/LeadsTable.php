@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Leads\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -196,6 +197,21 @@ class LeadsTable
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No leads yet')
+            ->emptyStateDescription('Start building your pipeline by creating your first lead or importing from a spreadsheet.')
+            ->emptyStateIcon('heroicon-o-user-group')
+            ->emptyStateActions([
+                Action::make('create')
+                    ->label('Create Lead')
+                    ->url(fn (): string => \App\Filament\Client\Resources\Leads\LeadResource::getUrl('create'))
+                    ->icon('heroicon-o-plus')
+                    ->color('primary'),
+                Action::make('import')
+                    ->label('Import Leads')
+                    ->url('/app/import-leads')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->color('gray'),
+            ]);
     }
 }

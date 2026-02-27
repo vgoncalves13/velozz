@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Resources\Leads\Pages;
 
 use App\Filament\Client\Resources\Leads\LeadResource;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateLead extends CreateRecord
@@ -15,5 +16,13 @@ class CreateLead extends CreateRecord
         $data['tenant_id'] = auth()->user()->tenant_id;
 
         return $data;
+    }
+
+    protected function getCreatedNotification(): ?Notification
+    {
+        return Notification::make()
+            ->success()
+            ->title('Lead created successfully')
+            ->body('The lead has been added to your pipeline.');
     }
 }

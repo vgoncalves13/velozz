@@ -99,6 +99,55 @@ class ClientPanelProvider extends PanelProvider
                 </style>', ['color' => $primaryColor]);
             },
         );
+
+        // Add meta tags for SEO and social sharing
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            function (): string {
+                $tenant = app()->bound('tenant') ? app('tenant') : null;
+                $tenantName = $tenant?->name ?? 'VELOZZ.DIGITAL';
+                $description = "Professional CRM platform for {$tenantName} - Manage leads, WhatsApp conversations, and sales pipeline in one place.";
+
+                return Blade::render('
+                    <meta name="description" content="{{ $description }}">
+                    <meta name="author" content="{{ $tenantName }}">
+
+                    <!-- Open Graph / Facebook -->
+                    <meta property="og:type" content="website">
+                    <meta property="og:title" content="{{ $tenantName }} - CRM Platform">
+                    <meta property="og:description" content="{{ $description }}">
+                    <meta property="og:site_name" content="{{ $tenantName }}">
+
+                    <!-- Twitter -->
+                    <meta name="twitter:card" content="summary_large_image">
+                    <meta name="twitter:title" content="{{ $tenantName }} - CRM Platform">
+                    <meta name="twitter:description" content="{{ $description }}">
+
+                    <!-- Favicon -->
+                    <link rel="icon" type="image/x-icon" href="{{ asset(\'favicon.ico\') }}">
+                    <link rel="apple-touch-icon" href="{{ asset(\'favicon.ico\') }}">
+                ', [
+                    'tenantName' => $tenantName,
+                    'description' => $description,
+                ]);
+            },
+        );
+
+        // Add loading indicator
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            fn (): string => '<div
+                x-data="{ loading: false }"
+                x-on:livewire:navigating.window="loading = true"
+                x-on:livewire:navigated.window="loading = false"
+                x-show="loading"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:leave="transition ease-in duration-300"
+                class="fixed top-0 left-0 right-0 h-1 bg-primary-600 z-[9999]"
+                style="display: none;">
+                <div class="h-full bg-primary-400 animate-pulse"></div>
+            </div>',
+        );
     }
 
     public function panel(Panel $panel): Panel
@@ -138,6 +187,7 @@ class ClientPanelProvider extends PanelProvider
                 return null;
             })
             ->brandLogoHeight('2.5rem')
+            ->favicon(asset('favicon.ico'))
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
             ->pages([
