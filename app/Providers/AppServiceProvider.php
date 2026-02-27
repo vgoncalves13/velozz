@@ -32,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
             \Laravel\Cashier\Events\WebhookReceived::class,
             \App\Listeners\UpdateTenantPlanOnSubscription::class,
         );
+
+        // Listen to authentication events for audit logging
+        \Illuminate\Support\Facades\Event::subscribe(
+            \App\Listeners\LogAuthenticationEvents::class
+        );
     }
 }

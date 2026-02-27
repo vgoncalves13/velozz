@@ -3,7 +3,9 @@
 namespace App\Observers;
 
 use App\Enums\LeadActivityType;
+use App\Helpers\AuditHelper;
 use App\Models\Lead;
+use App\Models\User;
 
 class LeadObserver
 {
@@ -50,6 +52,9 @@ class LeadObserver
                     $lead->load('assignedUser');
                 }
 
+                $oldUser = $oldValue ? User::find($oldValue) : null;
+                $newUser = $newValue ? $lead->assignedUser : null;
+
                 \App\Models\LeadActivity::create([
                     'tenant_id' => $lead->tenant_id,
                     'lead_id' => $lead->id,
@@ -63,6 +68,15 @@ class LeadObserver
                     ],
                     'user_id' => auth()->id(),
                 ]);
+
+                // Log lead transfer for audit
+                AuditHelper::log(
+                    'lead_transfer',
+                    'lead',
+                    $lead->id,
+                    $oldUser ? ['assigned_user_id' => $oldValue, 'user_name' => $oldUser->name] : null,
+                    $newUser ? ['assigned_user_id' => $newValue, 'user_name' => $newUser->name] : null
+                );
 
                 continue;
             }

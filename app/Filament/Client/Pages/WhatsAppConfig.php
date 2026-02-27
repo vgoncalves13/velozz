@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Helpers\AuditHelper;
 use App\Models\WhatsAppInstance;
 use App\Services\ZApi\ZApiServiceInterface;
 use BackedEnum;
@@ -10,7 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Str;
 
 class WhatsAppConfig extends Page
 {
@@ -80,6 +80,12 @@ class WhatsAppConfig extends Page
                     $this->instance->update([
                         'status' => 'connecting',
                         'qr_code' => $response['qrcode'],
+                    ]);
+
+                    // Log QR code access
+                    AuditHelper::log('qr_code_access', 'whatsapp_instance', $this->instance->id, null, [
+                        'instance_id' => $this->instance->instance_id,
+                        'action' => 'generated',
                     ]);
 
                     Notification::make()

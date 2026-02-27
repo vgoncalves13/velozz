@@ -122,13 +122,14 @@ Filament V5 supports multiple panels. We'll use:
 #### `leads`
 - id, tenant_id
 - full_name (required), email
-- phone_1 to phone_10, whatsapp_1 to whatsapp_10
-- main_whatsapp_index (1-10)
+- phones (JSON array - dynamic list of phone numbers)
+- whatsapps (JSON array - dynamic list of WhatsApp numbers)
+- primary_whatsapp_index (index of primary WhatsApp in array)
 - street_type, street_name, number, complement
 - neighborhood, district, region, city, postal_code
 - country (default: 'Portugal')
 - source (import/manual/api/form)
-- responsible_id (FK users), pipeline_stage_id (FK)
+- assigned_user_id (FK users), pipeline_stage_id (FK)
 - tags (JSON array), priority (low/medium/high/urgent)
 - consent_status (pending/consented/refused)
 - consent_date, opt_out (boolean), opt_out_reason, opt_out_date

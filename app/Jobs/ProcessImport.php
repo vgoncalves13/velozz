@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\LeadActivityType;
+use App\Helpers\AuditHelper;
 use App\Helpers\NormalizationHelper;
 use App\Models\Import;
 use App\Models\Lead;
@@ -174,6 +175,23 @@ class ProcessImport implements ShouldQueue
                 'errors' => $errors,
                 'report' => $report,
             ]);
+
+            // Log import completion
+            AuditHelper::log(
+                action: 'import_completed',
+                entity: 'import',
+                entityId: $this->import->id,
+                previousData: null,
+                newData: [
+                    'filename' => $this->import->filename,
+                    'total_rows' => $this->import->total_rows,
+                    'imported' => $imported,
+                    'duplicated' => $duplicated,
+                    'errors' => $errors,
+                ],
+                tenantId: $this->import->tenant_id,
+                userId: $this->import->user_id
+            );
 
             // Clean up file after processing
             if (Storage::disk('local')->exists($this->import->filename)) {

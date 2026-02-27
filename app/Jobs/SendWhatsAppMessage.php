@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Enums\LeadActivityType;
 use App\Events\MessageSent;
+use App\Helpers\AuditHelper;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\WhatsAppInstance;
@@ -77,6 +78,23 @@ class SendWhatsAppMessage implements ShouldQueue
                 'status' => 'pending',
                 'sent_by_user_id' => $this->userId,
             ]);
+
+            // Log message attempt IMMEDIATELY (before anything can fail)
+            AuditHelper::log(
+                action: 'send_message',
+                entity: 'whatsapp_message',
+                entityId: $whatsappMessage->id,
+                previousData: null,
+                newData: [
+                    'lead_id' => $this->lead->id,
+                    'lead_name' => $this->lead->full_name,
+                    'phone' => $phone,
+                    'type' => $this->type,
+                    'status' => 'pending',
+                ],
+                tenantId: $this->lead->tenant_id,
+                userId: $this->userId
+            );
 
             // Send message via Z-API
             if ($this->type === 'text') {

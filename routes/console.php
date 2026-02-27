@@ -18,3 +18,14 @@ Schedule::command('subscriptions:check')
     ->onFailure(function () {
         error('Subscription check failed');
     });
+
+Schedule::command('gdpr:cleanup')
+    ->monthly()
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->onSuccess(function () {
+        info('GDPR cleanup completed successfully');
+    })
+    ->onFailure(function () {
+        error('GDPR cleanup failed');
+    });
