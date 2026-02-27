@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Helpers\GoogleSheetsHelper;
 use App\Jobs\ProcessImport;
 use App\Models\Import;
 use App\Models\User;
@@ -9,8 +10,10 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -44,6 +47,107 @@ class ImportLeads extends Page
     public ?array $headers = null;
 
     public ?array $suggestedMapping = null;
+
+    /**
+     * Process uploaded file and extract headers/data
+     */
+    protected function processFile($state, $set): void
+    {
+        // Get the real path from TemporaryUploadedFile object
+        if (is_string($state)) {
+            // State is already a path string
+            $filePath = Storage::disk('local')->path($state);
+        } else {
+            // State is TemporaryUploadedFile object
+            $filePath = $state->getRealPath();
+        }
+
+        if (! file_exists($filePath)) {
+            throw new \Exception('Unable to read uploaded file. Please try again.');
+        }
+
+        $data = Excel::toArray([], $filePath);
+        $rows = $data[0] ?? [];
+
+        if (empty($rows)) {
+            throw new \Exception('The uploaded file has no data');
+        }
+
+        // First row = headers
+        $headers = array_shift($rows);
+
+        // Get first 20 rows for preview
+        $previewRows = array_slice($rows, 0, 20);
+
+        // Auto-map headers
+        $mapping = $this->autoMapHeaders($headers);
+
+        // Set state for mapping step
+        $set('headers', $headers);
+        $set('mapping', $mapping);
+        $set('preview_rows', $previewRows);
+        $set('total_rows', count($rows));
+
+        Notification::make()
+            ->title('File processed!')
+            ->body('Found '.count($headers).' columns and '.count($rows).' rows. Proceed to mapping step.')
+            ->success()
+            ->send();
+    }
+
+    /**
+     * Fetch data from Google Sheets URL
+     */
+    protected function fetchGoogleSheets(string $url, $set): void
+    {
+        // Validate URL
+        if (! GoogleSheetsHelper::isValidGoogleSheetsUrl($url)) {
+            throw new \Exception('Invalid Google Sheets URL. Please check the URL and try again.');
+        }
+
+        // Download as CSV
+        $filename = GoogleSheetsHelper::downloadAsCsv($url, auth()->user()->tenant_id);
+
+        // Get file path
+        $filePath = Storage::disk('local')->path($filename);
+
+        if (! file_exists($filePath)) {
+            throw new \Exception('Failed to download Google Sheets. Make sure the sheet is published as public.');
+        }
+
+        // Process the downloaded CSV
+        $data = Excel::toArray([], $filePath);
+        $rows = $data[0] ?? [];
+
+        if (empty($rows)) {
+            // Clean up file
+            Storage::disk('local')->delete($filename);
+            throw new \Exception('The Google Sheet has no data');
+        }
+
+        // First row = headers
+        $headers = array_shift($rows);
+
+        // Get first 20 rows for preview
+        $previewRows = array_slice($rows, 0, 20);
+
+        // Auto-map headers
+        $mapping = $this->autoMapHeaders($headers);
+
+        // Set state for mapping step
+        $set('file', $filename);
+        $set('headers', $headers);
+        $set('mapping', $mapping);
+        $set('preview_rows', $previewRows);
+        $set('total_rows', count($rows));
+        $set('is_google_sheets', true);
+
+        Notification::make()
+            ->title('Google Sheets fetched!')
+            ->body('Found '.count($headers).' columns and '.count($rows).' rows. Proceed to mapping step.')
+            ->success()
+            ->send();
+    }
 
     /**
      * Get available Lead fields for mapping
@@ -139,12 +243,28 @@ class ImportLeads extends Page
                 ->modalSubmitAction(false)
                 ->schema([
                     Wizard::make([
-                        Step::make('Upload')
-                            ->description('Upload Excel or CSV file')
+                        Step::make('Source')
+                            ->description('Choose import source')
                             ->schema([
+                                Radio::make('import_source')
+                                    ->label('Import Source')
+                                    ->options([
+                                        'file' => 'Upload File (.xlsx, .csv)',
+                                        'google_sheets' => 'Google Sheets URL',
+                                    ])
+                                    ->descriptions([
+                                        'file' => 'Upload an Excel or CSV file from your computer',
+                                        'google_sheets' => 'Import directly from a published Google Sheet',
+                                    ])
+                                    ->default('file')
+                                    ->required()
+                                    ->live()
+                                    ->columnSpanFull(),
+
                                 FileUpload::make('file')
                                     ->label('File')
-                                    ->required()
+                                    ->required(fn ($get) => $get('import_source') === 'file')
+                                    ->visible(fn ($get) => $get('import_source') === 'file')
                                     ->acceptedFileTypes([
                                         'application/vnd.ms-excel',
                                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -162,57 +282,7 @@ class ImportLeads extends Page
                                         }
 
                                         try {
-                                            // Get the real path from TemporaryUploadedFile object
-                                            if (is_string($state)) {
-                                                // State is already a path string
-                                                $filePath = Storage::disk('local')->path($state);
-                                            } else {
-                                                // State is TemporaryUploadedFile object
-                                                $filePath = $state->getRealPath();
-                                            }
-
-                                            if (! file_exists($filePath)) {
-                                                Notification::make()
-                                                    ->title('File not found')
-                                                    ->body('Unable to read uploaded file. Please try again.')
-                                                    ->danger()
-                                                    ->send();
-
-                                                return;
-                                            }
-
-                                            $data = Excel::toArray([], $filePath);
-                                            $rows = $data[0] ?? [];
-
-                                            if (empty($rows)) {
-                                                Notification::make()
-                                                    ->title('Empty file')
-                                                    ->body('The uploaded file has no data')
-                                                    ->warning()
-                                                    ->send();
-
-                                                return;
-                                            }
-
-                                            // First row = headers
-                                            $headers = array_shift($rows);
-
-                                            // Get first 20 rows for preview
-                                            $previewRows = array_slice($rows, 0, 20);
-
-                                            // Auto-map headers
-                                            $mapping = $this->autoMapHeaders($headers);
-
-                                            // Set state for mapping step
-                                            $set('headers', $headers);
-                                            $set('mapping', $mapping);
-                                            $set('preview_rows', $previewRows);
-
-                                            Notification::make()
-                                                ->title('File processed!')
-                                                ->body('Found '.count($headers).' columns and '.count($rows).' rows. Proceed to mapping step.')
-                                                ->success()
-                                                ->send();
+                                            $this->processFile($state, $set);
                                         } catch (\Exception $e) {
                                             Notification::make()
                                                 ->title('Error reading file')
@@ -221,6 +291,48 @@ class ImportLeads extends Page
                                                 ->send();
                                         }
                                     }),
+
+                                TextInput::make('google_sheets_url')
+                                    ->label('Google Sheets URL')
+                                    ->required(fn ($get) => $get('import_source') === 'google_sheets')
+                                    ->visible(fn ($get) => $get('import_source') === 'google_sheets')
+                                    ->url()
+                                    ->placeholder('https://docs.google.com/spreadsheets/d/...')
+                                    ->helperText(new HtmlString(
+                                        '<strong>How to make your sheet public:</strong><br>'.
+                                        '1. Open your Google Sheet<br>'.
+                                        '2. Click "File" → "Share" → "Publish to web"<br>'.
+                                        '3. Choose the sheet and click "Publish"<br>'.
+                                        '4. Copy the URL and paste it here'
+                                    ))
+                                    ->suffixAction(
+                                        \Filament\Actions\Action::make('fetch')
+                                            ->label('Fetch Data')
+                                            ->icon('heroicon-o-arrow-down-tray')
+                                            ->action(function ($get, $set) {
+                                                $url = $get('google_sheets_url');
+
+                                                if (! $url) {
+                                                    Notification::make()
+                                                        ->title('URL required')
+                                                        ->body('Please enter a Google Sheets URL')
+                                                        ->warning()
+                                                        ->send();
+
+                                                    return;
+                                                }
+
+                                                try {
+                                                    $this->fetchGoogleSheets($url, $set);
+                                                } catch (\Exception $e) {
+                                                    Notification::make()
+                                                        ->title('Error fetching Google Sheets')
+                                                        ->body($e->getMessage())
+                                                        ->danger()
+                                                        ->send();
+                                                }
+                                            })
+                                    ),
                             ]),
 
                         Step::make('Mapping')
@@ -315,22 +427,43 @@ class ImportLeads extends Page
                     BLADE))),
                 ])
                 ->action(function (array $data) {
-                    // Get file path (can be string or object)
-                    $file = $data['file'];
-                    $filePath = is_string($file) ? $file : $file->getFilename();
+                    $importSource = $data['import_source'] ?? 'file';
 
-                    // Ensure file exists in imports directory
-                    if (! Storage::disk('local')->exists($filePath)) {
-                        Notification::make()
-                            ->title('File not found')
-                            ->body('The uploaded file could not be found.')
-                            ->danger()
-                            ->send();
+                    // Get file path
+                    if ($importSource === 'google_sheets') {
+                        // For Google Sheets, file was already downloaded
+                        $filePath = $data['file'] ?? null;
 
-                        return;
+                        if (! $filePath || ! Storage::disk('local')->exists($filePath)) {
+                            Notification::make()
+                                ->title('Error')
+                                ->body('Please fetch the Google Sheets data first.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $type = 'url';
+                    } else {
+                        // For uploaded file
+                        $file = $data['file'];
+                        $filePath = is_string($file) ? $file : $file->getFilename();
+
+                        // Ensure file exists in imports directory
+                        if (! Storage::disk('local')->exists($filePath)) {
+                            Notification::make()
+                                ->title('File not found')
+                                ->body('The uploaded file could not be found.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $type = $extension;
                     }
-
-                    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
                     // Get mapping from form data
                     $mapping = $data['mapping'] ?? [];
@@ -339,7 +472,7 @@ class ImportLeads extends Page
                         'tenant_id' => auth()->user()->tenant_id,
                         'user_id' => auth()->id(),
                         'filename' => $filePath,
-                        'type' => $extension,
+                        'type' => $type,
                         'status' => 'pending',
                         'mapping' => $mapping,
                         'deduplication_rules' => $data['deduplication_rules'] ?? [],

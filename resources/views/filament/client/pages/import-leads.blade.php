@@ -3,12 +3,26 @@
         {{-- Instructions --}}
         <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">📊 How to Import Leads</h3>
-            <ol class="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
-                <li>Click "Upload File" button above</li>
-                <li>Select your Excel (.xlsx, .xls) or CSV file</li>
-                <li>File will be processed in background</li>
-                <li>You'll see results below when complete</li>
-            </ol>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">Option 1: Upload File</p>
+                    <ol class="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
+                        <li>Click "Start Import" button above</li>
+                        <li>Choose "Upload File"</li>
+                        <li>Select your Excel (.xlsx, .xls) or CSV file</li>
+                        <li>Map columns to Lead fields</li>
+                    </ol>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">Option 2: Google Sheets</p>
+                    <ol class="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">
+                        <li>Publish your Google Sheet to web</li>
+                        <li>Click "Start Import" → "Google Sheets URL"</li>
+                        <li>Paste the URL and click "Fetch Data"</li>
+                        <li>Map columns to Lead fields</li>
+                    </ol>
+                </div>
+            </div>
         </div>
 
         {{-- Import History --}}
@@ -46,7 +60,16 @@
                             @foreach($imports as $import)
                                 <tr>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 dark:text-gray-100">
-                                        {{ basename($import->filename) }}
+                                        @if($import->type === 'url')
+                                            <span class="inline-flex items-center gap-1">
+                                                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/>
+                                                </svg>
+                                                Google Sheets
+                                            </span>
+                                        @else
+                                            {{ basename($import->filename) }}
+                                        @endif
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm">
                                         @if($import->status === 'completed')
