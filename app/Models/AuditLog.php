@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasTenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
+    use HasTenantScope;
+
     /**
      * Audit logs are immutable - no updated_at column
      */

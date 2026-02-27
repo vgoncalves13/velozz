@@ -3,7 +3,6 @@
 namespace App\Filament\Client\Resources\AuditLogs\Pages;
 
 use App\Filament\Client\Resources\AuditLogs\AuditLogResource;
-use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewAuditLog extends ViewRecord
@@ -12,8 +11,6 @@ class ViewAuditLog extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            EditAction::make(),
-        ];
+        return [];
     }
 }
