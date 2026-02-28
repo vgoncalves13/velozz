@@ -915,6 +915,33 @@ docker stats
 
 ## ⚠️ Troubleshooting
 
+### Problem: Docker build fails with "cannot stat 'modules/*'"
+
+This error occurs when PHP extensions fail to compile due to missing system dependencies.
+
+**Solution:**
+
+```bash
+# Clean Docker cache and rebuild
+docker-compose -f docker-compose.prod.yml down
+docker system prune -af
+docker volume prune -f
+
+# Rebuild from scratch
+docker-compose -f docker-compose.prod.yml build --no-cache
+
+# If still failing, check Dockerfile has these dependencies:
+# - libjpeg-dev (for gd)
+# - libfreetype6-dev (for gd)
+# - libzip-dev (for zip)
+# - libpng-dev (for gd)
+```
+
+**The Dockerfile includes:**
+- System dependencies for all PHP extensions
+- Proper GD configuration: `docker-php-ext-configure gd --with-freetype --with-jpeg`
+- All required libraries pre-installed
+
 ### Problem: Site not accessible
 
 **Check Nginx logs:**
