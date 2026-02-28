@@ -1,103 +1,73 @@
 #!/bin/bash
 
-# VELOZZ.DIGITAL - Production Deployment Script
-# Run this script on the production server to deploy updates
+# Script de Deploy - Pecunia Mundi
+# Uso: ./deploy.sh [--migrate]
 
-set -e # Exit on error
+set -e
 
-echo "🚀 Starting VELOZZ deployment..."
+echo "🚀 Iniciando deploy do Pecunia Mundi..."
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Verificar se está na branch correta
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "📍 Branch atual: $BRANCH"
 
-# Check if .env exists
-if [ ! -f .env ]; then
-    echo -e "${RED}❌ Error: .env file not found${NC}"
-    echo "Please create .env file based on .env.production.example"
+# Atualizar código
+echo "📥 Atualizando código..."
+git pull origin $BRANCH
+
+# Verificar se .env.production existe
+if [ ! -f .env.production ]; then
+    echo "❌ Erro: .env.production não encontrado!"
+    echo "Copie .env.production.example para .env.production e configure"
     exit 1
 fi
 
-# Pull latest code
-echo -e "${YELLOW}📥 Pulling latest code from repository...${NC}"
-git pull origin main
-
-# Stop containers
-echo -e "${YELLOW}🛑 Stopping containers...${NC}"
-docker compose -f docker-compose.prod.yml down
-
-# Rebuild images
-echo -e "${YELLOW}🏗️  Building Docker images...${NC}"
-docker compose -f docker-compose.prod.yml build --no-cache
-
-# Start containers
-echo -e "${YELLOW}🚀 Starting containers...${NC}"
-docker compose -f docker-compose.prod.yml up -d
-
-# Wait for MySQL to be ready
-echo -e "${YELLOW}⏳ Waiting for database to be ready...${NC}"
-sleep 10
-
-# Install/Update Composer dependencies
-echo -e "${YELLOW}📦 Installing Composer dependencies...${NC}"
-docker compose -f docker-compose.prod.yml exec -T app composer install --no-dev --optimize-autoloader --no-interaction
-
-# Run migrations
-echo -e "${YELLOW}🗄️  Running database migrations...${NC}"
-docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force --no-interaction
-
-# Clear and cache config
-echo -e "${YELLOW}🔧 Optimizing application...${NC}"
-docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan event:cache
-docker compose -f docker-compose.prod.yml exec -T app php artisan filament:optimize
-
-# Build frontend assets
-echo -e "${YELLOW}🎨 Building frontend assets...${NC}"
-docker compose -f docker-compose.prod.yml exec -T app npm ci
-docker compose -f docker-compose.prod.yml exec -T app npm run build
-
-# Set permissions
-echo -e "${YELLOW}🔐 Setting file permissions...${NC}"
-docker compose -f docker-compose.prod.yml exec -T app chown -R www-data:www-data /var/www/storage
-docker compose -f docker-compose.prod.yml exec -T app chown -R www-data:www-data /var/www/bootstrap/cache
-
-# Restart queue workers
-echo -e "${YELLOW}♻️  Restarting queue workers...${NC}"
-docker compose -f docker-compose.prod.yml restart queue
-
-# Restart Reverb
-echo -e "${YELLOW}♻️  Restarting Reverb...${NC}"
-docker compose -f docker-compose.prod.yml restart reverb
-
-# Health check
-echo -e "${YELLOW}🏥 Running health check...${NC}"
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://velozz.digital)
-
-if [ "$HTTP_CODE" -eq 200 ]; then
-    echo -e "${GREEN}✅ Deployment successful!${NC}"
-    echo -e "${GREEN}🌐 Site is accessible at https://velozz.digital${NC}"
-else
-    echo -e "${RED}⚠️  Warning: Site returned HTTP $HTTP_CODE${NC}"
-    echo "Please check the logs: docker compose -f docker-compose.prod.yml logs -f"
+# Verificar se precisa rodar migrations
+RUN_MIGRATIONS=false
+if [ "$1" == "--migrate" ]; then
+    RUN_MIGRATIONS=true
+    echo "✅ Migrations serão executadas"
 fi
 
-# Show running containers
+# Atualizar variável de ambiente
+export RUN_MIGRATIONS=$RUN_MIGRATIONS
+
+# Build da imagem Docker
+echo "🐳 Construindo imagem Docker..."
+DOCKER_BUILDKIT=1 docker compose -f docker-compose.production.yml --env-file .env.production build
+
+# Parar containers antigos
+echo "🛑 Parando containers antigos..."
+docker compose -f docker-compose.production.yml --env-file .env.production down
+
+# Subir novos containers
+echo "🚀 Iniciando containers..."
+docker compose -f docker-compose.production.yml --env-file .env.production up -d
+
+# Aguardar containers estarem prontos
+echo "⏳ Aguardando containers iniciarem..."
+sleep 10
+
+# Limpar cache de configuração
+echo "🧹 Limpando cache de configuração..."
+docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:clear
+docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:cache
+
+# Verificar status
+echo "📊 Status dos containers:"
+docker compose -f docker-compose.production.yml --env-file .env.production ps
+
+# Verificar logs
 echo ""
-echo -e "${GREEN}📊 Running containers:${NC}"
-docker compose -f docker-compose.prod.yml ps
+echo "📋 Últimos logs da aplicação:"
+docker compose -f docker-compose.production.yml --env-file .env.production logs --tail=20 app
 
 echo ""
-echo -e "${GREEN}✨ Deployment complete!${NC}"
+echo "✅ Deploy concluído!"
+echo "🌐 Aplicação disponível em: $(grep APP_URL .env.production | cut -d '=' -f2)"
 echo ""
-echo "Useful commands:"
-echo "  📋 View logs:        docker compose -f docker-compose.prod.yml logs -f"
-echo "  📋 View app logs:    docker compose -f docker-compose.prod.yml logs -f app"
-echo "  📋 View queue logs:  docker compose -f docker-compose.prod.yml logs -f queue"
-echo "  🔧 Run artisan:      docker compose -f docker-compose.prod.yml exec app php artisan"
-echo "  🛑 Stop all:         docker compose -f docker-compose.prod.yml down"
-echo "  🚀 Start all:        docker compose -f docker-compose.prod.yml up -d"
+echo "Comandos úteis:"
+echo "  Ver logs:        docker compose -f docker-compose.production.yml --env-file .env.production logs -f app"
+echo "  Acessar shell:   docker compose -f docker-compose.production.yml --env-file .env.production exec app sh"
+echo "  Parar:          docker compose -f docker-compose.production.yml --env-file .env.production down"
+echo "  Reiniciar:      docker compose -f docker-compose.production.yml --env-file .env.production restart"
