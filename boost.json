@@ -8,6 +8,7 @@
     "nightwatch_mcp": false,
     "sail": true,
     "skills": [
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "php-best-practices"
     ]
 }
