@@ -5,7 +5,7 @@ echo "🚀 Iniciando aplicação Laravel..."
 
 # Aguardar banco de dados estar pronto (máximo 30 tentativas = 60 segundos)
 echo "⏳ Aguardando banco de dados..."
-MAX_TRIES=30
+MAX_TRIES=5
 TRIES=0
 
 until php artisan db:show > /dev/null 2>&1; do
