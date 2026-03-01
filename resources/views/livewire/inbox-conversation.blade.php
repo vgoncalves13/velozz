@@ -178,7 +178,9 @@
         @if($image && !$isInternalNoteMode)
             <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
                 <div class="flex items-start gap-4">
-                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="w-24 h-24 object-cover rounded-lg">
+                    <div wire:ignore>
+                        <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="w-24 h-24 object-cover rounded-lg">
+                    </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">Image ready to send</p>
                         <input
