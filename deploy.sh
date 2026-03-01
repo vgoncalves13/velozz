@@ -1,11 +1,18 @@
 #!/bin/bash
 
-# Script de Deploy - Pecunia Mundi
+# Script de Deploy - Velozz
 # Uso: ./deploy.sh [--migrate]
 
 set -e
 
-echo "🚀 Iniciando deploy do Pecunia Mundi..."
+echo "🚀 Iniciando deploy do Velozz..."
+
+# Verificar se está rodando como root ou com sudo
+if [ "$EUID" -ne 0 ]; then
+   echo "❌ Este script precisa ser executado como root ou com sudo"
+   echo "   Uso: sudo ./deploy.sh"
+   exit 1
+fi
 
 # Verificar se está na branch correta
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -32,7 +39,58 @@ fi
 # Atualizar variável de ambiente
 export RUN_MIGRATIONS=$RUN_MIGRATIONS
 
-# Build da imagem Docker
+# ========================================
+# Configurar Nginx no Servidor
+# ========================================
+echo ""
+echo "🔧 Configurando Nginx no servidor..."
+
+# Instalar Nginx se não estiver instalado
+if ! command -v nginx &> /dev/null; then
+    echo "📦 Instalando Nginx..."
+    apt-get update
+    apt-get install -y nginx
+else
+    echo "✅ Nginx já está instalado"
+fi
+
+# Copiar configuração do Nginx
+echo "📝 Configurando virtual host do Nginx..."
+cp nginx-server.conf /etc/nginx/sites-available/velozz
+
+# Criar symlink se não existir
+if [ ! -L /etc/nginx/sites-enabled/velozz ]; then
+    ln -s /etc/nginx/sites-available/velozz /etc/nginx/sites-enabled/velozz
+    echo "✅ Symlink criado"
+else
+    echo "✅ Symlink já existe"
+fi
+
+# Remover configuração default se existir
+if [ -L /etc/nginx/sites-enabled/default ]; then
+    rm /etc/nginx/sites-enabled/default
+    echo "✅ Configuração default removida"
+fi
+
+# Testar configuração do Nginx
+echo "🧪 Testando configuração do Nginx..."
+if nginx -t; then
+    echo "✅ Configuração do Nginx válida"
+else
+    echo "❌ Erro na configuração do Nginx"
+    exit 1
+fi
+
+# Recarregar Nginx
+echo "🔄 Recarregando Nginx..."
+systemctl reload nginx
+systemctl enable nginx
+echo "✅ Nginx configurado e rodando"
+
+# ========================================
+# Docker Build e Deploy
+# ========================================
+echo ""
 echo "🐳 Construindo imagem Docker..."
 DOCKER_BUILDKIT=1 docker compose -f docker-compose.production.yml --env-file .env.production build
 
@@ -54,6 +112,7 @@ docker compose -f docker-compose.production.yml --env-file .env.production exec 
 docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:cache
 
 # Verificar status
+echo ""
 echo "📊 Status dos containers:"
 docker compose -f docker-compose.production.yml --env-file .env.production ps
 
@@ -64,10 +123,17 @@ docker compose -f docker-compose.production.yml --env-file .env.production logs 
 
 echo ""
 echo "✅ Deploy concluído!"
-echo "🌐 Aplicação disponível em: $(grep APP_URL .env.production | cut -d '=' -f2)"
 echo ""
-echo "Comandos úteis:"
-echo "  Ver logs:        docker compose -f docker-compose.production.yml --env-file .env.production logs -f app"
-echo "  Acessar shell:   docker compose -f docker-compose.production.yml --env-file .env.production exec app sh"
-echo "  Parar:          docker compose -f docker-compose.production.yml --env-file .env.production down"
-echo "  Reiniciar:      docker compose -f docker-compose.production.yml --env-file .env.production restart"
+echo "🌐 URLs da aplicação:"
+echo "   Admin Panel:  https://app.velozz.digital"
+echo "   Tenants:      https://{tenant}.velozz.digital"
+echo "   WebSocket:    wss://ws.velozz.digital"
+echo ""
+echo "📝 Comandos úteis:"
+echo "   Ver logs:        docker compose -f docker-compose.production.yml --env-file .env.production logs -f app"
+echo "   Acessar shell:   docker compose -f docker-compose.production.yml --env-file .env.production exec app sh"
+echo "   Parar:          docker compose -f docker-compose.production.yml --env-file .env.production down"
+echo "   Reiniciar:      docker compose -f docker-compose.production.yml --env-file .env.production restart"
+echo "   Nginx logs:     tail -f /var/log/nginx/velozz-*.log"
+echo "   Nginx reload:   systemctl reload nginx"
+echo ""
