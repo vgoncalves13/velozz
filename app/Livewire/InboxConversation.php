@@ -20,6 +20,8 @@ class InboxConversation extends Component
 
     public string $internalNote = '';
 
+    public bool $isInternalNoteMode = false;
+
     public bool $showTransferModal = false;
 
     public ?int $transferToUserId = null;

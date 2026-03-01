@@ -155,8 +155,7 @@
             <label class="inline-flex items-center cursor-pointer">
                 <input
                     type="checkbox"
-                    @if($internalNote) checked @endif
-                    onclick="document.getElementById('internal-note').classList.toggle('hidden'); document.getElementById('message-input').classList.toggle('hidden')"
+                    wire:model.live="isInternalNoteMode"
                     class="sr-only peer"
                 >
                 <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
@@ -164,8 +163,9 @@
             </label>
         </div>
 
-        {{-- Regular Message Input --}}
-        <form wire:submit="sendMessage" id="message-input">
+        @if(!$isInternalNoteMode)
+            {{-- Regular Message Input --}}
+            <form wire:submit="sendMessage" id="message-input">
             @error('newMessage')
                 <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ $message }}</p>
             @enderror
@@ -187,9 +187,9 @@
                 </button>
             </div>
         </form>
-
-        {{-- Internal Note Input --}}
-        <form wire:submit="addInternalNote" id="internal-note" class="hidden">
+        @else
+            {{-- Internal Note Input --}}
+            <form wire:submit="addInternalNote" id="internal-note">
             @error('internalNote')
                 <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ $message }}</p>
             @enderror
@@ -211,6 +211,7 @@
                 </button>
             </div>
         </form>
+        @endif
     </div>
 
     {{-- Transfer Modal --}}
