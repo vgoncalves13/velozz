@@ -16,7 +16,14 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     build-essential \
     pkg-config \
-    git curl zip unzip supervisor nginx nodejs npm
+    git \
+    curl \
+    zip \
+    unzip \
+    supervisor \
+    nginx \
+    nodejs \
+    npm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
