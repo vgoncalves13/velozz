@@ -34,6 +34,9 @@ services:
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
     volumes:
       - ./:/var/www/html
+      # Excluir vendor para usar o que foi instalado na imagem
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
       - ./storage:/var/www/html/storage
     depends_on:
       - mysql
