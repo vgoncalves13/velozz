@@ -97,14 +97,25 @@
                         'justify-start' => $message->direction === \App\Enums\MessageDirection::Incoming,
                     ])>
                     <div @class([
-                        'max-w-xl px-4 py-3 rounded-2xl shadow-sm',
+                        'max-w-xl rounded-2xl shadow-sm overflow-hidden',
                         'bg-blue-100 dark:bg-blue-900/30 text-gray-900 dark:text-gray-100' => $message->direction === \App\Enums\MessageDirection::Outgoing,
                         'bg-green-100 dark:bg-green-900/30 text-gray-900 dark:text-gray-100' => $message->direction === \App\Enums\MessageDirection::Incoming,
                     ])>
-                        <p class="text-sm leading-relaxed">{{ $message->content }}</p>
+                        {{-- Image Message --}}
+                        @if($message->type === \App\Enums\MessageType::Image && $message->media_url)
+                            <img src="{{ $message->media_url }}" alt="Image" class="w-full max-w-sm rounded-t-2xl">
+                            @if($message->content)
+                                <p class="text-sm leading-relaxed px-4 py-3">{{ $message->content }}</p>
+                            @else
+                                <div class="px-4 py-3"></div>
+                            @endif
+                        @else
+                            {{-- Text Message --}}
+                            <p class="text-sm leading-relaxed px-4 py-3">{{ $message->content }}</p>
+                        @endif
 
                         <div @class([
-                            'flex items-center justify-between mt-1 text-xs gap-2',
+                            'flex items-center justify-between text-xs gap-2 px-4 pb-3',
                             'text-gray-600 dark:text-gray-400' => $message->direction === \App\Enums\MessageDirection::Outgoing,
                             'text-gray-600 dark:text-gray-400' => $message->direction === \App\Enums\MessageDirection::Incoming,
                         ])>
@@ -163,6 +174,49 @@
             </label>
         </div>
 
+        {{-- Image Upload Preview --}}
+        @if($image && !$isInternalNoteMode)
+            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                <div class="flex items-start gap-4">
+                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="w-24 h-24 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">Image ready to send</p>
+                        <input
+                            type="text"
+                            wire:model="imageCaption"
+                            placeholder="Add a caption (optional)..."
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
+                        >
+                        @error('imageCaption')
+                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            wire:click="sendImage"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                        >
+                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Send
+                        </button>
+                        <button
+                            wire:click="$set('image', null)"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                @error('image')
+                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+        @endif
+
         @if(!$isInternalNoteMode)
             {{-- Regular Message Input --}}
             <form wire:submit="sendMessage" id="message-input">
@@ -171,6 +225,14 @@
             @enderror
 
             <div class="flex gap-3">
+                {{-- Attach Image Button --}}
+                <label class="inline-flex items-center justify-center w-12 h-12 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 transition-colors cursor-pointer">
+                    <input type="file" wire:model="image" accept="image/*" class="sr-only">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                </label>
+
                 <input
                     type="text"
                     wire:model="newMessage"

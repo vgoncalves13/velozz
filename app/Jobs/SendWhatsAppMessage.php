@@ -19,9 +19,9 @@ class SendWhatsAppMessage implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 3;
+    public int $tries = 3;
 
-    public $backoff = [60, 300, 900]; // 1min, 5min, 15min
+    public array $backoff = [60, 300, 900]; // 1min, 5min, 15min
 
     /**
      * Create a new job instance.

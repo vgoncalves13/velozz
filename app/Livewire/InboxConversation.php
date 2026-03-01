@@ -8,15 +8,23 @@ use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\User;
 use App\Models\WhatsAppMessage;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class InboxConversation extends Component
 {
+    use WithFileUploads;
+
     public int $leadId;
 
     public Lead $lead;
 
     public string $newMessage = '';
+
+    public $image = null;
+
+    public string $imageCaption = '';
 
     public string $internalNote = '';
 
@@ -111,6 +119,39 @@ class InboxConversation extends Component
         SendWhatsAppMessage::dispatch($this->lead, $this->newMessage, auth()->id());
 
         $this->newMessage = '';
+
+        $this->dispatch('message-sent');
+    }
+
+    public function sendImage(): void
+    {
+        $this->validate([
+            'image' => 'required|image|max:10240', // Max 10MB
+            'imageCaption' => 'nullable|string|max:1024',
+        ]);
+
+        if ($this->lead->opt_out || $this->lead->do_not_contact) {
+            $this->addError('image', 'Cannot send image. Lead has opted out or is marked as do not contact.');
+
+            return;
+        }
+
+        // Store image in storage/app/public/whatsapp-images
+        $path = $this->image->store('whatsapp-images', 'public');
+
+        // Generate full public URL (Z-API accepts both URL and base64)
+        $imageUrl = url(Storage::url($path));
+
+        SendWhatsAppMessage::dispatch(
+            $this->lead,
+            $this->imageCaption ?: '',
+            auth()->id(),
+            'image',
+            $imageUrl
+        );
+
+        $this->image = null;
+        $this->imageCaption = '';
 
         $this->dispatch('message-sent');
     }
