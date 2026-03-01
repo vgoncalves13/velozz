@@ -33,10 +33,6 @@ mkdir -p /var/www/html/bootstrap/cache
 if [ "${RUN_MIGRATIONS}" = "true" ]; then
     echo "🔄 Executando migrações..."
     php artisan migrate --force --no-interaction
-
-    # Rodar seeder de roles e permissions após migrations (se não existir)
-    echo "🔐 Verificando roles e permissions..."
-    php artisan db:seed --class='Database\Seeders\Production\RolesAndPermissionsSeeder' --force || true
 fi
 
 echo "⚡ Limpando e gerando novo cache de configuração..."
