@@ -34,6 +34,7 @@ services:
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
     volumes:
       - ./:/var/www/html
+      - ./storage:/var/www/html/storage
     depends_on:
       - mysql
       - redis
