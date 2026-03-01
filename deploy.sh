@@ -113,9 +113,12 @@ docker compose -f docker-compose.production.yml --env-file .env.production exec 
 
 # Corrigir symlink do storage (usa caminho do host, não do container)
 echo "🔗 Corrigindo symlink do storage..."
-rm -f public/storage
-ln -s /var/www/velozz/storage/app/public public/storage
-echo "✅ Symlink corrigido: public/storage -> /var/www/velozz/storage/app/public"
+# Remover symlink/diretório antigo (se existir)
+rm -rf public/storage
+# Criar novo symlink com caminho do host
+ln -sfn /var/www/velozz/storage/app/public public/storage
+# Verificar symlink criado
+echo "✅ Symlink corrigido: $(ls -la public/storage)"
 
 # Verificar status
 echo ""
