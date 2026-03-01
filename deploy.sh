@@ -111,6 +111,12 @@ echo "🧹 Limpando cache de configuração..."
 docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:cache
 
+# Corrigir symlink do storage (usa caminho do host, não do container)
+echo "🔗 Corrigindo symlink do storage..."
+rm -f public/storage
+ln -s /var/www/velozz/storage/app/public public/storage
+echo "✅ Symlink corrigido: public/storage -> /var/www/velozz/storage/app/public"
+
 # Verificar status
 echo ""
 echo "📊 Status dos containers:"
