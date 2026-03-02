@@ -6,6 +6,10 @@ services:
       args:
         USER_ID: 1000
         GROUP_ID: 1000
+        VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+        VITE_REVERB_HOST: ${REVERB_HOST}
+        VITE_REVERB_PORT: ${REVERB_PORT}
+        VITE_REVERB_SCHEME: ${REVERB_SCHEME}
     image: velozz:latest
     container_name: velozz-app
     restart: unless-stopped

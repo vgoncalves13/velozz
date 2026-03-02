@@ -4,6 +4,10 @@ FROM php:8.4-fpm
 # Argumentos de build
 ARG USER_ID=1000
 ARG GROUP_ID=1000
+ARG VITE_REVERB_APP_KEY
+ARG VITE_REVERB_HOST
+ARG VITE_REVERB_PORT
+ARG VITE_REVERB_SCHEME
 
 # Instalar dependências do sistema + Node.js
 RUN apt-get update && apt-get install -y \
@@ -86,9 +90,14 @@ RUN mkdir -p /var/www/.npm \
 
 # Instala TODAS as dependências (incluindo dev) para fazer o build
 USER www-data
-RUN npm ci \
+# Criar .env com variáveis VITE_* para o build
+RUN echo "VITE_REVERB_APP_KEY=${VITE_REVERB_APP_KEY}" > .env \
+    && echo "VITE_REVERB_HOST=${VITE_REVERB_HOST}" >> .env \
+    && echo "VITE_REVERB_PORT=${VITE_REVERB_PORT}" >> .env \
+    && echo "VITE_REVERB_SCHEME=${VITE_REVERB_SCHEME}" >> .env \
+    && npm ci \
     && npm run build \
-    && rm -rf node_modules
+    && rm -rf node_modules .env
 
 # Voltar para root para configurações finais
 USER root
