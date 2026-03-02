@@ -2,6 +2,8 @@
 
 namespace App\Filament\Client\Resources\PipelineStages\Schemas;
 
+use App\Models\User;
+use App\Models\WhatsAppTemplate;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -69,26 +71,57 @@ class PipelineStageForm
                     ->collapsed()
                     ->description('Configure automations that trigger when a lead enters or exits this stage')
                     ->schema([
-                        TextInput::make('automacao_entrada.template_id')
-                            ->label('Entry Automation - Template ID')
-                            ->helperText('WhatsApp template to send when lead enters this stage')
-                            ->placeholder('e.g., welcome_template'),
+                        Select::make('automacao_entrada.template_id')
+                            ->label('Entry Automation - WhatsApp Template')
+                            ->helperText('Automatically send this WhatsApp template when lead enters this stage')
+                            ->options(fn () => WhatsAppTemplate::where('tenant_id', auth()->user()->tenant_id)
+                                ->where('active', true)
+                                ->pluck('name', 'id')
+                                ->take(100))
+                            ->searchable()
+                            ->preload()
+                            ->allowHtml()
+                            ->getSearchResultsUsing(fn (string $search) => WhatsAppTemplate::where('tenant_id', auth()->user()->tenant_id)
+                                ->where('active', true)
+                                ->where('name', 'like', "%{$search}%")
+                                ->limit(50)
+                                ->pluck('name', 'id'))
+                            ->getOptionLabelUsing(fn ($value): ?string => WhatsAppTemplate::find($value)?->name)
+                            ->placeholder('Select a template...')
+                            ->nullable(),
 
-                        TextInput::make('automacao_entrada.operador_id')
-                            ->label('Entry Automation - Auto-assign Operator ID')
-                            ->helperText('Automatically assign lead to this operator')
-                            ->placeholder('e.g., 5'),
+                        Select::make('automacao_entrada.operador_id')
+                            ->label('Entry Automation - Auto-assign Operator')
+                            ->helperText('Automatically assign lead to this operator when entering this stage')
+                            ->options(fn () => User::where('tenant_id', auth()->user()->tenant_id)
+                                ->where('status', 'active')
+                                ->whereIn('role', ['admin_client', 'supervisor', 'operator'])
+                                ->pluck('name', 'id')
+                                ->take(100))
+                            ->searchable()
+                            ->preload()
+                            ->getSearchResultsUsing(fn (string $search) => User::where('tenant_id', auth()->user()->tenant_id)
+                                ->where('status', 'active')
+                                ->whereIn('role', ['admin_client', 'supervisor', 'operator'])
+                                ->where('name', 'like', "%{$search}%")
+                                ->limit(50)
+                                ->pluck('name', 'id'))
+                            ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->name)
+                            ->placeholder('Select an operator...')
+                            ->nullable(),
 
                         TextInput::make('automacao_entrada.tags')
                             ->label('Entry Automation - Add Tags')
-                            ->helperText('Comma-separated tags to add')
-                            ->placeholder('e.g., contacted,priority'),
+                            ->helperText('Comma-separated tags to add when lead enters this stage')
+                            ->placeholder('e.g., contacted,priority')
+                            ->nullable(),
 
                         TextInput::make('automacao_saida.webhook_url')
                             ->label('Exit Automation - Webhook URL')
                             ->url()
                             ->helperText('URL to call when lead exits this stage')
-                            ->placeholder('https://example.com/webhook'),
+                            ->placeholder('https://example.com/webhook')
+                            ->nullable(),
                     ]),
             ]);
     }
