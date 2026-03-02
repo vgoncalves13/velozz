@@ -8,7 +8,7 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->currentLocale = auth()->user()->locale ?? 'en';
+        $this->currentLocale = auth()->user()?->locale ?? session('locale', config('app.locale'));
     }
 
     public function switchLocale(string $locale): void
@@ -17,7 +17,12 @@ new class extends Component
             return;
         }
 
-        auth()->user()->update(['locale' => $locale]);
+        if (auth()->check()) {
+            auth()->user()->update(['locale' => $locale]);
+        } else {
+            session(['locale' => $locale]);
+        }
+
         $this->currentLocale = $locale;
 
         // Refresh the page to apply new locale

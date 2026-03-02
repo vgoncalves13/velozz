@@ -16,15 +16,16 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Only set locale if user is authenticated
+        $supportedLocales = ['en', 'pt'];
+
         if (auth()->check()) {
             $locale = auth()->user()->locale ?? config('app.locale');
+        } else {
+            $locale = session('locale', config('app.locale'));
+        }
 
-            // Validate locale is supported
-            $supportedLocales = ['en', 'pt'];
-            if (in_array($locale, $supportedLocales)) {
-                App::setLocale($locale);
-            }
+        if (in_array($locale, $supportedLocales)) {
+            App::setLocale($locale);
         }
 
         return $next($request);
