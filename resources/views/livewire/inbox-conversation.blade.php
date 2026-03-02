@@ -1,5 +1,5 @@
 <div class="flex flex-col h-full"
-     wire:poll.3s
+     wire:poll.3s.keep-alive
      x-data="{
          playNotification() {
              const audio = this.$refs.notificationSound;
@@ -72,7 +72,6 @@
     {{-- Messages Area --}}
     <div
         class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900"
-        wire:poll.3s
         x-data="{ scrollToBottom() { this.$el.scrollTop = this.$el.scrollHeight; } }"
         x-init="scrollToBottom(); $watch('$wire.refreshKey', () => scrollToBottom())"
     >
