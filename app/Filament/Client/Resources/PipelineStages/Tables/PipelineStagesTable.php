@@ -17,37 +17,42 @@ class PipelineStagesTable
         return $table
             ->columns([
                 TextColumn::make('order')
+                    ->label(__('pipeline_stages.labels.order'))
                     ->sortable()
                     ->toggleable()
                     ->width(80),
 
                 ColorColumn::make('color')
+                    ->label(__('pipeline_stages.labels.color'))
                     ->width(60)
                     ->toggleable(),
 
                 TextColumn::make('name')
+                    ->label(__('pipeline_stages.labels.name'))
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
                 IconColumn::make('icon')
+                    ->label(__('pipeline_stages.labels.icon'))
                     ->icon(fn ($record) => $record->icon ?? 'heroicon-o-queue-list')
                     ->toggleable(),
 
                 TextColumn::make('sla_hours')
-                    ->label('SLA')
-                    ->suffix(' hours')
+                    ->label(__('pipeline_stages.labels.sla'))
+                    ->suffix(' '.__('pipeline_stages.labels.hours'))
                     ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('leads_count')
-                    ->label('Leads')
+                    ->label(__('pipeline_stages.labels.leads_count'))
                     ->counts('leads')
                     ->badge()
                     ->color('info')
                     ->toggleable(),
 
                 TextColumn::make('created_at')
+                    ->label(__('pipeline_stages.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable()

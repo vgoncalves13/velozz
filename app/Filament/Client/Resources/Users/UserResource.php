@@ -20,15 +20,27 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static ?string $navigationLabel = 'Team';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'Configuration';
-
-    protected static ?string $modelLabel = 'Operator';
-
-    protected static ?string $pluralModelLabel = 'Operators';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.users.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.users.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.users.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.configuration');
+    }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

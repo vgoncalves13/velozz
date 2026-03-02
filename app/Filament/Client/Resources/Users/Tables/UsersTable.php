@@ -19,25 +19,30 @@ class UsersTable
         return $table
             ->columns([
                 ImageColumn::make('photo')
+                    ->label(__('fields.photo'))
                     ->circular()
                     ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=7F9CF5&background=EBF4FF'),
 
                 TextColumn::make('name')
+                    ->label(__('fields.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
+                    ->label(__('fields.email'))
                     ->searchable()
                     ->copyable()
-                    ->copyMessage('Email copied!')
+                    ->copyMessage(__('users.messages.email_copied'))
                     ->icon('heroicon-o-envelope'),
 
                 TextColumn::make('phone')
+                    ->label(__('fields.phone'))
                     ->searchable()
                     ->icon('heroicon-o-phone')
                     ->toggleable(),
 
                 TextColumn::make('role')
+                    ->label(__('fields.role'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin_client' => 'danger',
@@ -46,9 +51,10 @@ class UsersTable
                         'financial' => 'info',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', ucwords($state, '_'))),
+                    ->formatStateUsing(fn (string $state): string => __('users.role.'.$state)),
 
                 TextColumn::make('status')
+                    ->label(__('fields.status'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'active' => 'success',
@@ -57,40 +63,43 @@ class UsersTable
                         'temporary' => 'gray',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                    ->formatStateUsing(fn (string $state): string => __('users.status.'.$state)),
 
                 TextColumn::make('last_login_at')
+                    ->label(__('fields.last_login_at'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('Never'),
+                    ->placeholder(__('users.labels.never')),
 
                 TextColumn::make('created_at')
-                    ->label('Added')
+                    ->label(__('users.labels.added'))
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('role')
+                    ->label(__('fields.role'))
                     ->options([
-                        'admin_client' => 'Admin Client',
-                        'supervisor' => 'Supervisor',
-                        'operator' => 'Operator',
-                        'financial' => 'Financial',
+                        'admin_client' => __('users.role.admin_client'),
+                        'supervisor' => __('users.role.supervisor'),
+                        'operator' => __('users.role.operator'),
+                        'financial' => __('users.role.financial'),
                     ]),
 
                 SelectFilter::make('status')
+                    ->label(__('fields.status'))
                     ->options([
-                        'active' => 'Active',
-                        'invited' => 'Invited',
-                        'suspended' => 'Suspended',
-                        'temporary' => 'Temporary',
+                        'active' => __('users.status.active'),
+                        'invited' => __('users.status.invited'),
+                        'suspended' => __('users.status.suspended'),
+                        'temporary' => __('users.status.temporary'),
                     ]),
             ])
             ->recordActions([
                 Action::make('send_invite')
-                    ->label('Send Invite')
+                    ->label(__('users.actions.send_invite'))
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
                     ->visible(fn ($record) => $record->status === 'invited')
@@ -99,8 +108,8 @@ class UsersTable
                         \App\Jobs\SendInviteEmail::dispatch($record);
 
                         Notification::make()
-                            ->title('Invitation sent!')
-                            ->body("Invitation email sent to {$record->email}")
+                            ->title(__('users.notifications.invitation_sent_title'))
+                            ->body(__('users.notifications.invitation_sent_body', ['email' => $record->email]))
                             ->success()
                             ->send();
                     }),
@@ -108,7 +117,7 @@ class UsersTable
                 EditAction::make(),
 
                 Action::make('suspend')
-                    ->label('Suspend')
+                    ->label(__('users.actions.suspend'))
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
                     ->visible(fn ($record) => $record->status === 'active')
@@ -116,7 +125,7 @@ class UsersTable
                     ->action(fn ($record) => $record->update(['status' => 'suspended'])),
 
                 Action::make('activate')
-                    ->label('Activate')
+                    ->label(__('users.actions.activate'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn ($record) => $record->status === 'suspended')

@@ -15,35 +15,45 @@ class ProductForm
     {
         return $schema
             ->components([
-                Section::make('Basic Information')
+                Section::make(__('products.sections.basic_information'))
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         TextInput::make('name')
+                            ->label(__('products.labels.name'))
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Internal product name for reference'),
+                            ->helperText(__('products.helper.name')),
 
                         TextInput::make('title')
+                            ->label(__('products.labels.title'))
                             ->maxLength(255)
-                            ->helperText('Display title (leave empty to use name)'),
+                            ->helperText(__('products.helper.title')),
 
                         TextInput::make('category')
-                            ->helperText('Product category for organization and filtering')
+                            ->label(__('products.labels.category'))
+                            ->helperText(__('products.helper.category'))
                             ->maxLength(255)
-                            ->datalist(['Service', 'Product', 'Subscription', 'Consultation']),
+                            ->datalist([
+                                __('products.categories.service'),
+                                __('products.categories.product'),
+                                __('products.categories.subscription'),
+                                __('products.categories.consultation'),
+                            ]),
 
                         Textarea::make('description')
-                            ->helperText('Detailed product description visible to your team')
+                            ->label(__('products.labels.description'))
+                            ->helperText(__('products.helper.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                     ])
                     ->columns(['default' => 1, 'md' => 2]),
 
-                Section::make('Pricing')
+                Section::make(__('products.sections.pricing'))
                     ->icon('heroicon-o-currency-euro')
                     ->schema([
                         TextInput::make('price')
-                            ->helperText('Base price per unit')
+                            ->label(__('products.labels.price'))
+                            ->helperText(__('products.helper.price'))
                             ->required()
                             ->numeric()
                             ->prefix('€')
@@ -52,37 +62,40 @@ class ProductForm
                             ->default(0),
 
                         Select::make('currency')
-                            ->helperText('Currency for pricing')
+                            ->label(__('products.labels.currency'))
+                            ->helperText(__('products.helper.currency'))
                             ->options([
-                                'EUR' => 'EUR (€)',
-                                'USD' => 'USD ($)',
-                                'GBP' => 'GBP (£)',
+                                'EUR' => __('products.currencies.eur'),
+                                'USD' => __('products.currencies.usd'),
+                                'GBP' => __('products.currencies.gbp'),
                             ])
                             ->default('EUR')
                             ->required(),
 
                         TextInput::make('unit')
+                            ->label(__('products.labels.unit'))
                             ->maxLength(255)
-                            ->placeholder('piece, hour, kg, etc.')
-                            ->helperText('Unit of measurement'),
+                            ->placeholder(__('products.placeholders.unit'))
+                            ->helperText(__('products.helper.unit')),
 
                         Select::make('status')
-                            ->helperText('Active products are available for creating opportunities')
+                            ->label(__('products.labels.status'))
+                            ->helperText(__('products.helper.status'))
                             ->options([
-                                'active' => 'Active',
-                                'inactive' => 'Inactive',
+                                'active' => __('products.status.active'),
+                                'inactive' => __('products.status.inactive'),
                             ])
                             ->default('active')
                             ->required(),
                     ])
                     ->columns(['default' => 1, 'md' => 2]),
 
-                Section::make('Image')
+                Section::make(__('products.sections.image'))
                     ->icon('heroicon-o-photo')
                     ->schema([
                         FileUpload::make('image_url')
-                            ->label('Product Image')
-                            ->helperText('Optional product image (max 2MB)')
+                            ->label(__('products.labels.product_image'))
+                            ->helperText(__('products.helper.image'))
                             ->image()
                             ->imageEditor()
                             ->directory('products')

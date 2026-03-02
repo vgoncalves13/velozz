@@ -20,11 +20,27 @@ class OpportunityResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCurrencyDollar;
 
-    protected static ?string $navigationLabel = 'Opportunities';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
-
     protected static ?int $navigationSort = 4;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('opportunities.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('opportunities.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('opportunities.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.crm');
+    }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

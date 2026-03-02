@@ -20,11 +20,27 @@ class PipelineStageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static ?string $navigationLabel = 'Pipeline Stages';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'Configuration';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('pipeline_stages.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('pipeline_stages.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('pipeline_stages.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.configuration');
+    }
 
     public static function form(Schema $schema): Schema
     {

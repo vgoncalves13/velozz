@@ -18,13 +18,22 @@ class WhatsAppConfig extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
 
-    protected static ?string $navigationLabel = 'WhatsApp Config';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'WhatsApp';
-
-    protected static ?string $title = 'WhatsApp Configuration';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('whatsapp_config.navigation');
+    }
+
+    public function getTitle(): string
+    {
+        return __('whatsapp_config.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'WhatsApp';
+    }
 
     public ?WhatsAppInstance $instance = null;
 
@@ -38,18 +47,18 @@ class WhatsAppConfig extends Page
         if (! $this->instance) {
             return [
                 Action::make('create_instance')
-                    ->label('Create Instance')
+                    ->label(__('whatsapp_config.actions.create_instance'))
                     ->icon('heroicon-o-plus')
                     ->form([
                         TextInput::make('instance_id')
                             ->required()
-                            ->label('Instance ID')
-                            ->helperText('Your Z-API instance ID'),
+                            ->label(__('whatsapp_config.form.instance_id'))
+                            ->helperText(__('whatsapp_config.form.instance_id_helper')),
 
                         TextInput::make('token')
                             ->required()
-                            ->label('Token')
-                            ->helperText('Your Z-API token'),
+                            ->label(__('whatsapp_config.form.token'))
+                            ->helperText(__('whatsapp_config.form.token_helper')),
                     ])
                     ->action(function (array $data) {
                         $this->instance = WhatsAppInstance::create([
@@ -60,8 +69,8 @@ class WhatsAppConfig extends Page
                         ]);
 
                         Notification::make()
-                            ->title('Instance created!')
-                            ->body('Now you can connect your WhatsApp')
+                            ->title(__('whatsapp_config.notifications.instance_created_title'))
+                            ->body(__('whatsapp_config.notifications.instance_created_body'))
                             ->success()
                             ->send();
 
@@ -74,7 +83,7 @@ class WhatsAppConfig extends Page
 
         if ($this->instance->needsQrCode()) {
             $actions[] = Action::make('connect')
-                ->label('Connect WhatsApp')
+                ->label(__('whatsapp_config.actions.connect'))
                 ->icon('heroicon-o-qr-code')
                 ->action(function (ZApiServiceInterface $zapi) {
                     $response = $zapi->generateQrCode($this->instance->instance_id);
@@ -91,8 +100,8 @@ class WhatsAppConfig extends Page
                     ]);
 
                     Notification::make()
-                        ->title('QR Code generated!')
-                        ->body('Scan the QR code with your WhatsApp')
+                        ->title(__('whatsapp_config.notifications.qr_generated_title'))
+                        ->body(__('whatsapp_config.notifications.qr_generated_body'))
                         ->success()
                         ->send();
 
@@ -102,7 +111,7 @@ class WhatsAppConfig extends Page
 
         if ($this->instance->isConnected()) {
             $actions[] = Action::make('disconnect')
-                ->label('Disconnect')
+                ->label(__('whatsapp_config.actions.disconnect'))
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->requiresConfirmation()
@@ -116,7 +125,7 @@ class WhatsAppConfig extends Page
                     ]);
 
                     Notification::make()
-                        ->title('Disconnected')
+                        ->title(__('whatsapp_config.notifications.disconnected_title'))
                         ->success()
                         ->send();
 
@@ -125,7 +134,7 @@ class WhatsAppConfig extends Page
         }
 
         $actions[] = Action::make('check_status')
-            ->label('Check Status')
+            ->label(__('whatsapp_config.actions.check_status'))
             ->icon('heroicon-o-arrow-path')
             ->action(function (ZApiServiceInterface $zapi) {
                 $status = $zapi->getConnectionStatus($this->instance->instance_id);
@@ -139,13 +148,13 @@ class WhatsAppConfig extends Page
                     ]);
 
                     Notification::make()
-                        ->title('Connected!')
-                        ->body("Phone: {$status['phone']}")
+                        ->title(__('whatsapp_config.notifications.connected_title'))
+                        ->body(__('whatsapp_config.notifications.connected_body', ['phone' => $status['phone']]))
                         ->success()
                         ->send();
                 } else {
                     Notification::make()
-                        ->title('Not connected yet')
+                        ->title(__('whatsapp_config.notifications.not_connected_title'))
                         ->warning()
                         ->send();
                 }

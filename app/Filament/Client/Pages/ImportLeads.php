@@ -34,13 +34,22 @@ class ImportLeads extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowUpTray;
 
-    protected static ?string $navigationLabel = 'Import Leads';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'System';
-
-    protected static ?string $title = 'Import Leads';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('import_leads.navigation');
+    }
+
+    public function getTitle(): string
+    {
+        return __('import_leads.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system');
+    }
 
     public ?array $data = [];
 
@@ -65,14 +74,14 @@ class ImportLeads extends Page
         }
 
         if (! file_exists($filePath)) {
-            throw new \Exception('Unable to read uploaded file. Please try again.');
+            throw new \Exception(__('import_leads.errors.unable_to_read'));
         }
 
         $data = Excel::toArray([], $filePath);
         $rows = $data[0] ?? [];
 
         if (empty($rows)) {
-            throw new \Exception('The uploaded file has no data');
+            throw new \Exception(__('import_leads.errors.no_data'));
         }
 
         // First row = headers
@@ -91,8 +100,8 @@ class ImportLeads extends Page
         $set('total_rows', count($rows));
 
         Notification::make()
-            ->title('File processed!')
-            ->body('Found '.count($headers).' columns and '.count($rows).' rows. Proceed to mapping step.')
+            ->title(__('import_leads.notifications.file_processed_title'))
+            ->body(__('import_leads.notifications.file_processed_body', ['columns' => count($headers), 'rows' => count($rows)]))
             ->success()
             ->send();
     }
@@ -104,7 +113,7 @@ class ImportLeads extends Page
     {
         // Validate URL
         if (! GoogleSheetsHelper::isValidGoogleSheetsUrl($url)) {
-            throw new \Exception('Invalid Google Sheets URL. Please check the URL and try again.');
+            throw new \Exception(__('import_leads.errors.invalid_url'));
         }
 
         // Download as CSV
@@ -114,7 +123,7 @@ class ImportLeads extends Page
         $filePath = Storage::disk('local')->path($filename);
 
         if (! file_exists($filePath)) {
-            throw new \Exception('Failed to download Google Sheets. Make sure the sheet is published as public.');
+            throw new \Exception(__('import_leads.errors.download_failed'));
         }
 
         // Process the downloaded CSV
@@ -124,7 +133,7 @@ class ImportLeads extends Page
         if (empty($rows)) {
             // Clean up file
             Storage::disk('local')->delete($filename);
-            throw new \Exception('The Google Sheet has no data');
+            throw new \Exception(__('import_leads.errors.sheets_no_data'));
         }
 
         // First row = headers
@@ -145,8 +154,8 @@ class ImportLeads extends Page
         $set('is_google_sheets', true);
 
         Notification::make()
-            ->title('Google Sheets fetched!')
-            ->body('Found '.count($headers).' columns and '.count($rows).' rows. Proceed to mapping step.')
+            ->title(__('import_leads.notifications.sheets_fetched_title'))
+            ->body(__('import_leads.notifications.sheets_fetched_body', ['columns' => count($headers), 'rows' => count($rows)]))
             ->success()
             ->send();
     }
@@ -157,24 +166,24 @@ class ImportLeads extends Page
     protected function getAvailableFields(): array
     {
         return [
-            'ignore' => '-- Ignore this column --',
-            'full_name' => 'Full Name',
-            'email' => 'Email',
-            'phones' => 'Phone',
-            'whatsapps' => 'WhatsApp',
-            'street_type' => 'Street Type',
-            'street_name' => 'Street Name',
-            'number' => 'Number',
-            'complement' => 'Complement',
-            'district' => 'District',
-            'neighborhood' => 'Neighborhood',
-            'region' => 'Region',
-            'city' => 'City',
-            'postal_code' => 'Postal Code',
-            'country' => 'Country',
-            'tags' => 'Tags',
-            'notes' => 'Notes',
-            'custom_field' => 'Custom Field',
+            'ignore' => __('import_leads.fields.ignore'),
+            'full_name' => __('import_leads.fields.full_name'),
+            'email' => __('import_leads.fields.email'),
+            'phones' => __('import_leads.fields.phones'),
+            'whatsapps' => __('import_leads.fields.whatsapps'),
+            'street_type' => __('import_leads.fields.street_type'),
+            'street_name' => __('import_leads.fields.street_name'),
+            'number' => __('import_leads.fields.number'),
+            'complement' => __('import_leads.fields.complement'),
+            'district' => __('import_leads.fields.district'),
+            'neighborhood' => __('import_leads.fields.neighborhood'),
+            'region' => __('import_leads.fields.region'),
+            'city' => __('import_leads.fields.city'),
+            'postal_code' => __('import_leads.fields.postal_code'),
+            'country' => __('import_leads.fields.country'),
+            'tags' => __('import_leads.fields.tags'),
+            'notes' => __('import_leads.fields.notes'),
+            'custom_field' => __('import_leads.fields.custom_field'),
         ];
     }
 
@@ -239,24 +248,24 @@ class ImportLeads extends Page
     {
         return [
             Action::make('import')
-                ->label('Start Import')
+                ->label(__('import_leads.actions.start_import'))
                 ->icon('heroicon-o-arrow-up-tray')
                 ->iconPosition(IconPosition::After)
                 ->modalSubmitAction(false)
                 ->schema([
                     Wizard::make([
-                        Step::make('Source')
-                            ->description('Choose import source')
+                        Step::make(__('import_leads.steps.source'))
+                            ->description(__('import_leads.steps.source_description'))
                             ->schema([
                                 Radio::make('import_source')
-                                    ->label('Import Source')
+                                    ->label(__('import_leads.source.label'))
                                     ->options([
-                                        'file' => 'Upload File (.xlsx, .csv)',
-                                        'google_sheets' => 'Google Sheets URL',
+                                        'file' => __('import_leads.source.file'),
+                                        'google_sheets' => __('import_leads.source.google_sheets'),
                                     ])
                                     ->descriptions([
-                                        'file' => 'Upload an Excel or CSV file from your computer',
-                                        'google_sheets' => 'Import directly from a published Google Sheet',
+                                        'file' => __('import_leads.source.file_description'),
+                                        'google_sheets' => __('import_leads.source.google_sheets_description'),
                                     ])
                                     ->default('file')
                                     ->required()
@@ -264,7 +273,7 @@ class ImportLeads extends Page
                                     ->columnSpanFull(),
 
                                 FileUpload::make('file')
-                                    ->label('File')
+                                    ->label(__('import_leads.file.label'))
                                     ->required(fn ($get) => $get('import_source') === 'file')
                                     ->visible(fn ($get) => $get('import_source') === 'file')
                                     ->acceptedFileTypes([
@@ -277,7 +286,7 @@ class ImportLeads extends Page
                                     ->disk('local')
                                     ->directory('imports')
                                     ->preserveFilenames()
-                                    ->helperText('Accepted formats: .xlsx, .xls, .csv (max 10MB)')
+                                    ->helperText(__('import_leads.file.helper'))
                                     ->afterStateUpdated(function ($state, $set) {
                                         if (! $state) {
                                             return;
@@ -287,7 +296,7 @@ class ImportLeads extends Page
                                             $this->processFile($state, $set);
                                         } catch (\Exception $e) {
                                             Notification::make()
-                                                ->title('Error reading file')
+                                                ->title(__('import_leads.notifications.error_reading_file'))
                                                 ->body($e->getMessage())
                                                 ->danger()
                                                 ->send();
@@ -295,29 +304,29 @@ class ImportLeads extends Page
                                     }),
 
                                 TextInput::make('google_sheets_url')
-                                    ->label('Google Sheets URL')
+                                    ->label(__('import_leads.google_sheets.label'))
                                     ->required(fn ($get) => $get('import_source') === 'google_sheets')
                                     ->visible(fn ($get) => $get('import_source') === 'google_sheets')
                                     ->url()
-                                    ->placeholder('https://docs.google.com/spreadsheets/d/...')
+                                    ->placeholder(__('import_leads.google_sheets.placeholder'))
                                     ->helperText(new HtmlString(
-                                        '<strong>How to make your sheet public:</strong><br>'.
-                                        '1. Open your Google Sheet<br>'.
-                                        '2. Click "File" → "Share" → "Publish to web"<br>'.
-                                        '3. Choose the sheet and click "Publish"<br>'.
-                                        '4. Copy the URL and paste it here'
+                                        '<strong>'.__('import_leads.google_sheets.how_to_title').'</strong><br>'.
+                                        '1. '.__('import_leads.google_sheets.step_1').'<br>'.
+                                        '2. '.__('import_leads.google_sheets.step_2').'<br>'.
+                                        '3. '.__('import_leads.google_sheets.step_3').'<br>'.
+                                        '4. '.__('import_leads.google_sheets.step_4')
                                     ))
                                     ->suffixAction(
                                         \Filament\Actions\Action::make('fetch')
-                                            ->label('Fetch Data')
+                                            ->label(__('import_leads.actions.fetch_data'))
                                             ->icon('heroicon-o-arrow-down-tray')
                                             ->action(function ($get, $set) {
                                                 $url = $get('google_sheets_url');
 
                                                 if (! $url) {
                                                     Notification::make()
-                                                        ->title('URL required')
-                                                        ->body('Please enter a Google Sheets URL')
+                                                        ->title(__('import_leads.notifications.url_required_title'))
+                                                        ->body(__('import_leads.notifications.url_required_body'))
                                                         ->warning()
                                                         ->send();
 
@@ -328,7 +337,7 @@ class ImportLeads extends Page
                                                     $this->fetchGoogleSheets($url, $set);
                                                 } catch (\Exception $e) {
                                                     Notification::make()
-                                                        ->title('Error fetching Google Sheets')
+                                                        ->title(__('import_leads.notifications.error_fetching_sheets'))
                                                         ->body($e->getMessage())
                                                         ->danger()
                                                         ->send();
@@ -337,8 +346,8 @@ class ImportLeads extends Page
                                     ),
                             ]),
 
-                        Step::make('Mapping')
-                            ->description('Map columns to Lead fields')
+                        Step::make(__('import_leads.steps.mapping'))
+                            ->description(__('import_leads.steps.mapping_description'))
                             ->schema(function ($get) {
                                 $headers = $get('headers') ?? [];
                                 $mapping = $get('mapping') ?? [];
@@ -348,7 +357,7 @@ class ImportLeads extends Page
                                     return [
                                         TextEntry::make('no_headers')
                                             ->label('')
-                                            ->state('Please upload a file first'),
+                                            ->state(__('import_leads.mapping.no_file')),
                                     ];
                                 }
 
@@ -362,18 +371,18 @@ class ImportLeads extends Page
                                     ]);
 
                                 // Add mapping selects
-                                $fields[] = Section::make('Column Mapping')
-                                    ->description('Select which Lead field each column should map to')
+                                $fields[] = Section::make(__('import_leads.mapping.section_title'))
+                                    ->description(__('import_leads.mapping.section_description'))
                                     ->schema(function () use ($headers, $mapping) {
                                         $mappingFields = [];
 
                                         foreach ($headers as $header) {
                                             $mappingFields[] = Select::make("mapping.{$header}")
-                                                ->label("Column: \"{$header}\"")
+                                                ->label(__('import_leads.mapping.column_label', ['header' => $header]))
                                                 ->options($this->getAvailableFields())
                                                 ->default($mapping[$header] ?? 'ignore')
                                                 ->searchable()
-                                                ->helperText('Select which Lead field this column should map to');
+                                                ->helperText(__('import_leads.mapping.helper'));
                                         }
 
                                         return $mappingFields;
@@ -383,26 +392,26 @@ class ImportLeads extends Page
                                 return $fields;
                             }),
 
-                        Step::make('Settings')
-                            ->description('Configure import options')
+                        Step::make(__('import_leads.steps.settings'))
+                            ->description(__('import_leads.steps.settings_description'))
                             ->schema([
                                 CheckboxList::make('deduplication_rules')
-                                    ->label('Deduplication Rules')
+                                    ->label(__('import_leads.settings.deduplication_rules'))
                                     ->options([
-                                        'email' => 'Email',
-                                        'phone' => 'Phone',
-                                        'whatsapp' => 'WhatsApp',
+                                        'email' => __('import_leads.settings.dedup_email'),
+                                        'phone' => __('import_leads.settings.dedup_phone'),
+                                        'whatsapp' => __('import_leads.settings.dedup_whatsapp'),
                                     ])
                                     ->descriptions([
-                                        'email' => 'Skip if lead with same email exists',
-                                        'phone' => 'Skip if lead with same phone exists',
-                                        'whatsapp' => 'Skip if lead with same WhatsApp exists',
+                                        'email' => __('import_leads.settings.dedup_email_description'),
+                                        'phone' => __('import_leads.settings.dedup_phone_description'),
+                                        'whatsapp' => __('import_leads.settings.dedup_whatsapp_description'),
                                     ])
                                     ->default(['email'])
                                     ->columns(1),
 
                                 Select::make('assigned_operator_id')
-                                    ->label('Assign to operator')
+                                    ->label(__('import_leads.settings.assign_operator'))
                                     ->options(
                                         User::query()
                                             ->where('tenant_id', auth()->user()->tenant_id)
@@ -411,12 +420,12 @@ class ImportLeads extends Page
                                     )
                                     ->searchable()
                                     ->nullable()
-                                    ->helperText('Leave empty to not assign'),
+                                    ->helperText(__('import_leads.settings.assign_operator_helper')),
 
                                 TagsInput::make('tags')
-                                    ->label('Tags')
-                                    ->placeholder('Add tags')
-                                    ->helperText('Will be added to all imported leads'),
+                                    ->label(__('import_leads.settings.tags_label'))
+                                    ->placeholder(__('import_leads.settings.tags_placeholder'))
+                                    ->helperText(__('import_leads.settings.tags_helper')),
                             ]),
                     ])->submitAction(new HtmlString(Blade::render(<<<'BLADE'
                         <x-filament::button
@@ -424,7 +433,7 @@ class ImportLeads extends Page
                             size="sm"
                             icon="heroicon-o-arrow-up-tray"
                         >
-                            Start Import
+                            {{ __('import_leads.actions.start_import') }}
                         </x-filament::button>
                     BLADE))),
                 ])
@@ -438,8 +447,8 @@ class ImportLeads extends Page
 
                         if (! $filePath || ! Storage::disk('local')->exists($filePath)) {
                             Notification::make()
-                                ->title('Error')
-                                ->body('Please fetch the Google Sheets data first.')
+                                ->title(__('import_leads.notifications.error_title'))
+                                ->body(__('import_leads.notifications.fetch_first_body'))
                                 ->danger()
                                 ->send();
 
@@ -455,8 +464,8 @@ class ImportLeads extends Page
                         // Ensure file exists in imports directory
                         if (! Storage::disk('local')->exists($filePath)) {
                             Notification::make()
-                                ->title('File not found')
-                                ->body('The uploaded file could not be found.')
+                                ->title(__('import_leads.notifications.file_not_found_title'))
+                                ->body(__('import_leads.notifications.file_not_found_body'))
                                 ->danger()
                                 ->send();
 
@@ -485,8 +494,8 @@ class ImportLeads extends Page
                     ProcessImport::dispatch($import);
 
                     Notification::make()
-                        ->title('Import started!')
-                        ->body('Your leads are being imported. Check history below.')
+                        ->title(__('import_leads.notifications.import_started_title'))
+                        ->body(__('import_leads.notifications.import_started_body'))
                         ->success()
                         ->send();
 

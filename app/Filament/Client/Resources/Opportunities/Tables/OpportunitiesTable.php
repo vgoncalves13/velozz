@@ -16,24 +16,24 @@ class OpportunitiesTable
         return $table
             ->columns([
                 TextColumn::make('lead.full_name')
-                    ->label('Lead')
+                    ->label(__('opportunities.labels.lead'))
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->lead?->email),
 
                 TextColumn::make('product.name')
-                    ->label('Product')
+                    ->label(__('opportunities.labels.product'))
                     ->searchable()
-                    ->placeholder('N/A')
+                    ->placeholder(__('opportunities.placeholders.not_available'))
                     ->toggleable(),
 
                 TextColumn::make('value')
-                    ->label('Value')
+                    ->label(__('opportunities.labels.value'))
                     ->money('EUR')
                     ->sortable(),
 
                 TextColumn::make('stage')
-                    ->label('Stage')
+                    ->label(__('opportunities.labels.stage'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'proposal' => 'info',
@@ -43,34 +43,34 @@ class OpportunitiesTable
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'proposal' => 'Proposal',
-                        'negotiation' => 'Negotiation',
-                        'closed_won' => 'Closed Won',
-                        'closed_lost' => 'Closed Lost',
+                        'proposal' => __('opportunities.stages.proposal'),
+                        'negotiation' => __('opportunities.stages.negotiation'),
+                        'closed_won' => __('opportunities.stages.closed_won'),
+                        'closed_lost' => __('opportunities.stages.closed_lost'),
                         default => $state,
                     }),
 
                 TextColumn::make('probability')
-                    ->label('Probability')
+                    ->label(__('opportunities.labels.probability'))
                     ->suffix('%')
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('expected_close_date')
-                    ->label('Expected Close')
+                    ->label(__('opportunities.labels.expected_close'))
                     ->date('d/m/Y')
                     ->sortable()
-                    ->placeholder('Not set')
+                    ->placeholder(__('opportunities.placeholders.not_set'))
                     ->toggleable(),
 
                 TextColumn::make('assignedUser.name')
-                    ->label('Assigned To')
+                    ->label(__('opportunities.labels.assigned_to'))
                     ->searchable()
-                    ->placeholder('Unassigned')
+                    ->placeholder(__('opportunities.placeholders.unassigned'))
                     ->toggleable(),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('opportunities.labels.created'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -87,17 +87,17 @@ class OpportunitiesTable
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading('No opportunities yet')
-            ->emptyStateDescription('Start tracking potential sales by creating opportunities from your leads.')
+            ->emptyStateHeading(__('opportunities.empty.title'))
+            ->emptyStateDescription(__('opportunities.empty.description'))
             ->emptyStateIcon('heroicon-o-currency-euro')
             ->emptyStateActions([
                 Action::make('create')
-                    ->label('Create Opportunity')
+                    ->label(__('opportunities.actions.create'))
                     ->url(fn (): string => \App\Filament\Client\Resources\Opportunities\OpportunityResource::getUrl('create'))
                     ->icon('heroicon-o-plus')
                     ->color('primary'),
                 Action::make('view_leads')
-                    ->label('View Leads')
+                    ->label(__('opportunities.actions.view_leads'))
                     ->url('/app/leads')
                     ->icon('heroicon-o-user-group')
                     ->color('gray'),

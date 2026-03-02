@@ -29,7 +29,7 @@
                         {{ $lead->full_name }}
                     </h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                        {{ $lead->primary_whatsapp ?? $lead->first_whatsapp ?? 'No WhatsApp' }}
+                        {{ $lead->primary_whatsapp ?? $lead->first_whatsapp ?? __('inbox.labels.no_whatsapp') }}
                     </p>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                         <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Assume
+                        {{ __('inbox.labels.assume') }}
                     </button>
                 @endif
 
@@ -54,7 +54,7 @@
                     <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
-                    Transfer
+                    {{ __('inbox.labels.transfer') }}
                 </button>
             </div>
         </div>
@@ -64,7 +64,7 @@
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span>Assigned to: <span class="font-medium text-gray-900 dark:text-white">{{ $lead->assignedUser?->name ?? 'Unknown' }}</span></span>
+                <span>{{ __('inbox.labels.assigned_to') }} <span class="font-medium text-gray-900 dark:text-white">{{ $lead->assignedUser?->name ?? __('inbox.labels.unknown') }}</span></span>
             </div>
         @endif
     </div>
@@ -80,7 +80,7 @@
                 {{-- Internal Note --}}
                 <div class="flex justify-center">
                     <div class="max-w-2xl px-4 py-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200 rounded-lg text-sm">
-                        <p class="font-semibold mb-1">📝 Internal Note</p>
+                        <p class="font-semibold mb-1">📝 {{ __('inbox.labels.internal_note') }}</p>
                         <p class="leading-relaxed">{{ $message->content }}</p>
                         <p class="text-xs mt-2 opacity-75">{{ $message->sentBy?->name }} - {{ $message->created_at->format('H:i') }}</p>
                     </div>
@@ -171,7 +171,7 @@
             @endif
         @empty
             <div class="flex items-center justify-center h-full">
-                <p class="text-gray-500 dark:text-gray-400">No messages yet</p>
+                <p class="text-gray-500 dark:text-gray-400">{{ __('inbox.labels.no_messages_yet') }}</p>
             </div>
         @endforelse
     </div>
@@ -187,7 +187,7 @@
                     class="sr-only peer"
                 >
                 <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Internal Note</span>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{ __('inbox.labels.internal_note') }}</span>
             </label>
         </div>
 
@@ -197,12 +197,12 @@
                 <div class="flex items-start gap-4">
                     <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="shrink-0 w-24 h-24 object-cover rounded-lg">
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Image ready to send</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ __('inbox.labels.image_ready') }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $image->getClientOriginalName() }}</p>
                         <input
                             type="text"
                             wire:model="imageCaption"
-                            placeholder="Add a caption (optional)..."
+                            placeholder="{{ __('inbox.labels.image_caption') }}"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
                         >
                         @error('imageCaption')
@@ -218,14 +218,14 @@
                             <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
-                            Send
+                            {{ __('inbox.labels.send') }}
                         </button>
                         <button
                             wire:click="$set('image', null)"
                             type="button"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                         >
-                            Cancel
+                            {{ __('inbox.labels.cancel') }}
                         </button>
                     </div>
                 </div>
@@ -245,12 +245,12 @@
                         </svg>
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Document ready to send</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ __('inbox.labels.document_ready') }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $document->getClientOriginalName() }} ({{ number_format($document->getSize() / 1024, 2) }} KB)</p>
                         <input
                             type="text"
                             wire:model="documentCaption"
-                            placeholder="Add a caption (optional)..."
+                            placeholder="{{ __('inbox.labels.document_caption') }}"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
                         >
                         @error('documentCaption')
@@ -266,14 +266,14 @@
                             <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
-                            Send
+                            {{ __('inbox.labels.send') }}
                         </button>
                         <button
                             wire:click="$set('document', null)"
                             type="button"
                             class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                         >
-                            Cancel
+                            {{ __('inbox.labels.cancel') }}
                         </button>
                     </div>
                 </div>
@@ -310,7 +310,7 @@
                 <input
                     type="text"
                     wire:model="newMessage"
-                    placeholder="Type a message..."
+                    placeholder="{{ __('inbox.labels.type_message') }}"
                     class="flex-1 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-4 py-3"
                 >
                 <button
@@ -333,7 +333,7 @@
             <div class="flex gap-3">
                 <textarea
                     wire:model="internalNote"
-                    placeholder="Add an internal note (not sent to customer)..."
+                    placeholder="{{ __('inbox.labels.internal_note_placeholder') }}"
                     rows="2"
                     class="flex-1 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-yellow-500 focus:ring-yellow-500 px-4 py-3 resize-none"
                 ></textarea>
@@ -355,19 +355,19 @@
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                    Transfer Conversation
+                    {{ __('inbox.labels.transfer_conversation') }}
                 </h3>
 
                 <form wire:submit="transferConversation">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Select Operator
+                            {{ __('inbox.labels.select_operator') }}
                         </label>
                         <select
                             wire:model="transferToUserId"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-primary-500"
                         >
-                            <option value="">-- Select Operator --</option>
+                            <option value="">{{ __('inbox.labels.select_operator_placeholder') }}</option>
                             @foreach($this->operators as $operator)
                                 <option value="{{ $operator->id }}">{{ $operator->name }}</option>
                             @endforeach
@@ -383,13 +383,13 @@
                             wire:click="closeTransferModal"
                             class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
-                            Cancel
+                            {{ __('inbox.labels.cancel') }}
                         </button>
                         <button
                             type="submit"
                             class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700"
                         >
-                            Transfer
+                            {{ __('inbox.labels.transfer') }}
                         </button>
                     </div>
                 </form>

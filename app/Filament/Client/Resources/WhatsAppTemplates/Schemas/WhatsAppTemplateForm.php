@@ -18,73 +18,73 @@ class WhatsAppTemplateForm
         return $schema
             ->columns(2)
             ->components([
-                Section::make('Basic Information')
-                    ->description('Define the template name and message content')
+                Section::make(__('whatsapp_templates.sections.basic_information'))
+                    ->description(__('whatsapp_templates.sections.basic_information_description'))
                     ->icon('heroicon-o-document-text')
                     ->columns(1)
                     ->schema([
                         TextInput::make('name')
                             ->required()
                             ->maxLength(255)
-                            ->label('Template Name')
-                            ->helperText('Give your template a descriptive name')
-                            ->placeholder('e.g., Welcome Message'),
+                            ->label(__('whatsapp_templates.labels.name'))
+                            ->helperText(__('whatsapp_templates.helper.name'))
+                            ->placeholder(__('whatsapp_templates.placeholders.name')),
 
                         Textarea::make('content')
                             ->required()
                             ->rows(6)
-                            ->label('Message Content')
-                            ->helperText('Use variables like {name}, {company}, {operator}, etc.')
-                            ->placeholder('Hello {name}, welcome to {company}! Your operator {operator} will contact you soon.'),
+                            ->label(__('whatsapp_templates.labels.content'))
+                            ->helperText(__('whatsapp_templates.helper.content'))
+                            ->placeholder(__('whatsapp_templates.placeholders.content')),
                     ]),
 
-                Section::make('Settings & Automation')
-                    ->description('Configure when and how this template should be used')
+                Section::make(__('whatsapp_templates.sections.settings_automation'))
+                    ->description(__('whatsapp_templates.sections.settings_automation_description'))
                     ->icon('heroicon-o-cog-6-tooth')
                     ->columns(1)
                     ->schema([
                         Toggle::make('active')
-                            ->label('Active')
+                            ->label(__('whatsapp_templates.labels.active'))
                             ->default(true)
-                            ->helperText('Only active templates can be used')
+                            ->helperText(__('whatsapp_templates.helper.active'))
                             ->inline(false),
 
                         Select::make('trigger_on')
-                            ->label('Trigger On')
+                            ->label(__('whatsapp_templates.labels.trigger_on'))
                             ->options([
-                                'manual' => 'Manual Only',
-                                'lead_created' => 'When Lead is Created',
-                                'import' => 'When Lead is Imported',
-                                'stage' => 'When Lead Moves to Stage',
+                                'manual' => __('whatsapp_templates.triggers.manual'),
+                                'lead_created' => __('whatsapp_templates.triggers.lead_created'),
+                                'import' => __('whatsapp_templates.triggers.import'),
+                                'stage' => __('whatsapp_templates.triggers.stage'),
                             ])
                             ->default('manual')
                             ->live()
-                            ->helperText('When should this template be automatically sent?'),
+                            ->helperText(__('whatsapp_templates.helper.trigger_on')),
 
                         Select::make('pipeline_stage_id')
-                            ->label('Pipeline Stage')
+                            ->label(__('whatsapp_templates.labels.pipeline_stage'))
                             ->options(fn () => PipelineStage::where('tenant_id', auth()->user()->tenant_id)
                                 ->pluck('name', 'id'))
                             ->visible(fn ($get) => $get('trigger_on') === 'stage')
                             ->required(fn ($get) => $get('trigger_on') === 'stage')
-                            ->helperText('Template will be sent when lead moves to this stage'),
+                            ->helperText(__('whatsapp_templates.helper.pipeline_stage')),
                     ]),
 
-                Section::make('Available Variables')
-                    ->description('You can use these variables in your message content')
+                Section::make(__('whatsapp_templates.sections.available_variables'))
+                    ->description(__('whatsapp_templates.sections.available_variables_description'))
                     ->icon('heroicon-o-variable')
                     ->columnSpanFull()
                     ->collapsed()
                     ->schema([
                         Placeholder::make('variables_info')
                             ->label('')
-                            ->content('
-                                • **{name}** - Lead\'s full name
-                                • **{company}** - Your company name
-                                • **{operator}** - Assigned operator name
-                                • **{date}** - Current date
-                                • **{product}** - Product name (if applicable)
-                                • **{link}** - Custom link (if applicable)
+                            ->content(fn () => '
+                                • **{name}** - '.__('whatsapp_templates.variables.name').'
+                                • **{company}** - '.__('whatsapp_templates.variables.company').'
+                                • **{operator}** - '.__('whatsapp_templates.variables.operator').'
+                                • **{date}** - '.__('whatsapp_templates.variables.date').'
+                                • **{product}** - '.__('whatsapp_templates.variables.product').'
+                                • **{link}** - '.__('whatsapp_templates.variables.link').'
                             '),
                     ]),
             ]);

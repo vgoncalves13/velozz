@@ -17,39 +17,49 @@ class ProductsTable
         return $table
             ->columns([
                 ImageColumn::make('image_url')
-                    ->label('Image')
+                    ->label(__('products.labels.image'))
                     ->circular()
                     ->defaultImageUrl('https://ui-avatars.com/api/?name=Product&color=7F9CF5&background=EBF4FF'),
 
                 TextColumn::make('name')
+                    ->label(__('products.labels.name'))
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->title),
 
                 TextColumn::make('category')
+                    ->label(__('products.labels.category'))
                     ->badge()
                     ->color('info')
                     ->searchable()
                     ->toggleable(),
 
                 TextColumn::make('price')
+                    ->label(__('products.labels.price'))
                     ->money('EUR')
                     ->sortable(),
 
                 TextColumn::make('unit')
-                    ->placeholder('N/A')
+                    ->label(__('products.labels.unit'))
+                    ->placeholder(__('products.placeholders.not_available'))
                     ->toggleable(),
 
                 TextColumn::make('status')
+                    ->label(__('products.labels.status'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'gray',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'active' => __('products.status.active'),
+                        'inactive' => __('products.status.inactive'),
+                        default => $state,
                     }),
 
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('products.labels.created'))
                     ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -66,12 +76,12 @@ class ProductsTable
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading('No products yet')
-            ->emptyStateDescription('Create your product catalog to start tracking opportunities and generating revenue.')
+            ->emptyStateHeading(__('products.empty.title'))
+            ->emptyStateDescription(__('products.empty.description'))
             ->emptyStateIcon('heroicon-o-shopping-bag')
             ->emptyStateActions([
                 Action::make('create')
-                    ->label('Create Product')
+                    ->label(__('products.actions.create'))
                     ->url(fn (): string => \App\Filament\Client\Resources\Products\ProductResource::getUrl('create'))
                     ->icon('heroicon-o-plus')
                     ->color('primary'),

@@ -24,11 +24,27 @@ class LeadResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Leads';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.leads.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.leads.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.leads.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.crm');
+    }
 
     public static function form(Schema $schema): Schema
     {

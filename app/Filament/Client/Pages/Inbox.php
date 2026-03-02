@@ -13,11 +13,24 @@ class Inbox extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
-
     protected string $view = 'filament.client.pages.inbox';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('pages.inbox.navigation');
+    }
+
+    public function getTitle(): string
+    {
+        return __('inbox.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.crm');
+    }
 
     public ?int $selectedLeadId = null;
 
@@ -116,12 +129,12 @@ class Inbox extends Page
     {
         return [
             Action::make('newConversation')
-                ->label('New Conversation')
+                ->label(__('inbox.actions.new_conversation'))
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary')
                 ->form([
                     Select::make('lead_id')
-                        ->label('Select Lead')
+                        ->label(__('inbox.labels.select_lead'))
                         ->searchable()
                         ->getSearchResultsUsing(function (string $search): array {
                             return Lead::where('tenant_id', auth()->user()->tenant_id)
@@ -137,7 +150,7 @@ class Inbox extends Page
                         })
                         ->getOptionLabelUsing(fn ($value): ?string => Lead::find($value)?->full_name)
                         ->required()
-                        ->helperText('Search by name, email, phone or WhatsApp number'),
+                        ->helperText(__('inbox.labels.search_placeholder')),
                 ])
                 ->action(function (array $data): void {
                     $this->selectedLeadId = $data['lead_id'];

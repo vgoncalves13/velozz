@@ -19,16 +19,16 @@ class WhatsAppTemplatesTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->label('Name'),
+                    ->label(__('whatsapp_templates.labels.name')),
 
                 TextColumn::make('content')
                     ->limit(50)
                     ->tooltip(fn ($record) => $record->content)
-                    ->label('Content'),
+                    ->label(__('whatsapp_templates.labels.content')),
 
                 IconColumn::make('active')
                     ->boolean()
-                    ->label('Active'),
+                    ->label(__('whatsapp_templates.labels.active')),
 
                 TextColumn::make('trigger_on')
                     ->badge()
@@ -40,40 +40,40 @@ class WhatsAppTemplatesTable
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'manual' => 'Manual',
-                        'lead_created' => 'On Create',
-                        'import' => 'On Import',
-                        'stage' => 'Stage Trigger',
+                        'manual' => __('whatsapp_templates.triggers_formatted.manual'),
+                        'lead_created' => __('whatsapp_templates.triggers_formatted.lead_created'),
+                        'import' => __('whatsapp_templates.triggers_formatted.import'),
+                        'stage' => __('whatsapp_templates.triggers_formatted.stage'),
                         default => $state,
                     })
-                    ->label('Trigger'),
+                    ->label(__('whatsapp_templates.labels.trigger')),
 
                 TextColumn::make('pipelineStage.name')
-                    ->label('Stage')
-                    ->placeholder('—'),
+                    ->label(__('whatsapp_templates.labels.stage'))
+                    ->placeholder(__('whatsapp_templates.placeholders.stage_placeholder')),
 
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Created'),
+                    ->label(__('whatsapp_templates.labels.created')),
             ])
             ->filters([
                 SelectFilter::make('active')
                     ->options([
-                        '1' => 'Active',
-                        '0' => 'Inactive',
+                        '1' => __('whatsapp_templates.filters.active'),
+                        '0' => __('whatsapp_templates.filters.inactive'),
                     ])
-                    ->label('Status'),
+                    ->label(__('whatsapp_templates.labels.status')),
 
                 SelectFilter::make('trigger_on')
                     ->options([
-                        'manual' => 'Manual',
-                        'lead_created' => 'On Create',
-                        'import' => 'On Import',
-                        'stage' => 'Stage Trigger',
+                        'manual' => __('whatsapp_templates.triggers_formatted.manual'),
+                        'lead_created' => __('whatsapp_templates.triggers_formatted.lead_created'),
+                        'import' => __('whatsapp_templates.triggers_formatted.import'),
+                        'stage' => __('whatsapp_templates.triggers_formatted.stage'),
                     ])
-                    ->label('Trigger Type'),
+                    ->label(__('whatsapp_templates.labels.trigger_type')),
             ])
             ->recordActions([
                 EditAction::make(),

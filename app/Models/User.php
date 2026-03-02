@@ -24,6 +24,7 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'role',
         'status',
+        'locale',
         'photo',
         'invite_token',
         'invite_expires_at',

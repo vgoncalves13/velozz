@@ -8,9 +8,12 @@ use Filament\Widgets\ChartWidget;
 
 class KanbanFunnelWidget extends ChartWidget
 {
-    protected ?string $heading = 'Pipeline Funnel';
-
     protected static ?int $sort = 6;
+
+    public function getHeading(): ?string
+    {
+        return __('kanban.widget.pipeline_funnel');
+    }
 
     protected function getData(): array
     {
@@ -39,14 +42,14 @@ class KanbanFunnelWidget extends ChartWidget
             ->count();
 
         if ($withoutStage > 0) {
-            $labels[] = 'No Stage';
+            $labels[] = __('kanban.widget.no_stage');
             $data[] = $withoutStage;
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Leads',
+                    'label' => __('kanban.widget.leads'),
                     'data' => $data,
                     'backgroundColor' => 'rgba(59, 130, 246, 0.5)',
                     'borderColor' => 'rgb(59, 130, 246)',

@@ -16,11 +16,22 @@ class KanbanBoard extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedViewColumns;
 
-    protected static ?string $navigationLabel = 'Kanban Board';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'CRM';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('kanban.navigation');
+    }
+
+    public function getTitle(): string
+    {
+        return __('kanban.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.crm');
+    }
 
     protected string $view = 'filament.client.pages.kanban-board';
 
@@ -73,7 +84,10 @@ class KanbanBoard extends Page
             'tenant_id' => $lead->tenant_id,
             'lead_id' => $lead->id,
             'type' => LeadActivityType::StageChanged,
-            'description' => "Stage changed from {$oldStage?->name} to {$newStage->name}",
+            'description' => __('kanban.activities.stage_changed', [
+                'old_stage' => $oldStage?->name,
+                'new_stage' => $newStage->name,
+            ]),
             'metadata' => [
                 'old_stage_id' => $oldStageId,
                 'old_stage_name' => $oldStage?->name,
@@ -90,8 +104,8 @@ class KanbanBoard extends Page
         $this->loadData();
 
         Notification::make()
-            ->title('Lead moved successfully')
-            ->body("Moved to {$newStage->name}")
+            ->title(__('kanban.notifications.moved_title'))
+            ->body(__('kanban.notifications.moved_body', ['stage' => $newStage->name]))
             ->success()
             ->send();
     }

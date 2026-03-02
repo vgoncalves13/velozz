@@ -20,11 +20,27 @@ class WhatsAppTemplateResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Templates';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'WhatsApp';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('whatsapp_templates.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('whatsapp_templates.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('whatsapp_templates.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'WhatsApp';
+    }
 
     public static function form(Schema $schema): Schema
     {

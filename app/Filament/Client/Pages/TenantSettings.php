@@ -32,13 +32,22 @@ class TenantSettings extends Page implements HasActions, HasForms
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
-    protected static ?string $navigationLabel = 'Settings';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'Configuration';
-
-    protected static ?string $title = 'Settings';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('pages.tenant_settings.navigation');
+    }
+
+    public function getTitle(): string
+    {
+        return __('settings.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.configuration');
+    }
 
     public ?array $data = [];
 
@@ -56,155 +65,158 @@ class TenantSettings extends Page implements HasActions, HasForms
     {
         return $schema
             ->schema([
-                Section::make('Company Information')
+                Section::make(__('settings.sections.company_information'))
                     ->icon('heroicon-o-building-office')
-                    ->description('Configure your company details and branding')
+                    ->description(__('settings.sections.company_information_description'))
                     ->schema([
                         TextInput::make('name')
-                            ->label('Company Name')
+                            ->label(__('settings.labels.company_name'))
                             ->required()
                             ->maxLength(255),
 
                         FileUpload::make('settings.logo')
-                            ->label('Logo')
+                            ->label(__('settings.labels.logo'))
                             ->image()
                             ->maxSize(2048)
                             ->disk('public')
                             ->directory('tenant-logos'),
 
                         ColorPicker::make('settings.primary_color')
-                            ->label('Primary Color'),
+                            ->label(__('settings.labels.primary_color')),
 
                         ColorPicker::make('settings.secondary_color')
-                            ->label('Secondary Color'),
+                            ->label(__('settings.labels.secondary_color')),
                     ])
                     ->columns(2),
 
-                Section::make('Business Hours')
+                Section::make(__('settings.sections.business_hours'))
                     ->icon('heroicon-o-clock')
-                    ->description('Set your customer service hours')
+                    ->description(__('settings.sections.business_hours_description'))
                     ->schema([
                         TimePicker::make('settings.business_hours.start')
-                            ->label('Opening Time')
+                            ->label(__('settings.labels.opening_time'))
                             ->seconds(false),
 
                         TimePicker::make('settings.business_hours.end')
-                            ->label('Closing Time')
+                            ->label(__('settings.labels.closing_time'))
                             ->seconds(false),
 
                         Textarea::make('settings.business_hours.after_hours_message')
-                            ->label('After Hours Message')
-                            ->helperText('Message sent when contact is made outside business hours')
+                            ->label(__('settings.labels.after_hours_message'))
+                            ->helperText(__('settings.helper.after_hours_message'))
                             ->rows(3),
                     ])
                     ->columns(2)
                     ->collapsible(),
 
-                Section::make('Custom Fields')
+                Section::make(__('settings.sections.custom_fields'))
                     ->icon('heroicon-o-squares-plus')
-                    ->description('Add custom fields to your leads')
+                    ->description(__('settings.sections.custom_fields_description'))
                     ->schema([
                         Repeater::make('settings.custom_fields')
                             ->label('')
                             ->schema([
                                 TextInput::make('name')
+                                    ->label(__('settings.labels.name'))
                                     ->required()
                                     ->maxLength(100),
 
                                 Select::make('type')
+                                    ->label(__('settings.labels.type'))
                                     ->required()
                                     ->options([
-                                        'text' => 'Text',
-                                        'number' => 'Number',
-                                        'date' => 'Date',
-                                        'boolean' => 'Yes/No',
+                                        'text' => __('settings.field_types.text'),
+                                        'number' => __('settings.field_types.number'),
+                                        'date' => __('settings.field_types.date'),
+                                        'boolean' => __('settings.field_types.boolean'),
                                     ]),
 
                                 TextInput::make('label')
-                                    ->helperText('Display label (optional, uses name if empty)')
+                                    ->label(__('settings.labels.label'))
+                                    ->helperText(__('settings.helper.display_label'))
                                     ->maxLength(100),
                             ])
                             ->columns(3)
                             ->reorderable()
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'New Field')
-                            ->addActionLabel('Add Custom Field')
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? __('settings.item_labels.new_field'))
+                            ->addActionLabel(__('settings.actions.add_custom_field'))
                             ->defaultItems(0),
                     ])
                     ->collapsible(),
 
-                Section::make('Outbound Webhooks')
+                Section::make(__('settings.sections.webhooks'))
                     ->icon('heroicon-o-arrow-up-right')
-                    ->description('Configure webhooks to receive notifications about events')
+                    ->description(__('settings.sections.webhooks_description'))
                     ->schema([
                         Repeater::make('settings.webhooks')
                             ->label('')
                             ->schema([
                                 TextInput::make('url')
-                                    ->label('Webhook URL')
+                                    ->label(__('settings.labels.webhook_url'))
                                     ->url()
                                     ->required()
                                     ->maxLength(500)
-                                    ->placeholder('https://your-domain.com/webhook'),
+                                    ->placeholder(__('settings.placeholders.webhook_url')),
 
                                 Select::make('events')
-                                    ->label('Events to Send')
+                                    ->label(__('settings.labels.events_to_send'))
                                     ->multiple()
                                     ->required()
                                     ->options([
-                                        'lead_created' => 'Lead Created',
-                                        'lead_updated' => 'Lead Updated',
-                                        'lead_transferred' => 'Lead Transferred',
-                                        'message_sent' => 'Message Sent',
-                                        'message_received' => 'Message Received',
-                                        'stage_changed' => 'Pipeline Stage Changed',
-                                        'import_completed' => 'Import Completed',
+                                        'lead_created' => __('settings.webhook_events.lead_created'),
+                                        'lead_updated' => __('settings.webhook_events.lead_updated'),
+                                        'lead_transferred' => __('settings.webhook_events.lead_transferred'),
+                                        'message_sent' => __('settings.webhook_events.message_sent'),
+                                        'message_received' => __('settings.webhook_events.message_received'),
+                                        'stage_changed' => __('settings.webhook_events.stage_changed'),
+                                        'import_completed' => __('settings.webhook_events.import_completed'),
                                     ]),
                             ])
                             ->columns(1)
                             ->reorderable()
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => parse_url($state['url'] ?? '', PHP_URL_HOST) ?? 'New Webhook')
-                            ->addActionLabel('Add Webhook')
+                            ->itemLabel(fn (array $state): ?string => parse_url($state['url'] ?? '', PHP_URL_HOST) ?? __('settings.item_labels.new_webhook'))
+                            ->addActionLabel(__('settings.actions.add_webhook'))
                             ->defaultItems(0),
                     ])
                     ->collapsible(),
 
-                Section::make('GDPR Compliance')
+                Section::make(__('settings.sections.gdpr'))
                     ->icon('heroicon-o-shield-check')
-                    ->description('Configure data retention and privacy settings')
+                    ->description(__('settings.sections.gdpr_description'))
                     ->schema([
                         TextInput::make('settings.gdpr.anonymize_leads_inactive_months')
-                            ->label('Anonymize Inactive Leads After (months)')
+                            ->label(__('settings.labels.anonymize_leads'))
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(120)
-                            ->helperText('Leads not updated for X months will be anonymized'),
+                            ->helperText(__('settings.helper.anonymize_leads')),
 
                         TextInput::make('settings.gdpr.delete_messages_after_months')
-                            ->label('Delete Messages After (months)')
+                            ->label(__('settings.labels.delete_messages'))
                             ->numeric()
                             ->minValue(1)
                             ->maxValue(120)
-                            ->helperText('WhatsApp messages older than X months will be deleted'),
+                            ->helperText(__('settings.helper.delete_messages')),
 
                         Textarea::make('settings.gdpr.consent_policy')
-                            ->label('Consent Policy Text')
+                            ->label(__('settings.labels.consent_policy'))
                             ->rows(4)
-                            ->helperText('Text shown to users about data consent'),
+                            ->helperText(__('settings.helper.consent_policy')),
                     ])
                     ->columns(2)
                     ->collapsible(),
 
-                Section::make('API Access')
+                Section::make(__('settings.sections.api_access'))
                     ->icon('heroicon-o-key')
-                    ->description('Manage your API credentials')
+                    ->description(__('settings.sections.api_access_description'))
                     ->schema([
                         TextInput::make('settings.api_key')
-                            ->label('API Key')
+                            ->label(__('settings.labels.api_key'))
                             ->disabled()
                             ->dehydrated(false)
-                            ->helperText('Use this key to authenticate API requests'),
+                            ->helperText(__('settings.helper.api_key')),
                     ])
                     ->collapsible(),
             ])
@@ -215,7 +227,7 @@ class TenantSettings extends Page implements HasActions, HasForms
     {
         return [
             Action::make('save')
-                ->label('Save Settings')
+                ->label(__('settings.actions.save_settings'))
                 ->submit('save'),
         ];
     }
@@ -224,12 +236,12 @@ class TenantSettings extends Page implements HasActions, HasForms
     {
         return [
             Action::make('regenerate_api_key')
-                ->label('Regenerate API Key')
+                ->label(__('settings.actions.regenerate_api_key'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
                 ->requiresConfirmation()
-                ->modalHeading('Regenerate API Key')
-                ->modalDescription('This will invalidate your current API key. Any integrations using the old key will stop working.')
+                ->modalHeading(__('settings.modals.regenerate_api_key_heading'))
+                ->modalDescription(__('settings.modals.regenerate_api_key_description'))
                 ->action(function () {
                     $tenant = auth()->user()->tenant;
                     $settings = $tenant->settings ?? [];
@@ -242,8 +254,8 @@ class TenantSettings extends Page implements HasActions, HasForms
                     ]);
 
                     Notification::make()
-                        ->title('API Key Regenerated')
-                        ->body('Your new API key is now active')
+                        ->title(__('settings.notifications.api_key_regenerated_title'))
+                        ->body(__('settings.notifications.api_key_regenerated_body'))
                         ->success()
                         ->send();
                 }),
@@ -263,7 +275,7 @@ class TenantSettings extends Page implements HasActions, HasForms
             ]);
 
             Notification::make()
-                ->title('Settings Saved')
+                ->title(__('settings.notifications.settings_saved'))
                 ->success()
                 ->send();
         } catch (Halt $exception) {

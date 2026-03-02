@@ -14,25 +14,28 @@ class UserForm
     {
         return $schema
             ->components([
-                Section::make('Basic Information')
+                Section::make(__('users.sections.basic_information'))
                     ->schema([
                         TextInput::make('name')
+                            ->label(__('fields.name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('email')
-                            ->label('Email Address')
+                            ->label(__('users.labels.email_address'))
                             ->email()
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255)
-                            ->helperText('An invitation email will be sent to this address'),
+                            ->helperText(__('users.helper.email')),
 
                         TextInput::make('phone')
+                            ->label(__('fields.phone'))
                             ->tel()
                             ->maxLength(20),
 
                         FileUpload::make('photo')
+                            ->label(__('fields.photo'))
                             ->image()
                             ->imageEditor()
                             ->directory('team-photos')
@@ -41,29 +44,31 @@ class UserForm
                     ])
                     ->columns(2),
 
-                Section::make('Role & Access')
+                Section::make(__('users.sections.role_access'))
                     ->schema([
                         Select::make('role')
+                            ->label(__('fields.role'))
                             ->options([
-                                'admin_client' => 'Admin Client',
-                                'supervisor' => 'Supervisor',
-                                'operator' => 'Operator',
-                                'financial' => 'Financial',
+                                'admin_client' => __('users.role.admin_client'),
+                                'supervisor' => __('users.role.supervisor'),
+                                'operator' => __('users.role.operator'),
+                                'financial' => __('users.role.financial'),
                             ])
                             ->default('operator')
                             ->required()
-                            ->helperText('Admin Client: Full access | Supervisor: Manage team | Operator: Handle leads | Financial: View reports'),
+                            ->helperText(__('users.helper.role')),
 
                         Select::make('status')
+                            ->label(__('fields.status'))
                             ->options([
-                                'active' => 'Active',
-                                'invited' => 'Invited',
-                                'suspended' => 'Suspended',
-                                'temporary' => 'Temporary',
+                                'active' => __('users.status.active'),
+                                'invited' => __('users.status.invited'),
+                                'suspended' => __('users.status.suspended'),
+                                'temporary' => __('users.status.temporary'),
                             ])
                             ->default('invited')
                             ->required()
-                            ->helperText('Invited: User will receive email to set password | Active: User can login'),
+                            ->helperText(__('users.helper.status')),
                     ])
                     ->columns(2),
             ]);

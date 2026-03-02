@@ -20,11 +20,27 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static ?string $navigationLabel = 'Products';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'Catalog';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('products.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('products.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('products.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.catalog');
+    }
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

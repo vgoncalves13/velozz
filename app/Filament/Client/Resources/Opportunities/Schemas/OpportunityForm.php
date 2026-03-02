@@ -15,36 +15,36 @@ class OpportunityForm
     {
         return $schema
             ->components([
-                Section::make('Opportunity Information')
+                Section::make(__('opportunities.sections.opportunity_information'))
                     ->icon('heroicon-o-light-bulb')
                     ->schema([
                         Select::make('lead_id')
-                            ->label('Lead')
+                            ->label(__('opportunities.labels.lead'))
                             ->relationship('lead', 'full_name')
                             ->searchable()
                             ->required()
-                            ->helperText('Select the lead for this opportunity'),
+                            ->helperText(__('opportunities.helper.lead')),
 
                         Select::make('product_id')
-                            ->label('Product')
+                            ->label(__('opportunities.labels.product'))
                             ->relationship('product', 'name')
                             ->searchable()
-                            ->helperText('Optional: Select a product for this opportunity'),
+                            ->helperText(__('opportunities.helper.product')),
 
                         Select::make('assigned_user_id')
-                            ->label('Assigned To')
+                            ->label(__('opportunities.labels.assigned_to'))
                             ->relationship('assignedUser', 'name')
                             ->searchable()
-                            ->helperText('Assign an operator to this opportunity'),
+                            ->helperText(__('opportunities.helper.assigned_to')),
                     ])
                     ->columns(['default' => 1, 'md' => 2]),
 
-                Section::make('Value & Stage')
+                Section::make(__('opportunities.sections.value_and_stage'))
                     ->icon('heroicon-o-chart-bar')
                     ->schema([
                         TextInput::make('value')
-                            ->label('Value')
-                            ->helperText('Estimated revenue from this opportunity')
+                            ->label(__('opportunities.labels.value'))
+                            ->helperText(__('opportunities.helper.value'))
                             ->required()
                             ->numeric()
                             ->prefix('€')
@@ -53,45 +53,45 @@ class OpportunityForm
                             ->default(0),
 
                         Select::make('stage')
-                            ->label('Stage')
-                            ->helperText('Current stage in the sales process')
+                            ->label(__('opportunities.labels.stage'))
+                            ->helperText(__('opportunities.helper.stage'))
                             ->options([
-                                'proposal' => 'Proposal',
-                                'negotiation' => 'Negotiation',
-                                'closed_won' => 'Closed Won',
-                                'closed_lost' => 'Closed Lost',
+                                'proposal' => __('opportunities.stages.proposal'),
+                                'negotiation' => __('opportunities.stages.negotiation'),
+                                'closed_won' => __('opportunities.stages.closed_won'),
+                                'closed_lost' => __('opportunities.stages.closed_lost'),
                             ])
                             ->default('proposal')
                             ->required(),
 
                         TextInput::make('probability')
-                            ->label('Probability (%)')
+                            ->label(__('opportunities.labels.probability_percent'))
                             ->required()
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
                             ->suffix('%')
                             ->default(25)
-                            ->helperText('Chance of closing (0-100%)'),
+                            ->helperText(__('opportunities.helper.probability')),
 
                         DatePicker::make('expected_close_date')
-                            ->label('Expected Close Date')
-                            ->helperText('When do you expect to close this deal?'),
+                            ->label(__('opportunities.labels.expected_close_date'))
+                            ->helperText(__('opportunities.helper.expected_close_date')),
                     ])
                     ->columns(['default' => 1, 'md' => 2]),
 
-                Section::make('Additional Information')
+                Section::make(__('opportunities.sections.additional_information'))
                     ->icon('heroicon-o-document-text')
                     ->schema([
                         Textarea::make('notes')
-                            ->label('Notes')
+                            ->label(__('opportunities.labels.notes'))
                             ->rows(3)
-                            ->helperText('Internal notes about this opportunity'),
+                            ->helperText(__('opportunities.helper.notes')),
 
                         Textarea::make('loss_reason')
-                            ->label('Loss Reason')
+                            ->label(__('opportunities.labels.loss_reason'))
                             ->rows(2)
-                            ->helperText('If lost, why? (Optional)')
+                            ->helperText(__('opportunities.helper.loss_reason'))
                             ->visible(fn ($get) => $get('stage') === 'closed_lost'),
                     ])
                     ->collapsible(),

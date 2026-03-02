@@ -17,63 +17,66 @@ class PipelineStageForm
         return $schema
             ->columns(['default' => 1, 'md' => 2])
             ->components([
-                Section::make('Basic Information')
+                Section::make(__('pipeline_stages.sections.basic_information'))
                     ->icon('heroicon-o-information-circle')
                     ->columns(['default' => 1, 'md' => 2])
                     ->schema([
                         TextInput::make('name')
-                            ->helperText('Stage name (e.g., "New Lead", "Contacted", "Proposal Sent", "Closed Won")')
+                            ->label(__('pipeline_stages.labels.name'))
+                            ->helperText(__('pipeline_stages.helper.name'))
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
 
                         ColorPicker::make('color')
-                            ->helperText('Color used to identify this stage in the Kanban board')
+                            ->label(__('pipeline_stages.labels.color'))
+                            ->helperText(__('pipeline_stages.helper.color'))
                             ->required()
                             ->default('#3b82f6'),
 
                         TextInput::make('order')
+                            ->label(__('pipeline_stages.labels.order'))
                             ->numeric()
                             ->required()
                             ->default(0)
                             ->minValue(0)
-                            ->helperText('Order in which this stage appears in the pipeline'),
+                            ->helperText(__('pipeline_stages.helper.order')),
 
                         Select::make('icon')
-                            ->helperText('Icon displayed in the Kanban board header')
+                            ->label(__('pipeline_stages.labels.icon'))
+                            ->helperText(__('pipeline_stages.helper.icon'))
                             ->options([
-                                'heroicon-o-inbox' => 'Inbox',
-                                'heroicon-o-phone' => 'Phone',
-                                'heroicon-o-chat-bubble-left-right' => 'Chat',
-                                'heroicon-o-currency-dollar' => 'Dollar',
-                                'heroicon-o-check-circle' => 'Check Circle',
-                                'heroicon-o-x-circle' => 'X Circle',
-                                'heroicon-o-clock' => 'Clock',
-                                'heroicon-o-star' => 'Star',
-                                'heroicon-o-flag' => 'Flag',
+                                'heroicon-o-inbox' => __('pipeline_stages.icons.inbox'),
+                                'heroicon-o-phone' => __('pipeline_stages.icons.phone'),
+                                'heroicon-o-chat-bubble-left-right' => __('pipeline_stages.icons.chat'),
+                                'heroicon-o-currency-dollar' => __('pipeline_stages.icons.currency_dollar'),
+                                'heroicon-o-check-circle' => __('pipeline_stages.icons.check_circle'),
+                                'heroicon-o-x-circle' => __('pipeline_stages.icons.x_circle'),
+                                'heroicon-o-clock' => __('pipeline_stages.icons.clock'),
+                                'heroicon-o-star' => __('pipeline_stages.icons.star'),
+                                'heroicon-o-flag' => __('pipeline_stages.icons.flag'),
                             ])
                             ->default('heroicon-o-queue-list')
                             ->columnSpanFull(),
 
                         TextInput::make('sla_hours')
-                            ->label('SLA (hours)')
+                            ->label(__('pipeline_stages.labels.sla_hours'))
                             ->numeric()
                             ->nullable()
                             ->minValue(0)
-                            ->helperText('Expected time for leads to stay in this stage (optional)')
+                            ->helperText(__('pipeline_stages.helper.sla_hours'))
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Automations')
+                Section::make(__('pipeline_stages.sections.automations'))
                     ->icon('heroicon-o-bolt')
                     ->columns(1)
                     ->collapsible()
                     ->collapsed()
-                    ->description('Configure automations that trigger when a lead enters or exits this stage')
                     ->schema([
                         Select::make('automacao_entrada.template_id')
-                            ->label('Entry Automation - WhatsApp Template')
-                            ->helperText('Automatically send this WhatsApp template when lead enters this stage')
+                            ->label(__('pipeline_stages.labels.template_id'))
+                            ->helperText(__('pipeline_stages.helper.template_id'))
                             ->options(fn () => WhatsAppTemplate::where('tenant_id', auth()->user()->tenant_id)
                                 ->where('active', true)
                                 ->pluck('name', 'id')
@@ -87,12 +90,11 @@ class PipelineStageForm
                                 ->limit(50)
                                 ->pluck('name', 'id'))
                             ->getOptionLabelUsing(fn ($value): ?string => WhatsAppTemplate::find($value)?->name)
-                            ->placeholder('Select a template...')
                             ->nullable(),
 
                         Select::make('automacao_entrada.operador_id')
-                            ->label('Entry Automation - Auto-assign Operator')
-                            ->helperText('Automatically assign lead to this operator when entering this stage')
+                            ->label(__('pipeline_stages.labels.operador_id'))
+                            ->helperText(__('pipeline_stages.helper.operador_id'))
                             ->options(fn () => User::where('tenant_id', auth()->user()->tenant_id)
                                 ->where('status', 'active')
                                 ->whereIn('role', ['admin_client', 'supervisor', 'operator'])
@@ -107,20 +109,18 @@ class PipelineStageForm
                                 ->limit(50)
                                 ->pluck('name', 'id'))
                             ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->name)
-                            ->placeholder('Select an operator...')
                             ->nullable(),
 
                         TextInput::make('automacao_entrada.tags')
-                            ->label('Entry Automation - Add Tags')
-                            ->helperText('Comma-separated tags to add when lead enters this stage')
-                            ->placeholder('e.g., contacted,priority')
+                            ->label(__('pipeline_stages.labels.tags'))
+                            ->helperText(__('pipeline_stages.helper.tags'))
                             ->nullable(),
 
                         TextInput::make('automacao_saida.webhook_url')
-                            ->label('Exit Automation - Webhook URL')
+                            ->label(__('pipeline_stages.labels.webhook_url'))
                             ->url()
-                            ->helperText('URL to call when lead exits this stage')
-                            ->placeholder('https://example.com/webhook')
+                            ->helperText(__('pipeline_stages.helper.webhook_url'))
+                            ->placeholder(__('pipeline_stages.placeholders.webhook_url'))
                             ->nullable(),
                     ]),
             ]);

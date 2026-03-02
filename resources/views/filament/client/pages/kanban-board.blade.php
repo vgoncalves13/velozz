@@ -76,7 +76,7 @@
                         </div>
                         @if($stage->sla_hours)
                             <p class="text-xs text-gray-500 dark:text-gray-400 ml-6" x-show="!collapsed">
-                                SLA: {{ $stage->sla_hours }}h
+                                {{ __('kanban.labels.sla') }}: {{ $stage->sla_hours }}h
                             </p>
                         @endif
                     </div>
@@ -141,13 +141,13 @@
                                         href="{{ \App\Filament\Client\Resources\Leads\LeadResource::getUrl('view', ['record' => $lead['id']]) }}"
                                         class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
                                     >
-                                        View
+                                        {{ __('kanban.actions.view') }}
                                     </a>
                                     <a
                                         href="{{ \App\Filament\Client\Resources\Leads\LeadResource::getUrl('edit', ['record' => $lead['id']]) }}"
                                         class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400"
                                     >
-                                        Edit
+                                        {{ __('kanban.actions.edit') }}
                                     </a>
                                 </div>
                             </div>
@@ -164,7 +164,7 @@
                                     :icon="$stage->icon ?? 'heroicon-o-queue-list'"
                                     class="w-8 h-8 mx-auto mb-2 opacity-30"
                                 />
-                                <p class="text-xs">Drop leads here</p>
+                                <p class="text-xs">{{ __('kanban.labels.drop_here') }}</p>
                             </div>
                         @endforelse
                     </div>
@@ -175,13 +175,13 @@
                     <svg class="mx-auto h-20 w-20 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                     </svg>
-                    <h3 class="mt-6 text-lg font-semibold text-gray-900 dark:text-white">No pipeline stages yet</h3>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 mb-6">Create your first pipeline stage to start organizing leads in a visual workflow.</p>
+                    <h3 class="mt-6 text-lg font-semibold text-gray-900 dark:text-white">{{ __('kanban.empty.no_stages_title') }}</h3>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 mb-6">{{ __('kanban.empty.no_stages_description') }}</p>
                     <a href="/app/pipeline-stages/create" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        Create Pipeline Stage
+                        {{ __('kanban.actions.create_stage') }}
                     </a>
                 </div>
             </div>

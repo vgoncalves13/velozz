@@ -115,7 +115,7 @@ class InboxConversation extends Component
         ]);
 
         if ($this->lead->opt_out || $this->lead->do_not_contact) {
-            $this->addError('newMessage', 'Cannot send message. Lead has opted out or is marked as do not contact.');
+            $this->addError('newMessage', __('inbox.errors.cannot_send_opted_out'));
 
             return;
         }
@@ -135,7 +135,7 @@ class InboxConversation extends Component
         ]);
 
         if ($this->lead->opt_out || $this->lead->do_not_contact) {
-            $this->addError('image', 'Cannot send image. Lead has opted out or is marked as do not contact.');
+            $this->addError('image', __('inbox.errors.cannot_send_image_opted_out'));
 
             return;
         }
@@ -169,7 +169,7 @@ class InboxConversation extends Component
         ]);
 
         if ($this->lead->opt_out || $this->lead->do_not_contact) {
-            $this->addError('document', 'Cannot send document. Lead has opted out or is marked as do not contact.');
+            $this->addError('document', __('inbox.errors.cannot_send_document_opted_out'));
 
             return;
         }
@@ -215,7 +215,7 @@ class InboxConversation extends Component
             'tenant_id' => $this->lead->tenant_id,
             'lead_id' => $this->lead->id,
             'type' => LeadActivityType::Note,
-            'description' => 'Internal note added',
+            'description' => __('inbox.activities.internal_note_added'),
             'metadata' => ['note' => $this->internalNote],
             'user_id' => auth()->id(),
         ]);
@@ -233,7 +233,7 @@ class InboxConversation extends Component
             'tenant_id' => $this->lead->tenant_id,
             'lead_id' => $this->lead->id,
             'type' => LeadActivityType::Transfer,
-            'description' => 'Conversation assumed by '.auth()->user()->name,
+            'description' => __('inbox.activities.conversation_assumed', ['name' => auth()->user()->name]),
             'user_id' => auth()->id(),
         ]);
 
@@ -269,7 +269,7 @@ class InboxConversation extends Component
             'tenant_id' => $this->lead->tenant_id,
             'lead_id' => $this->lead->id,
             'type' => LeadActivityType::Transfer,
-            'description' => "Conversation transferred to {$newUser->name}",
+            'description' => __('inbox.activities.conversation_transferred', ['name' => $newUser->name]),
             'user_id' => auth()->id(),
         ]);
 

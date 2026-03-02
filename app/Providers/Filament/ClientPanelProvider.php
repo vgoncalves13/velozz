@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Http\Middleware\CheckTenantLimits;
 use App\Http\Middleware\InitializeTenancy;
+use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -148,6 +149,14 @@ class ClientPanelProvider extends PanelProvider
                 <div class="h-full bg-primary-400 animate-pulse"></div>
             </div>',
         );
+
+        // Add language switcher to footer
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::FOOTER,
+            fn (): string => Blade::render('<div class="flex justify-center p-4 border-t border-gray-200 dark:border-gray-700">
+                <livewire:language-switcher />
+            </div>'),
+        );
     }
 
     public function panel(Panel $panel): Panel
@@ -204,6 +213,7 @@ class ClientPanelProvider extends PanelProvider
                 StartSession::class,
                 InitializeTenancy::class, // MUST be before authentication
                 AuthenticateSession::class,
+                SetLocale::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
