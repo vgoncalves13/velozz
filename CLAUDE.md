@@ -270,4 +270,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - IMPORTANT: Always use `search-docs` tool for version-specific Tailwind CSS documentation and updated code examples. Never rely on training data.
 - IMPORTANT: Activate `tailwindcss-development` every time you're working with a Tailwind CSS or styling-related task.
 
+# Translations
+- Always translate text in english (default) and portuguese portugal using `__()` helper from laravel
+
 </laravel-boost-guidelines>
