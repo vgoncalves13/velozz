@@ -23,6 +23,11 @@ class LogAuthenticationEvents
             return;
         }
 
+        // Update last login timestamp
+        $event->user->update([
+            'last_login_at' => now(),
+        ]);
+
         AuditHelper::log('login', 'user', $event->user->id, null, [
             'guard' => $event->guard,
             'remember' => $event->remember,

@@ -144,4 +144,57 @@ class LoginAuditDeduplicationTest extends TestCase
         // Should have NO audit log entries
         $this->assertEquals(0, AuditLog::where('action', 'logout')->count());
     }
+
+    public function test_login_updates_last_login_at_timestamp(): void
+    {
+        $tenant = Tenant::factory()->create();
+        $user = User::factory()->create([
+            'tenant_id' => $tenant->id,
+            'last_login_at' => null,
+        ]);
+
+        $this->assertNull($user->last_login_at);
+
+        $listener = new LogAuthenticationEvents;
+
+        // Login event
+        $event = new Login('web', $user, false);
+        $listener->handleLogin($event);
+
+        // Refresh user from database
+        $user->refresh();
+
+        // Should have last_login_at timestamp set
+        $this->assertNotNull($user->last_login_at);
+        $this->assertTrue($user->last_login_at->isToday());
+    }
+
+    public function test_duplicate_login_does_not_update_last_login_at(): void
+    {
+        $tenant = Tenant::factory()->create();
+        $user = User::factory()->create([
+            'tenant_id' => $tenant->id,
+            'last_login_at' => null,
+        ]);
+
+        $listener = new LogAuthenticationEvents;
+
+        // First login
+        $event = new Login('web', $user, false);
+        $listener->handleLogin($event);
+
+        $user->refresh();
+        $firstLoginTime = $user->last_login_at;
+
+        // Wait a moment
+        $this->travel(1)->seconds();
+
+        // Second login (duplicate - within 5 seconds)
+        $listener->handleLogin($event);
+
+        $user->refresh();
+
+        // last_login_at should NOT be updated (because it's a duplicate)
+        $this->assertEquals($firstLoginTime->timestamp, $user->last_login_at->timestamp);
+    }
 }
