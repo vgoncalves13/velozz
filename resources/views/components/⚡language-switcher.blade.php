@@ -13,7 +13,7 @@ new class extends Component
 
     public function switchLocale(string $locale): void
     {
-        if (! in_array($locale, ['en', 'pt'])) {
+        if (! in_array($locale, ['pt', 'en'])) {
             return;
         }
 
@@ -33,16 +33,6 @@ new class extends Component
 
 <div class="flex items-center gap-2">
     <button
-        wire:click="switchLocale('en')"
-        class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors
-            {{ $currentLocale === 'en' ? 'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800' }}"
-        type="button"
-    >
-        <span>🇬🇧</span>
-        <span>English</span>
-    </button>
-
-    <button
         wire:click="switchLocale('pt')"
         class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors
             {{ $currentLocale === 'pt' ? 'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800' }}"
@@ -50,5 +40,14 @@ new class extends Component
     >
         <span>🇵🇹</span>
         <span>Português</span>
+    </button>
+    <button
+        wire:click="switchLocale('en')"
+        class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors
+            {{ $currentLocale === 'en' ? 'bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800' }}"
+        type="button"
+    >
+        <span>🇬🇧</span>
+        <span>English</span>
     </button>
 </div>
