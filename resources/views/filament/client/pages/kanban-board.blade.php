@@ -1,21 +1,4 @@
 <x-filament-panels::page>
-    {{-- Loading Skeleton --}}
-    <div wire:loading class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-        @for($i = 0; $i < 4; $i++)
-        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 md:p-4 animate-pulse">
-            <div class="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-4"></div>
-            <div class="space-y-3">
-                @for($j = 0; $j < 3; $j++)
-                <div class="bg-white dark:bg-gray-700 rounded-lg p-3 space-y-2">
-                    <div class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-                    <div class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
-                </div>
-                @endfor
-            </div>
-        </div>
-        @endfor
-    </div>
-
     {{-- Actual Content --}}
     <div
         wire:loading.remove
