@@ -94,6 +94,16 @@ echo ""
 echo "🐳 Construindo imagem Docker..."
 DOCKER_BUILDKIT=1 docker compose -f docker-compose.production.yml --env-file .env.production build
 
+# Copiar assets compilados da imagem para o host
+echo "📦 Copiando assets compilados..."
+# Criar container temporário da imagem
+TEMP_CONTAINER=$(docker create velozz:latest)
+# Copiar public/build do container para o host
+docker cp $TEMP_CONTAINER:/var/www/html/public/build ./public/
+# Remover container temporário
+docker rm $TEMP_CONTAINER
+echo "✅ Assets copiados com sucesso"
+
 # Parar containers antigos
 echo "🛑 Parando containers antigos..."
 docker compose -f docker-compose.production.yml --env-file .env.production down
