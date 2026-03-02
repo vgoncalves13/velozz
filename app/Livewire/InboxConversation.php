@@ -26,6 +26,10 @@ class InboxConversation extends Component
 
     public string $imageCaption = '';
 
+    public $document = null;
+
+    public string $documentCaption = '';
+
     public string $internalNote = '';
 
     public bool $isInternalNoteMode = false;
@@ -136,8 +140,9 @@ class InboxConversation extends Component
             return;
         }
 
-        // Store image in storage/app/public/whatsapp-images
-        $path = $this->image->store('whatsapp-images', 'public');
+        // Store image in storage/app/public/whatsapp-images with original name
+        $originalName = $this->image->getClientOriginalName();
+        $path = $this->image->storeAs('whatsapp-images', $originalName, 'public');
 
         // Generate full public URL (Z-API accepts both URL and base64)
         $imageUrl = url(Storage::url($path));
@@ -152,6 +157,40 @@ class InboxConversation extends Component
 
         $this->image = null;
         $this->imageCaption = '';
+
+        $this->dispatch('message-sent');
+    }
+
+    public function sendDocument(): void
+    {
+        $this->validate([
+            'document' => 'required|file|max:20480|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,rar', // Max 20MB
+            'documentCaption' => 'nullable|string|max:1024',
+        ]);
+
+        if ($this->lead->opt_out || $this->lead->do_not_contact) {
+            $this->addError('document', 'Cannot send document. Lead has opted out or is marked as do not contact.');
+
+            return;
+        }
+
+        // Store document in storage/app/public/whatsapp-documents with original name
+        $originalName = $this->document->getClientOriginalName();
+        $path = $this->document->storeAs('whatsapp-documents', $originalName, 'public');
+
+        // Generate full public URL
+        $documentUrl = url(Storage::url($path));
+
+        SendWhatsAppMessage::dispatch(
+            $this->lead,
+            $this->documentCaption ?: '',
+            auth()->id(),
+            'document',
+            $documentUrl
+        );
+
+        $this->document = null;
+        $this->documentCaption = '';
 
         $this->dispatch('message-sent');
     }

@@ -108,6 +108,24 @@
                             @else
                                 <div class="px-4 py-3"></div>
                             @endif
+                        @elseif($message->type === \App\Enums\MessageType::Document && $message->media_url)
+                            {{-- Document Message --}}
+                            <a href="{{ $message->media_url }}" target="_blank" class="flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                <div class="shrink-0 w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium truncate">{{ basename($message->media_url) }}</p>
+                                    @if($message->content)
+                                        <p class="text-xs opacity-75 mt-1">{{ $message->content }}</p>
+                                    @endif
+                                </div>
+                                <svg class="shrink-0 h-5 w-5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </a>
                         @else
                             {{-- Text Message --}}
                             <p class="text-sm leading-relaxed px-4 py-3">{{ $message->content }}</p>
@@ -177,7 +195,7 @@
         @if($image && !$isInternalNoteMode)
             <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
                 <div class="flex items-start gap-4">
-                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="flex-shrink-0 w-24 h-24 object-cover rounded-lg">
+                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="shrink-0 w-24 h-24 object-cover rounded-lg">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Image ready to send</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $image->getClientOriginalName() }}</p>
@@ -217,6 +235,54 @@
             </div>
         @endif
 
+        {{-- Document Upload Preview --}}
+        @if($document && !$isInternalNoteMode)
+            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                <div class="flex items-start gap-4">
+                    <div class="shrink-0 w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                        <svg class="h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Document ready to send</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $document->getClientOriginalName() }} ({{ number_format($document->getSize() / 1024, 2) }} KB)</p>
+                        <input
+                            type="text"
+                            wire:model="documentCaption"
+                            placeholder="Add a caption (optional)..."
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
+                        >
+                        @error('documentCaption')
+                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            wire:click="sendDocument"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                        >
+                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Send
+                        </button>
+                        <button
+                            wire:click="$set('document', null)"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                @error('document')
+                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+        @endif
+
         @if(!$isInternalNoteMode)
             {{-- Regular Message Input --}}
             <form wire:submit="sendMessage" id="message-input">
@@ -229,7 +295,15 @@
                 <label class="inline-flex items-center justify-center w-12 h-12 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 transition-colors cursor-pointer">
                     <input type="file" wire:model="image" accept="image/*" class="sr-only">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </label>
+
+                {{-- Attach Document Button --}}
+                <label class="inline-flex items-center justify-center w-12 h-12 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 transition-colors cursor-pointer">
+                    <input type="file" wire:model="document" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.rar" class="sr-only">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                 </label>
 
