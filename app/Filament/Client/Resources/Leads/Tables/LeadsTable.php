@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Leads\Tables;
 
+use App\Enums\LeadSource;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -70,13 +71,16 @@ class LeadsTable
                 TextColumn::make('source')
                     ->label(__('fields.source'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'import' => 'success',
-                        'manual' => 'info',
-                        'api' => 'warning',
-                        'form' => 'primary',
+                    ->color(fn (LeadSource $state): string => match ($state) {
+                        LeadSource::Import => 'success',
+                        LeadSource::Manual => 'info',
+                        LeadSource::Api => 'warning',
+                        LeadSource::Form => 'primary',
+                        LeadSource::Whatsapp => 'success',
+                        LeadSource::Instagram => 'warning',
+                        LeadSource::FacebookMessenger => 'info',
                     })
-                    ->formatStateUsing(fn (string $state): string => __('leads.source.'.$state))
+                    ->formatStateUsing(fn (LeadSource $state): string => __('leads.source.'.$state->value))
                     ->sortable()
                     ->toggleable(),
 
@@ -137,6 +141,9 @@ class LeadsTable
                         'manual' => __('leads.source.manual'),
                         'api' => __('leads.source.api'),
                         'form' => __('leads.source.form'),
+                        'whatsapp' => __('leads.source.whatsapp'),
+                        'instagram' => __('leads.source.instagram'),
+                        'facebook_messenger' => __('leads.source.facebook_messenger'),
                     ]),
 
                 SelectFilter::make('priority')

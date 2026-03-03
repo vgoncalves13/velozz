@@ -38,6 +38,9 @@ return [
         'manual' => 'Manual',
         'api' => 'API',
         'form' => 'Formulário',
+        'whatsapp' => 'WhatsApp',
+        'instagram' => 'Instagram',
+        'facebook_messenger' => 'Facebook Messenger',
     ],
 
     'priority' => [
