@@ -162,4 +162,22 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
 
         return $response->json('instagram_business_account.id');
     }
+
+    public function subscribePage(string $pageId, string $pageAccessToken): bool
+    {
+        $response = Http::post("{$this->baseUrl}/{$pageId}/subscribed_apps", [
+            'subscribed_fields' => 'messages,messaging_postbacks',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Meta Graph API: Page subscription failed', [
+                'page_id' => $pageId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        }
+
+        return $response->successful();
+    }
 }

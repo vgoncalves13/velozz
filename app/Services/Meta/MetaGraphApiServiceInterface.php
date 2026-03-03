@@ -52,4 +52,9 @@ interface MetaGraphApiServiceInterface
      * Get the Instagram Business Account ID linked to a Facebook Page
      */
     public function getInstagramBusinessAccount(string $pageId, string $pageAccessToken): ?string;
+
+    /**
+     * Subscribe a Facebook Page to receive webhook events (messages field)
+     */
+    public function subscribePage(string $pageId, string $pageAccessToken): bool;
 }

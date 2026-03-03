@@ -54,6 +54,8 @@ class MetaOAuthController extends Controller
                 ]
             );
 
+            $metaApi->subscribePage($page['id'], $page['access_token']);
+
             $connectedCount++;
 
             $instagramAccountId = $metaApi->getInstagramBusinessAccount($page['id'], $page['access_token']);

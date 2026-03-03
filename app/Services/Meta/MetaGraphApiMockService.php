@@ -75,4 +75,9 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
     {
         return null;
     }
+
+    public function subscribePage(string $pageId, string $pageAccessToken): bool
+    {
+        return true;
+    }
 }
