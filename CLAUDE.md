@@ -31,6 +31,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
 - `php-best-practices` — PHP 8.5+ modern patterns, PSR standards, and SOLID principles. Use when reviewing PHP code, checking type safety, auditing code quality, or ensuring PHP best practices. Triggers on &quot;review PHP&quot;, &quot;check PHP code&quot;, &quot;audit PHP&quot;, or &quot;PHP best practices&quot;.
+- `filament-v5` — Filament V5 best practices. Use ALWAYS when create a filament resource, form, infolist or anything relevant to filament. 
 
 ## Conventions
 
@@ -172,6 +173,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - Avoid `DB::`; prefer `Model::query()`. Generate code that leverages Laravel's ORM capabilities rather than bypassing them.
 - Generate code that prevents N+1 query problems by using eager loading.
 - Use Laravel's query builder for very complex database operations.
+- NEVER user enum type, always use string and create PHP Enum class
 
 ### Model Creation
 
@@ -271,6 +273,6 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - IMPORTANT: Activate `tailwindcss-development` every time you're working with a Tailwind CSS or styling-related task.
 
 # Translations
-- Always translate text in english (default) and portuguese portugal using `__()` helper from laravel
+- Always translate text in english and portuguese portugal (default) using `__()` helper from laravel
 
 </laravel-boost-guidelines>
