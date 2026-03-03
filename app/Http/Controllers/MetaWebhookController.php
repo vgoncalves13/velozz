@@ -48,6 +48,7 @@ class MetaWebhookController extends Controller
      */
     public function receive(Request $request): JsonResponse
     {
+        Log::info('Meta Webhook received', [$_SERVER['REQUEST_METHOD'] => $request->all() ?? []]);
         // Verify X-Hub-Signature-256 header (HMAC-SHA256 of the raw payload)
         $signature = $request->header('X-Hub-Signature-256', '');
         if (! $this->metaApi->verifySignature($request->getContent(), $signature)) {
