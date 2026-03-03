@@ -39,12 +39,11 @@ class LeadForm
 
                         Select::make('source')
                             ->label(__('fields.source'))
-                            ->options([
-                                'import' => __('leads.source.import'),
-                                'manual' => __('leads.source.manual'),
-                                'api' => __('leads.source.api'),
-                                'form' => __('leads.source.form'),
-                            ])
+                            ->options(fn () => collect(\App\Enums\LeadSource::cases())
+                                ->mapWithKeys(fn (\App\Enums\LeadSource $case) => [
+                                    $case->value => __('leads.source.'.$case->value),
+                                ])
+                                ->all())
                             ->default('manual')
                             ->helperText(__('leads.helper.source'))
                             ->required(),
