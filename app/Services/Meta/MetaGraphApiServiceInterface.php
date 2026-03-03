@@ -57,4 +57,11 @@ interface MetaGraphApiServiceInterface
      * Subscribe a Facebook Page to receive webhook events (messages field)
      */
     public function subscribePage(string $pageId, string $pageAccessToken): bool;
+
+    /**
+     * Get the name and profile picture of a Messenger/Instagram sender
+     *
+     * @return array{name: string|null, profile_pic: string|null}
+     */
+    public function getSenderProfile(string $senderId, string $pageAccessToken): array;
 }

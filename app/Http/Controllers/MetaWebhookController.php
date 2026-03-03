@@ -48,7 +48,7 @@ class MetaWebhookController extends Controller
      */
     public function receive(Request $request): JsonResponse
     {
-        Log::info('Meta Webhook received', [$_SERVER['REQUEST_METHOD'] => $request->all() ?? []]);
+        Log::info('Meta Webhook received', [$request->method() => $request->all()]);
         // Verify X-Hub-Signature-256 header (HMAC-SHA256 of the raw payload)
         $signature = $request->header('X-Hub-Signature-256', '');
         if (! $this->metaApi->verifySignature($request->getContent(), $signature)) {
@@ -138,7 +138,7 @@ class MetaWebhookController extends Controller
                         : now();
 
                     // Find or create lead by sender_id
-                    $lead = $this->findOrCreateLeadBySenderId($tenant, $senderId, $channel);
+                    $lead = $this->findOrCreateLeadBySenderId($tenant, $senderId, $channel, $metaAccount->access_token);
 
                     // Create social message
                     $socialMessage = SocialMessage::create([
@@ -190,7 +190,7 @@ class MetaWebhookController extends Controller
         }
     }
 
-    private function findOrCreateLeadBySenderId(Tenant $tenant, string $senderId, Channel $channel): Lead
+    private function findOrCreateLeadBySenderId(Tenant $tenant, string $senderId, Channel $channel, string $pageAccessToken): Lead
     {
         $channelField = $channel === Channel::Instagram ? 'instagram_sender_id' : 'facebook_psid';
 
@@ -203,10 +203,14 @@ class MetaWebhookController extends Controller
             return $lead;
         }
 
+        // Fetch sender profile from Meta Graph API
+        $profile = $this->metaApi->getSenderProfile($senderId, $pageAccessToken);
+        $fullName = $profile['name'] ?? 'Unknown Contact ('.$channel->value.')';
+
         // Create new lead
         $lead = Lead::create([
             'tenant_id' => $tenant->id,
-            'full_name' => 'Unknown Contact ('.$channel->value.')',
+            'full_name' => $fullName,
             'source' => LeadSource::from($channel->value),
             'consent_status' => 'pending',
             'custom_fields' => [$channelField => $senderId],

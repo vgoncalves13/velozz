@@ -163,6 +163,23 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
         return $response->json('instagram_business_account.id');
     }
 
+    public function getSenderProfile(string $senderId, string $pageAccessToken): array
+    {
+        $response = Http::get("{$this->baseUrl}/{$senderId}", [
+            'fields' => 'name,profile_pic',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            return ['name' => null, 'profile_pic' => null];
+        }
+
+        return [
+            'name' => $response->json('name'),
+            'profile_pic' => $response->json('profile_pic'),
+        ];
+    }
+
     public function subscribePage(string $pageId, string $pageAccessToken): bool
     {
         $response = Http::post("{$this->baseUrl}/{$pageId}/subscribed_apps", [
