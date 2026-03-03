@@ -39,6 +39,16 @@ return [
         'select_operator' => 'Selecionar Operador',
         'select_operator_placeholder' => '-- Selecionar Operador --',
         'no_messages_yet' => 'Ainda não há mensagens',
+        'view_lead' => 'Ver Lead',
+        'merge' => 'Fundir',
+        'merge_lead' => 'Fundir Lead',
+        'merge_warning' => 'O lead selecionado será fundido neste e apagado. As conversas serão mantidas separadas por canal.',
+        'select_merge_lead' => 'Selecionar Lead a Fundir',
+        'confirm_merge' => 'Confirmar Fusão',
+        'choose_channel_to_send' => 'Escolha o canal para iniciar a conversa:',
+        'channel_whatsapp' => 'WhatsApp',
+        'channel_facebook' => 'Facebook Messenger',
+        'channel_instagram' => 'Instagram',
     ],
 
     // Empty states
@@ -54,6 +64,7 @@ return [
         'cannot_send_opted_out' => 'Não é possível enviar mensagem. Lead desativou ou está marcado como não contactar.',
         'cannot_send_image_opted_out' => 'Não é possível enviar imagem. Lead desativou ou está marcado como não contactar.',
         'cannot_send_document_opted_out' => 'Não é possível enviar documento. Lead desativou ou está marcado como não contactar.',
+        'cannot_merge_same' => 'Não é possível fundir o lead consigo próprio.',
     ],
 
     // Activities
@@ -61,6 +72,7 @@ return [
         'internal_note_added' => 'Nota interna adicionada',
         'conversation_assumed' => 'Conversa assumida por :name',
         'conversation_transferred' => 'Conversa transferida para :name',
+        'lead_merged' => 'Lead :name fundido neste lead',
     ],
 
     // Messages

@@ -1,3 +1,6 @@
+@php
+ use Filament\Support\Icons\Heroicon;
+@endphp
 <div class="flex flex-col h-full"
      wire:poll.3s.keep-alive
      x-data="{
@@ -56,6 +59,27 @@
                     </svg>
                     {{ __('inbox.labels.transfer') }}
                 </button>
+
+                <button
+                    wire:click="openMergeModal"
+                    class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                >
+                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    {{ __('inbox.labels.merge') }}
+                </button>
+
+                <a
+                    href="{{ $this->leadViewUrl }}"
+                    class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                    target="_blank"
+                >
+                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    {{ __('inbox.labels.view_lead') }}
+                </a>
             </div>
         </div>
 
@@ -191,6 +215,29 @@
             </label>
         </div>
 
+        {{-- Channel Selector --}}
+        @if(!$isInternalNoteMode && $lead->last_message_channel === null && $preferredChannelOverride === null && count($this->availableChannels) > 1)
+            <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 flex items-center gap-3 flex-wrap">
+                <span class="text-sm font-medium text-blue-900 dark:text-blue-200">{{ __('inbox.labels.choose_channel_to_send') }}</span>
+                @foreach($this->availableChannels as $ch)
+                    <button
+                        wire:click="selectChannel('{{ $ch->value }}')"
+                        type="button"
+                        class="inline-flex items-center px-3 py-1.5 border border-blue-300 dark:border-blue-700 text-sm font-medium rounded-lg text-blue-800 dark:text-blue-200 bg-white dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                    >
+                        <x-channel-icon :channel="$ch" class="w-4 h-4 mr-1" />
+                        @if($ch === \App\Enums\Channel::Whatsapp)
+                            {{ __('inbox.labels.channel_whatsapp') }}
+                        @elseif($ch === \App\Enums\Channel::FacebookMessenger)
+                            {{ __('inbox.labels.channel_facebook') }}
+                        @elseif($ch === \App\Enums\Channel::Instagram)
+                            {{ __('inbox.labels.channel_instagram') }}
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
         {{-- Image Upload Preview --}}
         @if($image && !$isInternalNoteMode)
             <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
@@ -313,14 +360,8 @@
                     placeholder="{{ __('inbox.labels.type_message') }}"
                     class="flex-1 rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-4 py-3"
                 >
-                <button
-                    type="submit"
-                    class="inline-flex items-center justify-center w-12 h-12 border border-transparent text-sm font-medium rounded-xl text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-                >
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                </button>
+                <x-filament::button type="submit" icon="heroicon-m-paper-airplane">
+                </x-filament::button>
             </div>
         </form>
         @else
@@ -390,6 +431,57 @@
                             class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700"
                         >
                             {{ __('inbox.labels.transfer') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    {{-- Merge Modal --}}
+    @if($showMergeModal)
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                    {{ __('inbox.labels.merge_lead') }}
+                </h3>
+
+                <form wire:submit="confirmMerge">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {{ __('inbox.labels.select_merge_lead') }}
+                        </label>
+                        <select
+                            wire:model="mergeTargetLeadId"
+                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary-500 focus:ring-primary-500"
+                        >
+                            <option value="">-- {{ __('inbox.labels.select_merge_lead') }} --</option>
+                            @foreach($this->leadsForMerge as $mergeLead)
+                                <option value="{{ $mergeLead->id }}">{{ $mergeLead->full_name }}</option>
+                            @endforeach
+                        </select>
+                        @error('mergeTargetLeadId')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <p class="text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-4">
+                        {{ __('inbox.labels.merge_warning') }}
+                    </p>
+
+                    <div class="flex justify-end gap-2">
+                        <button
+                            type="button"
+                            wire:click="closeMergeModal"
+                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                            {{ __('inbox.labels.cancel') }}
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700"
+                        >
+                            {{ __('inbox.labels.confirm_merge') }}
                         </button>
                     </div>
                 </form>

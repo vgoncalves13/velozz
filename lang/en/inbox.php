@@ -39,6 +39,16 @@ return [
         'select_operator' => 'Select Operator',
         'select_operator_placeholder' => '-- Select Operator --',
         'no_messages_yet' => 'No messages yet',
+        'view_lead' => 'View Lead',
+        'merge' => 'Merge',
+        'merge_lead' => 'Merge Lead',
+        'merge_warning' => 'The selected lead will be merged into this one and deleted. Conversations will be kept separately by channel.',
+        'select_merge_lead' => 'Select Lead to Merge',
+        'confirm_merge' => 'Confirm Merge',
+        'choose_channel_to_send' => 'Choose a channel to start the conversation:',
+        'channel_whatsapp' => 'WhatsApp',
+        'channel_facebook' => 'Facebook Messenger',
+        'channel_instagram' => 'Instagram',
     ],
 
     // Empty states
@@ -54,6 +64,7 @@ return [
         'cannot_send_opted_out' => 'Cannot send message. Lead has opted out or is marked as do not contact.',
         'cannot_send_image_opted_out' => 'Cannot send image. Lead has opted out or is marked as do not contact.',
         'cannot_send_document_opted_out' => 'Cannot send document. Lead has opted out or is marked as do not contact.',
+        'cannot_merge_same' => 'Cannot merge a lead with itself.',
     ],
 
     // Activities
@@ -61,6 +72,7 @@ return [
         'internal_note_added' => 'Internal note added',
         'conversation_assumed' => 'Conversation assumed by :name',
         'conversation_transferred' => 'Conversation transferred to :name',
+        'lead_merged' => 'Lead :name merged into this lead',
     ],
 
     // Messages

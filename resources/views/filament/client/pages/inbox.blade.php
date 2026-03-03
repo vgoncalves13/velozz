@@ -7,20 +7,6 @@
             </div>
 
             <div class="flex-1 overflow-y-auto">
-                <div wire:loading class="p-5 space-y-4">
-                    @for($i = 0; $i < 3; $i++)
-                    <div class="animate-pulse">
-                        <div class="flex items-start gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600"></div>
-                            <div class="flex-1 space-y-2">
-                                <div class="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-                                <div class="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
-                            </div>
-                        </div>
-                    </div>
-                    @endfor
-                </div>
-
                 <div wire:loading.remove>
                 @forelse($this->getLeadsWithMessages() as $lead)
                     @php

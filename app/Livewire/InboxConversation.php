@@ -8,8 +8,10 @@ use App\Jobs\SendSocialMessage;
 use App\Jobs\SendWhatsAppMessage;
 use App\Models\Lead;
 use App\Models\LeadActivity;
+use App\Models\SocialMessage;
 use App\Models\User;
 use App\Models\WhatsAppMessage;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -40,6 +42,12 @@ class InboxConversation extends Component
 
     public ?int $transferToUserId = null;
 
+    public bool $showMergeModal = false;
+
+    public ?int $mergeTargetLeadId = null;
+
+    public ?string $preferredChannelOverride = null;
+
     public int $refreshKey = 0;
 
     private ?int $previousIncomingCount = null;
@@ -63,7 +71,7 @@ class InboxConversation extends Component
             ->where('direction', 'incoming')
             ->count();
 
-        $social = \App\Models\SocialMessage::where('lead_id', $this->leadId)
+        $social = SocialMessage::where('lead_id', $this->leadId)
             ->where('direction', 'incoming')
             ->count();
 
@@ -131,8 +139,7 @@ class InboxConversation extends Component
             return;
         }
 
-        // Determine which channel to send on based on last_message_channel
-        $channel = $this->lead->last_message_channel;
+        $channel = $this->resolveChannel();
 
         if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
             SendSocialMessage::dispatch($this->lead, $channel, $this->newMessage, auth()->id());
@@ -162,7 +169,7 @@ class InboxConversation extends Component
         $path = $this->image->storeAs('whatsapp-images', $originalName, 'public');
         $imageUrl = url(Storage::url($path));
 
-        $channel = $this->lead->last_message_channel;
+        $channel = $this->resolveChannel();
 
         if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
             SendSocialMessage::dispatch($this->lead, $channel, $this->imageCaption ?: '', auth()->id(), 'image', $imageUrl);
@@ -193,7 +200,7 @@ class InboxConversation extends Component
         $path = $this->document->storeAs('whatsapp-documents', $originalName, 'public');
         $documentUrl = url(Storage::url($path));
 
-        $channel = $this->lead->last_message_channel;
+        $channel = $this->resolveChannel();
 
         if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
             SendSocialMessage::dispatch($this->lead, $channel, $this->documentCaption ?: '', auth()->id(), 'document', $documentUrl);
@@ -291,11 +298,138 @@ class InboxConversation extends Component
         $this->dispatch('conversation-transferred');
     }
 
-    public function getOperatorsProperty()
+    public function openMergeModal(): void
+    {
+        $this->showMergeModal = true;
+    }
+
+    public function closeMergeModal(): void
+    {
+        $this->showMergeModal = false;
+        $this->mergeTargetLeadId = null;
+    }
+
+    public function confirmMerge(): void
+    {
+        if ($this->mergeTargetLeadId === $this->leadId) {
+            $this->addError('mergeTargetLeadId', __('inbox.errors.cannot_merge_same'));
+
+            return;
+        }
+
+        $secondary = Lead::where('tenant_id', auth()->user()->tenant_id)
+            ->findOrFail($this->mergeTargetLeadId);
+
+        $primary = $this->lead;
+
+        WhatsAppMessage::where('lead_id', $secondary->id)->update(['lead_id' => $primary->id]);
+        SocialMessage::where('lead_id', $secondary->id)->update(['lead_id' => $primary->id]);
+        LeadActivity::where('lead_id', $secondary->id)->update(['lead_id' => $primary->id]);
+
+        $primaryFields = $primary->custom_fields ?? [];
+        $secondaryFields = $secondary->custom_fields ?? [];
+
+        if (empty($primaryFields['facebook_psid']) && ! empty($secondaryFields['facebook_psid'])) {
+            $primaryFields['facebook_psid'] = $secondaryFields['facebook_psid'];
+        }
+
+        if (empty($primaryFields['instagram_sender_id']) && ! empty($secondaryFields['instagram_sender_id'])) {
+            $primaryFields['instagram_sender_id'] = $secondaryFields['instagram_sender_id'];
+        }
+
+        $primaryWhatsapps = $primary->whatsapps ?? [];
+        $secondaryWhatsapps = $secondary->whatsapps ?? [];
+        $mergedWhatsapps = array_values(array_unique(array_merge($primaryWhatsapps, $secondaryWhatsapps)));
+
+        $primaryLastAt = $primary->last_message_at;
+        $secondaryLastAt = $secondary->last_message_at;
+
+        $latestAt = $primaryLastAt;
+        $latestChannel = $primary->last_message_channel;
+
+        if ($secondaryLastAt && (! $primaryLastAt || $secondaryLastAt->gt($primaryLastAt))) {
+            $latestAt = $secondaryLastAt;
+            $latestChannel = $secondary->last_message_channel;
+        }
+
+        $primary->update([
+            'custom_fields' => $primaryFields,
+            'whatsapps' => $mergedWhatsapps ?: null,
+            'last_message_at' => $latestAt,
+            'last_message_channel' => $latestChannel?->value,
+        ]);
+
+        LeadActivity::create([
+            'tenant_id' => $primary->tenant_id,
+            'lead_id' => $primary->id,
+            'type' => LeadActivityType::Updated,
+            'description' => __('inbox.activities.lead_merged', ['name' => $secondary->full_name]),
+            'user_id' => auth()->id(),
+        ]);
+
+        $secondary->delete();
+
+        $this->lead->refresh();
+        $this->closeMergeModal();
+
+        $this->dispatch('conversation-updated');
+    }
+
+    public function selectChannel(string $channelValue): void
+    {
+        $this->preferredChannelOverride = $channelValue;
+    }
+
+    public function getAvailableChannelsProperty(): array
+    {
+        $channels = [];
+
+        if (! empty($this->lead->whatsapps)) {
+            $channels[] = Channel::Whatsapp;
+        }
+
+        if ($this->lead->custom_fields['facebook_psid'] ?? null) {
+            $channels[] = Channel::FacebookMessenger;
+        }
+
+        if ($this->lead->custom_fields['instagram_sender_id'] ?? null) {
+            $channels[] = Channel::Instagram;
+        }
+
+        return $channels;
+    }
+
+    public function getOperatorsProperty(): Collection
     {
         return User::where('tenant_id', auth()->user()->tenant_id)
             ->where('id', '!=', auth()->id())
             ->get();
+    }
+
+    public function getLeadsForMergeProperty(): Collection
+    {
+        return Lead::where('tenant_id', auth()->user()->tenant_id)
+            ->where('id', '!=', $this->leadId)
+            ->where(fn ($q) => $q->whereHas('whatsappMessages')->orWhereHas('socialMessages'))
+            ->get(['id', 'full_name', 'source']);
+    }
+
+    public function getLeadViewUrlProperty(): string
+    {
+        try {
+            return \App\Filament\Client\Resources\Leads\LeadResource::getUrl('view', ['record' => $this->lead->id]);
+        } catch (\Exception) {
+            return '#';
+        }
+    }
+
+    private function resolveChannel(): ?Channel
+    {
+        if ($this->preferredChannelOverride !== null) {
+            return Channel::from($this->preferredChannelOverride);
+        }
+
+        return $this->lead->last_message_channel;
     }
 
     public function render()
