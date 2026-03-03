@@ -37,6 +37,13 @@ services:
       - SESSION_DRIVER=redis
       - SESSION_DOMAIN=${SESSION_DOMAIN}
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+      - ZAPI_ENABLED=${ZAPI_ENABLED:-false}
+      - ZAPI_TOKEN=${ZAPI_TOKEN:-}
+      - ZAPI_CLIENT_TOKEN=${ZAPI_CLIENT_TOKEN:-}
+      - METAGRAPH_ENABLED=${METAGRAPH_ENABLED:-false}
+      - META_APP_ID=${META_APP_ID:-}
+      - META_APP_SECRET=${META_APP_SECRET:-}
+      - META_WEBHOOK_VERIFY_TOKEN=${META_WEBHOOK_VERIFY_TOKEN:-}
     volumes:
       - ./:/var/www/html
       # Excluir vendor e node_modules para usar o que foi instalado na imagem

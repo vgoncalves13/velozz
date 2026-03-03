@@ -212,14 +212,14 @@ class LeadTest extends TestCase
 
     public function test_lead_source_types(): void
     {
-        $importLead = Lead::factory()->create(['source' => 'import']);
-        $manualLead = Lead::factory()->create(['source' => 'manual']);
-        $apiLead = Lead::factory()->create(['source' => 'api']);
-        $formLead = Lead::factory()->create(['source' => 'form']);
+        $importLead = Lead::factory()->create(['source' => \App\Enums\LeadSource::Import]);
+        $manualLead = Lead::factory()->create(['source' => \App\Enums\LeadSource::Manual]);
+        $apiLead = Lead::factory()->create(['source' => \App\Enums\LeadSource::Api]);
+        $formLead = Lead::factory()->create(['source' => \App\Enums\LeadSource::Form]);
 
-        $this->assertEquals('import', $importLead->source);
-        $this->assertEquals('manual', $manualLead->source);
-        $this->assertEquals('api', $apiLead->source);
-        $this->assertEquals('form', $formLead->source);
+        $this->assertEquals(\App\Enums\LeadSource::Import, $importLead->source);
+        $this->assertEquals(\App\Enums\LeadSource::Manual, $manualLead->source);
+        $this->assertEquals(\App\Enums\LeadSource::Api, $apiLead->source);
+        $this->assertEquals(\App\Enums\LeadSource::Form, $formLead->source);
     }
 }

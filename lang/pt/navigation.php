@@ -10,5 +10,6 @@ return [
         'management' => 'Gestão',
         'communication' => 'Comunicação',
         'catalog' => 'Catálogo',
+        'integrations' => 'Integrações',
     ],
 ];

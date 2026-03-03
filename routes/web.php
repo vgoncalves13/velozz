@@ -24,3 +24,9 @@ Route::get('/accept-invite/{token}', [App\Http\Controllers\AcceptInviteControlle
     ->name('accept-invite');
 Route::post('/accept-invite/{token}', [App\Http\Controllers\AcceptInviteController::class, 'store'])
     ->name('accept-invite.store');
+
+// Meta OAuth routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/oauth/meta/redirect', [App\Http\Controllers\MetaOAuthController::class, 'redirect'])->name('meta.oauth.redirect');
+    Route::get('/oauth/meta/callback', [App\Http\Controllers\MetaOAuthController::class, 'callback'])->name('meta.oauth.callback');
+});

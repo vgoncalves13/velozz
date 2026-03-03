@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Enums\Channel;
 use App\Enums\LeadActivityType;
+use App\Jobs\SendSocialMessage;
 use App\Jobs\SendWhatsAppMessage;
 use App\Models\Lead;
 use App\Models\LeadActivity;
@@ -45,33 +47,34 @@ class InboxConversation extends Component
     public function mount(int $leadId): void
     {
         $this->leadId = $leadId;
-        $this->lead = Lead::with('assignedUser', 'whatsappMessages')->findOrFail($leadId);
+        $this->lead = Lead::with('assignedUser', 'whatsappMessages', 'socialMessages')->findOrFail($leadId);
 
-        // Initialize incoming count on mount
         $this->previousIncomingCount = $this->getIncomingMessageCount();
     }
 
     public function getMessagesProperty()
     {
-        return WhatsAppMessage::where('lead_id', $this->leadId)
-            ->orderBy('created_at')
-            ->get();
+        return $this->lead->allMessages();
     }
 
     private function getIncomingMessageCount(): int
     {
-        return WhatsAppMessage::where('lead_id', $this->leadId)
+        $whatsapp = WhatsAppMessage::where('lead_id', $this->leadId)
             ->where('direction', 'incoming')
             ->count();
+
+        $social = \App\Models\SocialMessage::where('lead_id', $this->leadId)
+            ->where('direction', 'incoming')
+            ->count();
+
+        return $whatsapp + $social;
     }
 
     public function hydrate(): void
     {
-        // Check for new incoming messages after every render
         $currentIncomingCount = $this->getIncomingMessageCount();
 
         if ($this->previousIncomingCount !== null && $currentIncomingCount > $this->previousIncomingCount) {
-            // New incoming message detected - dispatch browser event
             $this->dispatch('new-incoming-message');
         }
 
@@ -86,25 +89,33 @@ class InboxConversation extends Component
             'conversation-updated' => 'refreshConversationList',
             "echo-private:tenant.{$tenantId}.inbox,MessageReceived" => 'onMessageReceived',
             "echo-private:tenant.{$tenantId}.inbox,MessageSent" => 'onMessageSent',
+            "echo-private:tenant.{$tenantId}.inbox,SocialMessageReceived" => 'onSocialMessageReceived',
+            "echo-private:tenant.{$tenantId}.inbox,SocialMessageSent" => 'onSocialMessageSent',
         ];
     }
 
     public function onMessageReceived($event): void
     {
-        // Update the conversation list
         $this->refreshKey++;
     }
 
     public function onMessageSent($event): void
     {
-        // Update the conversation list
+        $this->refreshKey++;
+    }
+
+    public function onSocialMessageReceived($event): void
+    {
+        $this->refreshKey++;
+    }
+
+    public function onSocialMessageSent($event): void
+    {
         $this->refreshKey++;
     }
 
     public function refreshConversationList(): void
     {
-        // Called by child component when a message is sent/received
-        // This updates the conversation list sidebar
         $this->refreshKey++;
     }
 
@@ -120,7 +131,14 @@ class InboxConversation extends Component
             return;
         }
 
-        SendWhatsAppMessage::dispatch($this->lead, $this->newMessage, auth()->id());
+        // Determine which channel to send on based on last_message_channel
+        $channel = $this->lead->last_message_channel;
+
+        if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
+            SendSocialMessage::dispatch($this->lead, $channel, $this->newMessage, auth()->id());
+        } else {
+            SendWhatsAppMessage::dispatch($this->lead, $this->newMessage, auth()->id());
+        }
 
         $this->newMessage = '';
 
@@ -130,7 +148,7 @@ class InboxConversation extends Component
     public function sendImage(): void
     {
         $this->validate([
-            'image' => 'required|image|max:10240', // Max 10MB
+            'image' => 'required|image|max:10240',
             'imageCaption' => 'nullable|string|max:1024',
         ]);
 
@@ -140,20 +158,17 @@ class InboxConversation extends Component
             return;
         }
 
-        // Store image in storage/app/public/whatsapp-images with original name
         $originalName = $this->image->getClientOriginalName();
         $path = $this->image->storeAs('whatsapp-images', $originalName, 'public');
-
-        // Generate full public URL (Z-API accepts both URL and base64)
         $imageUrl = url(Storage::url($path));
 
-        SendWhatsAppMessage::dispatch(
-            $this->lead,
-            $this->imageCaption ?: '',
-            auth()->id(),
-            'image',
-            $imageUrl
-        );
+        $channel = $this->lead->last_message_channel;
+
+        if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
+            SendSocialMessage::dispatch($this->lead, $channel, $this->imageCaption ?: '', auth()->id(), 'image', $imageUrl);
+        } else {
+            SendWhatsAppMessage::dispatch($this->lead, $this->imageCaption ?: '', auth()->id(), 'image', $imageUrl);
+        }
 
         $this->image = null;
         $this->imageCaption = '';
@@ -164,7 +179,7 @@ class InboxConversation extends Component
     public function sendDocument(): void
     {
         $this->validate([
-            'document' => 'required|file|max:20480|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,rar', // Max 20MB
+            'document' => 'required|file|max:20480|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,rar',
             'documentCaption' => 'nullable|string|max:1024',
         ]);
 
@@ -174,20 +189,17 @@ class InboxConversation extends Component
             return;
         }
 
-        // Store document in storage/app/public/whatsapp-documents with original name
         $originalName = $this->document->getClientOriginalName();
         $path = $this->document->storeAs('whatsapp-documents', $originalName, 'public');
-
-        // Generate full public URL
         $documentUrl = url(Storage::url($path));
 
-        SendWhatsAppMessage::dispatch(
-            $this->lead,
-            $this->documentCaption ?: '',
-            auth()->id(),
-            'document',
-            $documentUrl
-        );
+        $channel = $this->lead->last_message_channel;
+
+        if ($channel === Channel::Instagram || $channel === Channel::FacebookMessenger) {
+            SendSocialMessage::dispatch($this->lead, $channel, $this->documentCaption ?: '', auth()->id(), 'document', $documentUrl);
+        } else {
+            SendWhatsAppMessage::dispatch($this->lead, $this->documentCaption ?: '', auth()->id(), 'document', $documentUrl);
+        }
 
         $this->document = null;
         $this->documentCaption = '';

@@ -18,6 +18,14 @@ class AppServiceProvider extends ServiceProvider
                 ? \App\Services\ZApi\ZApiRealService::class
                 : \App\Services\ZApi\ZApiMockService::class
         );
+
+        // Bind Meta Graph API Service - Real when enabled, Mock otherwise
+        $this->app->bind(
+            \App\Services\Meta\MetaGraphApiServiceInterface::class,
+            config('services.meta.enabled')
+                ? \App\Services\Meta\MetaGraphApiService::class
+                : \App\Services\Meta\MetaGraphApiMockService::class
+        );
     }
 
     /**

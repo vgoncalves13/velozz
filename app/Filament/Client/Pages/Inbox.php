@@ -2,6 +2,8 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\MessageDirection;
+use App\Enums\MessageStatus;
 use App\Models\Lead;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -38,7 +40,6 @@ class Inbox extends Page
 
     public function mount(): void
     {
-        // Select first conversation by default
         $firstLead = $this->getLeadsWithMessages()->first();
         if ($firstLead) {
             $this->selectedLeadId = $firstLead->id;
@@ -49,49 +50,90 @@ class Inbox extends Page
     {
         $this->selectedLeadId = $leadId;
 
-        // Mark all incoming messages as read
+        // Mark all incoming WhatsApp messages as read
         \App\Models\WhatsAppMessage::where('lead_id', $leadId)
-            ->where('direction', \App\Enums\MessageDirection::Incoming)
-            ->where('status', '!=', \App\Enums\MessageStatus::Read)
-            ->update(['status' => \App\Enums\MessageStatus::Read]);
+            ->where('direction', MessageDirection::Incoming)
+            ->where('status', '!=', MessageStatus::Read)
+            ->update(['status' => MessageStatus::Read]);
 
-        // Force refresh to update unread count
+        // Mark all incoming social messages as read
+        \App\Models\SocialMessage::where('lead_id', $leadId)
+            ->where('direction', MessageDirection::Incoming)
+            ->where('status', '!=', MessageStatus::Read)
+            ->update(['status' => MessageStatus::Read]);
+
         $this->refreshKey++;
     }
 
     public function getLeadsWithMessages()
     {
         $leadsWithMessages = Lead::where('tenant_id', auth()->user()->tenant_id)
-            ->whereHas('whatsappMessages')
-            ->withCount(['whatsappMessages as unread_count' => function ($query) {
-                $query->where('direction', 'incoming')
-                    ->where('status', '!=', 'read');
-            }])
-            ->with(['whatsappMessages' => function ($query) {
-                $query->latest()->limit(1);
-            }])
-            ->get();
+            ->where(function ($query) {
+                $query->whereHas('whatsappMessages')
+                    ->orWhereHas('socialMessages');
+            })
+            ->withCount([
+                'whatsappMessages as whatsapp_unread_count' => function ($query) {
+                    $query->where('direction', MessageDirection::Incoming)
+                        ->where('status', '!=', MessageStatus::Read);
+                },
+                'socialMessages as social_unread_count' => function ($query) {
+                    $query->where('direction', MessageDirection::Incoming)
+                        ->where('status', '!=', MessageStatus::Read);
+                },
+            ])
+            ->with([
+                'whatsappMessages' => function ($query) {
+                    $query->latest()->limit(1);
+                },
+                'socialMessages' => function ($query) {
+                    $query->latest()->limit(1);
+                },
+            ])
+            ->get()
+            ->map(function (Lead $lead) {
+                $lead->unread_count = ($lead->whatsapp_unread_count ?? 0) + ($lead->social_unread_count ?? 0);
 
-        // If a lead is selected but not in the list (no messages yet), add it
+                return $lead;
+            });
+
         if ($this->selectedLeadId) {
             $selectedLead = Lead::where('id', $this->selectedLeadId)
                 ->where('tenant_id', auth()->user()->tenant_id)
-                ->withCount(['whatsappMessages as unread_count' => function ($query) {
-                    $query->where('direction', 'incoming')
-                        ->where('status', '!=', 'read');
-                }])
-                ->with(['whatsappMessages' => function ($query) {
-                    $query->latest()->limit(1);
-                }])
+                ->withCount([
+                    'whatsappMessages as whatsapp_unread_count' => function ($query) {
+                        $query->where('direction', MessageDirection::Incoming)
+                            ->where('status', '!=', MessageStatus::Read);
+                    },
+                    'socialMessages as social_unread_count' => function ($query) {
+                        $query->where('direction', MessageDirection::Incoming)
+                            ->where('status', '!=', MessageStatus::Read);
+                    },
+                ])
+                ->with([
+                    'whatsappMessages' => function ($query) {
+                        $query->latest()->limit(1);
+                    },
+                    'socialMessages' => function ($query) {
+                        $query->latest()->limit(1);
+                    },
+                ])
                 ->first();
 
-            if ($selectedLead && ! $leadsWithMessages->contains('id', $selectedLead->id)) {
-                $leadsWithMessages->prepend($selectedLead);
+            if ($selectedLead) {
+                $selectedLead->unread_count = ($selectedLead->whatsapp_unread_count ?? 0) + ($selectedLead->social_unread_count ?? 0);
+
+                if (! $leadsWithMessages->contains('id', $selectedLead->id)) {
+                    $leadsWithMessages->prepend($selectedLead);
+                }
             }
         }
 
-        return $leadsWithMessages->sortByDesc(function ($lead) {
-            return $lead->whatsappMessages->first()?->created_at ?? $lead->created_at;
+        return $leadsWithMessages->sortByDesc(function (Lead $lead) {
+            return $lead->last_message_at
+                ?? $lead->whatsappMessages->first()?->created_at
+                ?? $lead->socialMessages->first()?->created_at
+                ?? $lead->created_at;
         });
     }
 
@@ -103,25 +145,33 @@ class Inbox extends Page
             'conversation-updated' => 'refreshConversationList',
             "echo-private:tenant.{$tenantId}.inbox,MessageReceived" => 'onMessageReceived',
             "echo-private:tenant.{$tenantId}.inbox,MessageSent" => 'onMessageSent',
+            "echo-private:tenant.{$tenantId}.inbox,SocialMessageReceived" => 'onSocialMessageReceived',
+            "echo-private:tenant.{$tenantId}.inbox,SocialMessageSent" => 'onSocialMessageSent',
         ];
     }
 
     public function refreshConversationList(): void
     {
-        // Called by child component when a message is sent/received
-        // This updates the conversation list sidebar
         $this->refreshKey++;
     }
 
     public function onMessageReceived($event): void
     {
-        // Update the conversation list
         $this->refreshKey++;
     }
 
     public function onMessageSent($event): void
     {
-        // Update the conversation list
+        $this->refreshKey++;
+    }
+
+    public function onSocialMessageReceived($event): void
+    {
+        $this->refreshKey++;
+    }
+
+    public function onSocialMessageSent($event): void
+    {
         $this->refreshKey++;
     }
 

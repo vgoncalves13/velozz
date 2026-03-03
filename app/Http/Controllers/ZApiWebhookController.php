@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LeadActivityType;
+use App\Enums\LeadSource;
 use App\Enums\MessageDirection;
 use App\Enums\MessageStatus;
 use App\Enums\MessageType;
@@ -81,6 +82,12 @@ class ZApiWebhookController extends Controller
                 'remote_message_id' => $request->input('messageId'),
             ]);
 
+            // Update lead last message fields
+            $lead->update([
+                'last_message_at' => $message->created_at,
+                'last_message_channel' => 'whatsapp',
+            ]);
+
             // Broadcast event for real-time updates
             broadcast(new MessageReceived($message));
 
@@ -154,7 +161,7 @@ class ZApiWebhookController extends Controller
             'full_name' => $chatName ?: 'Unknown Contact ('.substr($phone, -4).')',
             'whatsapps' => [$phone],
             'primary_whatsapp_index' => 0,
-            'source' => 'whatsapp',
+            'source' => LeadSource::Whatsapp,
             'consent_status' => 'pending',
         ]);
 

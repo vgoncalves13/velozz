@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\Channel;
+use App\Enums\LeadSource;
 use App\Models\Traits\HasTenantScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Lead extends Model
 {
@@ -45,6 +48,8 @@ class Lead extends Model
         'do_not_contact',
         'notes',
         'custom_fields',
+        'last_message_at',
+        'last_message_channel',
     ];
 
     protected function casts(): array
@@ -58,6 +63,9 @@ class Lead extends Model
             'opt_out' => 'boolean',
             'opt_out_date' => 'date',
             'do_not_contact' => 'boolean',
+            'last_message_at' => 'datetime',
+            'last_message_channel' => Channel::class,
+            'source' => LeadSource::class,
         ];
     }
 
@@ -104,6 +112,34 @@ class Lead extends Model
     public function whatsappMessages(): HasMany
     {
         return $this->hasMany(WhatsAppMessage::class);
+    }
+
+    public function socialMessages(): HasMany
+    {
+        return $this->hasMany(SocialMessage::class);
+    }
+
+    /**
+     * Get all messages across all channels, merged and sorted by created_at.
+     *
+     * @return Collection<int, WhatsAppMessage|SocialMessage>
+     */
+    public function allMessages(): Collection
+    {
+        $whatsapp = $this->whatsappMessages()
+            ->orderBy('created_at')
+            ->get()
+            ->map(function (WhatsAppMessage $msg) {
+                $msg->channel = Channel::Whatsapp;
+
+                return $msg;
+            });
+
+        $social = $this->socialMessages()
+            ->orderBy('created_at')
+            ->get();
+
+        return $whatsapp->concat($social)->sortBy('created_at')->values();
     }
 
     public function opportunities(): HasMany

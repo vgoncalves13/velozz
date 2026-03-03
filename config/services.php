@@ -41,4 +41,17 @@ return [
         'client_token' => env('ZAPI_CLIENT_TOKEN'),
     ],
 
+    'meta' => [
+        'app_id' => env('META_APP_ID'),
+        'app_secret' => env('META_APP_SECRET'),
+        'webhook_token' => env('META_WEBHOOK_VERIFY_TOKEN', 'meta_webhook_token'),
+        'enabled' => env('METAGRAPH_ENABLED', false),
+    ],
+
+    'facebook' => [
+        'client_id' => env('META_APP_ID'),
+        'client_secret' => env('META_APP_SECRET'),
+        'redirect' => '/oauth/meta/callback',
+    ],
+
 ];

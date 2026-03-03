@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\LeadSource;
 use App\Models\PipelineStage;
 use App\Models\Tenant;
 use App\Models\User;
@@ -35,7 +36,7 @@ class LeadFactory extends Factory
             'city' => fake()->city(),
             'postal_code' => fake()->postcode(),
             'country' => 'Portugal',
-            'source' => fake()->randomElement(['import', 'manual', 'api', 'form']),
+            'source' => fake()->randomElement(LeadSource::cases()),
             'assigned_user_id' => null,
             'pipeline_stage_id' => null,
             'priority' => fake()->randomElement(['low', 'medium', 'high', 'urgent']),

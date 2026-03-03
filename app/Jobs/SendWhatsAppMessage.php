@@ -119,6 +119,12 @@ class SendWhatsAppMessage implements ShouldQueue
                 'remote_message_id' => $response['messageId'] ?? null,
             ]);
 
+            // Update lead last message fields
+            $this->lead->update([
+                'last_message_at' => now(),
+                'last_message_channel' => 'whatsapp',
+            ]);
+
             // Broadcast event for real-time update
             broadcast(new MessageSent($whatsappMessage->fresh()));
 

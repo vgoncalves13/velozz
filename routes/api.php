@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MetaWebhookController;
 use App\Http\Controllers\ZApiWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,9 @@ use Illuminate\Support\Facades\Route;
 // Z-API Webhook (public, no authentication)
 Route::post('/webhook/zapi', [ZApiWebhookController::class, 'handle'])
     ->name('zapi.webhook');
+
+// Meta Webhook (Instagram DM + Facebook Messenger, single global endpoint)
+Route::get('/webhook/meta', [MetaWebhookController::class, 'verify'])
+    ->name('meta.webhook.verify');
+Route::post('/webhook/meta', [MetaWebhookController::class, 'receive'])
+    ->name('meta.webhook.receive');

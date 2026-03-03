@@ -23,6 +23,19 @@
 
                 <div wire:loading.remove>
                 @forelse($this->getLeadsWithMessages() as $lead)
+                    @php
+                        $lastWhatsapp = $lead->whatsappMessages->first();
+                        $lastSocial = $lead->socialMessages->first();
+
+                        // Pick whichever is more recent
+                        if ($lastWhatsapp && $lastSocial) {
+                            $lastMessage = $lastWhatsapp->created_at >= $lastSocial->created_at ? $lastWhatsapp : $lastSocial;
+                        } else {
+                            $lastMessage = $lastWhatsapp ?? $lastSocial;
+                        }
+
+                        $channel = $lead->last_message_channel ?? ($lastMessage ? ($lastMessage instanceof \App\Models\SocialMessage ? $lastMessage->channel : \App\Enums\Channel::Whatsapp) : \App\Enums\Channel::Whatsapp);
+                    @endphp
                     <button
                         wire:click="selectConversation({{ $lead->id }})"
                         @class([
@@ -47,11 +60,14 @@
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 truncate mb-1">
-                                    {{ $lead->whatsappMessages->first()?->content ?? __('inbox.labels.no_messages') }}
-                                </p>
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <x-channel-icon :channel="$channel" class="w-3.5 h-3.5 flex-shrink-0" />
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                        {{ $lastMessage?->content ?? __('inbox.labels.no_messages') }}
+                                    </p>
+                                </div>
                                 <span class="text-xs text-gray-500 dark:text-gray-500">
-                                    {{ $lead->whatsappMessages->first()?->created_at?->diffForHumans() }}
+                                    {{ $lastMessage?->created_at?->diffForHumans() }}
                                 </span>
                             </div>
                         </div>
