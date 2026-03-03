@@ -32,13 +32,16 @@ class LeadInfolist
 
                         TextEntry::make('source')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'import' => 'success',
-                                'manual' => 'info',
-                                'api' => 'warning',
-                                'form' => 'primary',
-                                default => 'gray',
-                            }),
+                            ->color(fn (\App\Enums\LeadSource $state): string => match ($state) {
+                                \App\Enums\LeadSource::Import => 'success',
+                                \App\Enums\LeadSource::Manual => 'info',
+                                \App\Enums\LeadSource::Api => 'warning',
+                                \App\Enums\LeadSource::Form => 'primary',
+                                \App\Enums\LeadSource::Whatsapp => 'success',
+                                \App\Enums\LeadSource::Instagram => 'warning',
+                                \App\Enums\LeadSource::FacebookMessenger => 'info',
+                            })
+                            ->formatStateUsing(fn (\App\Enums\LeadSource $state): string => __('leads.source.'.$state->value)),
 
                         TextEntry::make('created_at')
                             ->label('Created')
