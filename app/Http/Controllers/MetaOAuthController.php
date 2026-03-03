@@ -17,6 +17,7 @@ class MetaOAuthController extends Controller
         return Socialite::driver('facebook')
             ->scopes([
                 'pages_show_list',
+                'pages_manage_metadata',
                 'pages_messaging',
                 'instagram_basic',
                 'instagram_manage_messages',
