@@ -94,16 +94,6 @@ echo ""
 echo "🐳 Construindo imagem Docker..."
 DOCKER_BUILDKIT=1 docker compose -f docker-compose.production.yml --env-file .env.production build
 
-# Copiar assets compilados da imagem para o host
-echo "📦 Copiando assets compilados..."
-# Criar container temporário da imagem
-TEMP_CONTAINER=$(docker create velozz:latest)
-# Copiar public/build do container para o host
-docker cp $TEMP_CONTAINER:/var/www/html/public/build ./public/
-# Remover container temporário
-docker rm $TEMP_CONTAINER
-echo "✅ Assets copiados com sucesso"
-
 # Parar containers antigos
 echo "🛑 Parando containers antigos..."
 docker compose -f docker-compose.production.yml --env-file .env.production down
@@ -120,15 +110,6 @@ sleep 10
 echo "🧹 Limpando cache de configuração..."
 docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.production.yml --env-file .env.production exec -T app php artisan config:cache
-
-# Corrigir symlink do storage (usa caminho do host, não do container)
-echo "🔗 Corrigindo symlink do storage..."
-# Remover symlink/diretório antigo (se existir)
-rm -rf public/storage
-# Criar novo symlink com caminho do host
-ln -sfn /var/www/velozz/storage/app/public public/storage
-# Verificar symlink criado
-echo "✅ Symlink corrigido: $(ls -la public/storage)"
 
 # Verificar status
 echo ""
