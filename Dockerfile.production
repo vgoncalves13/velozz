@@ -109,12 +109,13 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# PHP-FPM pool configuration (pm.max_requests, clear_env, etc.)
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Expor porta 9000 (PHP-FPM)
 EXPOSE 9000
 
 # Script de inicialização
-# Garante que o PHP-FPM enxergue as variáveis de ambiente injetadas pelo Docker
-RUN sed -i 's/;clear_env = no/clear_env = no/g' /usr/local/etc/php-fpm.d/www.conf
 COPY docker/start.sh /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
