@@ -228,6 +228,7 @@ class ClientPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->tenant(Tenant::class, slugAttribute: 'slug')
             ->tenantDomain(config('tenancy.domain'))
+            ->tenantMenu(fn (): bool => auth()->check() && auth()->user()->isAdminMaster())
             ->tenantMiddleware([
                 InitializeTenancy::class,
                 CheckTenantLimits::class,
