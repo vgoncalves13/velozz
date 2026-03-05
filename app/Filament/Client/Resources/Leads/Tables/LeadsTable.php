@@ -79,6 +79,9 @@ class LeadsTable
                         LeadSource::Whatsapp => 'success',
                         LeadSource::Instagram => 'warning',
                         LeadSource::FacebookMessenger => 'info',
+                        LeadSource::EmbeddedForm => 'gray',
+                        LeadSource::WhatsappWidget => 'green',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn (LeadSource $state): string => __('leads.source.'.$state->value))
                     ->sortable()
