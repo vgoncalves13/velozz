@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Cross-domain form/widget submissions (no CSRF, no auth)
+Route::post('/forms/{slug}/submit', [App\Http\Controllers\EmbeddedFormController::class, 'submit'])->name('api.forms.submit');
+Route::post('/widgets/whatsapp/{id}/submit', [App\Http\Controllers\WhatsAppWidgetController::class, 'submit'])->name('api.whatsapp-widget.submit');
+
 // Z-API Webhook (public, no authentication)
 Route::post('/webhook/zapi', [ZApiWebhookController::class, 'handle'])
     ->name('zapi.webhook');

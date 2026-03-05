@@ -11,4 +11,6 @@ enum LeadSource: string
     case Whatsapp = 'whatsapp';
     case Instagram = 'instagram';
     case FacebookMessenger = 'facebook_messenger';
+    case EmbeddedForm = 'embedded_form';
+    case WhatsappWidget = 'whatsapp_widget';
 }

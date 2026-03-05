@@ -49,4 +49,14 @@ return [
         'plural' => 'Planos',
         'navigation' => 'Planos',
     ],
+    'embedded_forms' => [
+        'label' => 'Formulário Incorporado',
+        'plural' => 'Formulários Incorporados',
+        'navigation' => 'Formulários',
+    ],
+    'whatsapp_widgets' => [
+        'label' => 'Widget WhatsApp',
+        'plural' => 'Widgets WhatsApp',
+        'navigation' => 'Widgets WhatsApp',
+    ],
 ];

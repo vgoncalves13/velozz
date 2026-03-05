@@ -49,4 +49,14 @@ return [
         'plural' => 'Plans',
         'navigation' => 'Plans',
     ],
+    'embedded_forms' => [
+        'label' => 'Embedded Form',
+        'plural' => 'Embedded Forms',
+        'navigation' => 'Embedded Forms',
+    ],
+    'whatsapp_widgets' => [
+        'label' => 'WhatsApp Widget',
+        'plural' => 'WhatsApp Widgets',
+        'navigation' => 'WhatsApp Widgets',
+    ],
 ];

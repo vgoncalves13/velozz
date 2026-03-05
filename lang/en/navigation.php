@@ -11,5 +11,6 @@ return [
         'communication' => 'Communication',
         'catalog' => 'Catalog',
         'integrations' => 'Integrations',
+        'lead_widgets' => 'Lead Widgets',
     ],
 ];
