@@ -79,7 +79,7 @@ class InboxConversationDocumentTest extends TestCase
         Livewire::test(InboxConversation::class, ['leadId' => $lead->id])
             ->set('document', $file)
             ->call('sendDocument')
-            ->assertHasErrors(['document' => 'Cannot send document. Lead has opted out or is marked as do not contact.']);
+            ->assertHasErrors(['document' => __('inbox.errors.cannot_send_document_opted_out')]);
 
         // Verify job was not dispatched
         Queue::assertNotPushed(SendWhatsAppMessage::class);
