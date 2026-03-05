@@ -107,6 +107,8 @@ services:
       - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
       # Migrations
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+      # Tenant
+      - APP_TENANT_DOMAIN=${APP_TENANT_DOMAIN:-{tenant:slug}.velozz.digital}
     volumes:
       - ./storage:/var/www/html/storage
     depends_on:
