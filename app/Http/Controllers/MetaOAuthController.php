@@ -28,7 +28,8 @@ class MetaOAuthController extends Controller
 
     public function callback(Request $request, MetaGraphApiServiceInterface $metaApi): RedirectResponse
     {
-        $settingsUrl = MetaAccountSettings::getUrl(panel: 'client');
+        $tenant = auth()->user()?->tenant;
+        $settingsUrl = MetaAccountSettings::getUrl(tenant: $tenant, panel: 'client');
 
         if ($request->has('error')) {
             return redirect($settingsUrl)

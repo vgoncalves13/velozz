@@ -4,14 +4,18 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasDefaultTenant;
+use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasDefaultTenant, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable;
@@ -65,34 +69,41 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         if ($panel->getId() === 'admin') {
-            // Only admin_master (no tenant_id) can access admin panel
             return $this->role === 'admin_master' && $this->tenant_id === null;
         }
 
         if ($panel->getId() === 'client') {
-            // Must have appropriate role
-            if (! in_array($this->role, ['admin_client', 'supervisor', 'operator', 'financial'])) {
-                return false;
+            if ($this->isAdminMaster()) {
+                return true;
             }
 
-            // CRITICAL: Must belong to the current tenant
-            // Get tenant from container or directly from database
-            $currentTenant = app()->bound('tenant') ? app('tenant') : null;
-
-            if (! $currentTenant) {
-                // Fallback: get tenant directly from request host
-                $host = request()->getHost();
-                $currentTenant = Tenant::where('domain', $host)->first();
-            }
-
-            if (! $currentTenant) {
-                return false;
-            }
-
-            return $this->tenant_id === $currentTenant->id;
+            return in_array($this->role, ['admin_client', 'supervisor', 'operator', 'financial']);
         }
 
         return false;
+    }
+
+    public function getTenants(Panel $panel): Collection
+    {
+        if ($this->isAdminMaster()) {
+            return Tenant::all();
+        }
+
+        return $this->tenant ? collect([$this->tenant]) : collect();
+    }
+
+    public function canAccessTenant(EloquentModel $tenant): bool
+    {
+        if ($this->isAdminMaster()) {
+            return true;
+        }
+
+        return $this->tenant_id === $tenant->id;
+    }
+
+    public function getDefaultTenant(Panel $panel): ?EloquentModel
+    {
+        return $this->tenant;
     }
 
     public function isAdminMaster(): bool

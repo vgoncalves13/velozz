@@ -40,6 +40,9 @@ return [
         'label' => 'Inquilino',
         'plural' => 'Inquilinos',
         'navigation' => 'Inquilinos',
+        'actions' => [
+            'access' => 'Aceder ao tenant',
+        ],
     ],
     'plans' => [
         'label' => 'Plano',

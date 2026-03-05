@@ -40,6 +40,9 @@ return [
         'label' => 'Tenant',
         'plural' => 'Tenants',
         'navigation' => 'Tenants',
+        'actions' => [
+            'access' => 'Access tenant',
+        ],
     ],
     'plans' => [
         'label' => 'Plan',

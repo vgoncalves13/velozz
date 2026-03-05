@@ -6,6 +6,8 @@ use Stancl\Tenancy\Database\Models\Domain;
 use Stancl\Tenancy\Database\Models\Tenant;
 
 return [
+    'domain' => env('APP_TENANT_DOMAIN', '{tenant:slug}.velozz.digital'),
+
     'tenant_model' => Tenant::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
 

@@ -60,6 +60,12 @@ class TenantsTable
                     ]),
             ])
             ->recordActions([
+                Action::make('access')
+                    ->label(__('resources.tenants.actions.access'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('info')
+                    ->url(fn ($record) => route('admin.impersonate', ['tenantDomain' => $record->domain]))
+                    ->openUrlInNewTab(),
                 Action::make('view'),
                 EditAction::make('edit'),
                 Action::make('activate')

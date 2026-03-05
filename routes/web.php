@@ -25,6 +25,11 @@ Route::get('/accept-invite/{token}', [App\Http\Controllers\AcceptInviteControlle
 Route::post('/accept-invite/{token}', [App\Http\Controllers\AcceptInviteController::class, 'store'])
     ->name('accept-invite.store');
 
+// Impersonation routes
+Route::middleware(['auth'])->get('/admin/impersonate/{tenantDomain}', [App\Http\Controllers\ImpersonateController::class, 'generate'])->name('admin.impersonate');
+Route::middleware(['auth'])->get('/app/switch-tenant/{tenantSlug}', [App\Http\Controllers\ImpersonateController::class, 'switchTenant'])->name('client.switch-tenant');
+Route::get('/app/impersonate', [App\Http\Controllers\ImpersonateController::class, 'consume'])->name('client.impersonate');
+
 // Meta OAuth routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/oauth/meta/redirect', [App\Http\Controllers\MetaOAuthController::class, 'redirect'])->name('meta.oauth.redirect');

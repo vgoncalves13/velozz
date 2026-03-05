@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use App\Http\Middleware\CheckTenantLimits;
 use App\Http\Middleware\InitializeTenancy;
 use App\Http\Middleware\SetLocale;
+use App\Models\Tenant;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -49,8 +51,7 @@ class ClientPanelProvider extends PanelProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
             function (): string {
-                // Get tenant from app container (works even when not authenticated)
-                $tenant = app()->bound('tenant') ? app('tenant') : null;
+                $tenant = Filament::getTenant();
 
                 if (! $tenant) {
                     return '';
@@ -105,7 +106,7 @@ class ClientPanelProvider extends PanelProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
             function (): string {
-                $tenant = app()->bound('tenant') ? app('tenant') : null;
+                $tenant = Filament::getTenant();
                 $tenantName = $tenant?->name ?? 'VELOZZ.DIGITAL';
                 $description = "Professional CRM platform for {$tenantName} - Manage leads, WhatsApp conversations, and sales pipeline in one place.";
 
@@ -157,6 +158,44 @@ class ClientPanelProvider extends PanelProvider
                 <livewire:language-switcher />
             </div>'),
         );
+
+        // For admin_master: intercept tenant switcher navigation and route through
+        // the impersonation flow, since sessions are not shared across subdomains.
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
+            function (): string {
+                if (! auth()->check() || ! auth()->user()->isAdminMaster()) {
+                    return '';
+                }
+
+                return <<<'HTML'
+                <script>
+                    (function () {
+                        var baseDomain = window.location.hostname.includes('.')
+                            ? window.location.hostname.split('.').slice(1).join('.')
+                            : null;
+
+                        if (!baseDomain) return;
+
+                        document.addEventListener('click', function (e) {
+                            var link = e.target.closest('a[href]');
+                            if (!link) return;
+
+                            var targetHost = link.hostname;
+                            if (!targetHost) return;
+                            if (targetHost === window.location.hostname) return;
+                            if (!targetHost.endsWith('.' + baseDomain)) return;
+
+                            var slug = targetHost.split('.')[0];
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.location.href = '/app/switch-tenant/' + slug;
+                        }, true);
+                    })();
+                </script>
+                HTML;
+            },
+        );
     }
 
     public function panel(Panel $panel): Panel
@@ -170,18 +209,12 @@ class ClientPanelProvider extends PanelProvider
                 'primary' => Color::Amber, // Default, will be overridden by CSS
             ])
             ->brandName(function () {
-                // Try to get tenant from app instance (works even when not authenticated)
-                $tenant = app()->bound('tenant') ? app('tenant') : null;
+                $tenant = Filament::getTenant();
 
-                if ($tenant) {
-                    return $tenant->name;
-                }
-
-                return 'VELOZZ.DIGITAL';
+                return $tenant?->name ?? 'VELOZZ.DIGITAL';
             })
             ->brandLogo(function () {
-                // Try to get tenant from app instance (works even when not authenticated)
-                $tenant = app()->bound('tenant') ? app('tenant') : null;
+                $tenant = Filament::getTenant();
 
                 if (! $tenant) {
                     return null;
@@ -189,14 +222,16 @@ class ClientPanelProvider extends PanelProvider
 
                 $logo = $tenant->settings['logo'] ?? null;
 
-                if ($logo) {
-                    return asset('storage/'.$logo);
-                }
-
-                return null;
+                return $logo ? asset('storage/'.$logo) : null;
             })
             ->brandLogoHeight('4rem')
             ->favicon(asset('favicon.ico'))
+            ->tenant(Tenant::class, slugAttribute: 'slug')
+            ->tenantDomain(config('tenancy.domain'))
+            ->tenantMiddleware([
+                InitializeTenancy::class,
+                CheckTenantLimits::class,
+            ], isPersistent: true)
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
             ->pages([
@@ -212,7 +247,6 @@ class ClientPanelProvider extends PanelProvider
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
-                InitializeTenancy::class, // MUST be before authentication
                 AuthenticateSession::class,
                 SetLocale::class,
                 ShareErrorsFromSession::class,
@@ -223,7 +257,6 @@ class ClientPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                CheckTenantLimits::class,
             ]);
     }
 }

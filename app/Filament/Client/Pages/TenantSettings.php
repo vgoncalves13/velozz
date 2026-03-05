@@ -6,6 +6,7 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -53,7 +54,7 @@ class TenantSettings extends Page implements HasActions, HasForms
 
     public function mount(): void
     {
-        $tenant = auth()->user()->tenant;
+        $tenant = Filament::getTenant();
 
         $this->form->fill([
             'name' => $tenant->name,
@@ -243,7 +244,7 @@ class TenantSettings extends Page implements HasActions, HasForms
                 ->modalHeading(__('settings.modals.regenerate_api_key_heading'))
                 ->modalDescription(__('settings.modals.regenerate_api_key_description'))
                 ->action(function () {
-                    $tenant = auth()->user()->tenant;
+                    $tenant = Filament::getTenant();
                     $settings = $tenant->settings ?? [];
                     $settings['api_key'] = 'vz_'.Str::random(40);
 
@@ -267,7 +268,7 @@ class TenantSettings extends Page implements HasActions, HasForms
         try {
             $data = $this->form->getState();
 
-            $tenant = auth()->user()->tenant;
+            $tenant = Filament::getTenant();
 
             $tenant->update([
                 'name' => $data['name'],
