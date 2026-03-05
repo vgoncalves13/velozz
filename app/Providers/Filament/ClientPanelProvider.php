@@ -205,6 +205,7 @@ class ClientPanelProvider extends PanelProvider
             ->path('app')
             ->viteTheme('resources/css/filament/client/theme.css')
             ->login()
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Amber, // Default, will be overridden by CSS
             ])
