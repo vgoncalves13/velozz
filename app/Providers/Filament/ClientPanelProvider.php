@@ -202,6 +202,7 @@ class ClientPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            ->maxContentWidth('full')
             ->discoverWidgets(in: app_path('Filament/Client/Widgets'), for: 'App\Filament\Client\Widgets')
             ->widgets([
                 AccountWidget::class,

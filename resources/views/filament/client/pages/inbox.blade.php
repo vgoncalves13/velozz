@@ -1,7 +1,9 @@
 <x-filament-panels::page>
-    <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 h-auto lg:h-[calc(100vh-12rem)]">
+    <div class="flex flex-col lg:flex-row gap-0 lg:gap-6 h-[calc(100dvh-17rem)]"
+         x-data="{ mobileView: 'list' }">
         {{-- Conversations List --}}
-        <div class="w-full lg:w-80 xl:w-96 lg:flex-shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col max-h-[400px] lg:max-h-none">
+        <div class="w-full lg:w-80 xl:w-96 lg:flex-shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden flex-col"
+             :class="mobileView === 'list' ? 'flex' : 'hidden lg:flex'">
             <div class="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700">
                 <h2 class="text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">{{ __('inbox.labels.conversations') }}</h2>
             </div>
@@ -24,6 +26,7 @@
                     @endphp
                     <button
                         wire:click="selectConversation({{ $lead->id }})"
+                        x-on:click="mobileView = 'conversation'"
                         @class([
                             'w-full text-left p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-100 dark:border-gray-700',
                             'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800' => $selectedLeadId === $lead->id,
@@ -80,7 +83,17 @@
         </div>
 
         {{-- Conversation Area --}}
-        <div class="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden min-h-[500px] lg:min-h-0">
+        <div class="flex-1 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden flex-col"
+             :class="mobileView === 'conversation' ? 'flex' : 'hidden lg:flex'">
+            {{-- Mobile back button --}}
+            <div class="lg:hidden flex items-center px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <button x-on:click="mobileView = 'list'" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    {{ __('inbox.labels.conversations') }}
+                </button>
+            </div>
             @if($selectedLeadId)
                 @livewire('inbox-conversation', ['leadId' => $selectedLeadId], key($selectedLeadId))
             @else

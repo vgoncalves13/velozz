@@ -60,6 +60,16 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
 
+## Commits
+
+- NEVER commit changes, UNLESS you need to track some problem, before commit, ask the user.
+
+## Deploy Production
+
+- When user ask to verify something in production you ALWAYS will use ssh contabo-velozz, the project is in the folder
+/var/www/velozz
+- If you need apply changes, there are script called deploy.sh in root folder. Use it.
+
 === boost rules ===
 
 # Laravel Boost

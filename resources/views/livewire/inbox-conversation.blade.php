@@ -1,7 +1,7 @@
 @php
  use Filament\Support\Icons\Heroicon;
 @endphp
-<div class="flex flex-col h-full"
+<div class="flex flex-col flex-1 min-h-0"
      wire:poll.3s.keep-alive
      x-data="{
          playNotification() {
@@ -19,7 +19,7 @@
     </audio>
 
     {{-- Header with Lead Info and Actions --}}
-    <div class="border-b border-gray-200 dark:border-gray-700 p-6">
+    <div class="border-b border-gray-200 dark:border-gray-700 p-3 sm:p-5">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
@@ -37,16 +37,16 @@
                 </div>
             </div>
 
-            <div class="flex gap-3">
+            <div class="flex gap-1 sm:gap-2">
                 @if(!$lead->assigned_user_id || $lead->assigned_user_id !== auth()->id())
                     <button
                         wire:click="assumeConversation"
                         class="inline-flex items-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                     >
-                        <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="sm:mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        {{ __('inbox.labels.assume') }}
+                        <span class="hidden sm:inline">{{ __('inbox.labels.assume') }}</span>
                     </button>
                 @endif
 
@@ -54,20 +54,20 @@
                     wire:click="openTransferModal"
                     class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                 >
-                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="sm:mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
-                    {{ __('inbox.labels.transfer') }}
+                    <span class="hidden sm:inline">{{ __('inbox.labels.transfer') }}</span>
                 </button>
 
                 <button
                     wire:click="openMergeModal"
                     class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                 >
-                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="sm:mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
-                    {{ __('inbox.labels.merge') }}
+                    <span class="hidden sm:inline">{{ __('inbox.labels.merge') }}</span>
                 </button>
 
                 <a
@@ -75,10 +75,10 @@
                     class="inline-flex items-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                     target="_blank"
                 >
-                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="sm:mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
-                    {{ __('inbox.labels.view_lead') }}
+                    <span class="hidden sm:inline">{{ __('inbox.labels.view_lead') }}</span>
                 </a>
             </div>
         </div>
@@ -95,7 +95,7 @@
 
     {{-- Messages Area --}}
     <div
-        class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900"
+        class="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 bg-gray-50 dark:bg-gray-900"
         x-data="{ scrollToBottom() { this.$el.scrollTop = this.$el.scrollHeight; } }"
         x-init="scrollToBottom(); $watch('$wire.refreshKey', () => scrollToBottom())"
     >
@@ -201,7 +201,7 @@
     </div>
 
     {{-- Message Input Area --}}
-    <div class="border-t border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
+    <div class="border-t border-gray-200 dark:border-gray-700 p-3 sm:p-5 bg-white dark:bg-gray-800">
         {{-- Internal Note Toggle --}}
         <div class="mb-4">
             <label class="inline-flex items-center cursor-pointer">
@@ -240,93 +240,94 @@
 
         {{-- Image Upload Preview --}}
         @if($image && !$isInternalNoteMode)
-            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
-                <div class="flex items-start gap-4">
-                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="shrink-0 w-24 h-24 object-cover rounded-lg">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ __('inbox.labels.image_ready') }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $image->getClientOriginalName() }}</p>
-                        <input
-                            type="text"
-                            wire:model="imageCaption"
-                            placeholder="{{ __('inbox.labels.image_caption') }}"
-                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
-                        >
-                        @error('imageCaption')
-                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="flex gap-2">
-                        <button
-                            wire:click="sendImage"
-                            type="button"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-                        >
-                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                            {{ __('inbox.labels.send') }}
-                        </button>
-                        <button
-                            wire:click="$set('image', null)"
-                            type="button"
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-                        >
-                            {{ __('inbox.labels.cancel') }}
-                        </button>
+            <div class="mb-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                <div class="flex items-center gap-3 mb-3">
+                    <img src="{{ $image->temporaryUrl() }}" alt="Preview" class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ __('inbox.labels.image_ready') }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $image->getClientOriginalName() }}</p>
                     </div>
                 </div>
-                @error('image')
-                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+                <input
+                    type="text"
+                    wire:model="imageCaption"
+                    placeholder="{{ __('inbox.labels.image_caption') }}"
+                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm mb-3"
+                >
+                @error('imageCaption')
+                    <p class="text-xs text-red-600 dark:text-red-400 -mt-2 mb-2">{{ $message }}</p>
                 @enderror
+                @error('image')
+                    <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ $message }}</p>
+                @enderror
+                <div class="flex gap-2">
+                    <button
+                        wire:click="sendImage"
+                        type="button"
+                        class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                    >
+                        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        {{ __('inbox.labels.send') }}
+                    </button>
+                    <button
+                        wire:click="$set('image', null)"
+                        type="button"
+                        class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                    >
+                        {{ __('inbox.labels.cancel') }}
+                    </button>
+                </div>
             </div>
         @endif
 
         {{-- Document Upload Preview --}}
         @if($document && !$isInternalNoteMode)
-            <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
-                <div class="flex items-start gap-4">
-                    <div class="shrink-0 w-24 h-24 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
-                        <svg class="h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mb-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                        <svg class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">{{ __('inbox.labels.document_ready') }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ $document->getClientOriginalName() }} ({{ number_format($document->getSize() / 1024, 2) }} KB)</p>
-                        <input
-                            type="text"
-                            wire:model="documentCaption"
-                            placeholder="{{ __('inbox.labels.document_caption') }}"
-                            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm"
-                        >
-                        @error('documentCaption')
-                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="flex gap-2">
-                        <button
-                            wire:click="sendDocument"
-                            type="button"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-                        >
-                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                            </svg>
-                            {{ __('inbox.labels.send') }}
-                        </button>
-                        <button
-                            wire:click="$set('document', null)"
-                            type="button"
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-                        >
-                            {{ __('inbox.labels.cancel') }}
-                        </button>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ __('inbox.labels.document_ready') }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $document->getClientOriginalName() }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">{{ number_format($document->getSize() / 1024, 2) }} KB</p>
                     </div>
                 </div>
-                @error('document')
-                    <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+                <input
+                    type="text"
+                    wire:model="documentCaption"
+                    placeholder="{{ __('inbox.labels.document_caption') }}"
+                    class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500 px-3 py-2 text-sm mb-3"
+                >
+                @error('documentCaption')
+                    <p class="text-xs text-red-600 dark:text-red-400 -mt-2 mb-2">{{ $message }}</p>
                 @enderror
+                @error('document')
+                    <p class="text-sm text-red-600 dark:text-red-400 mb-2">{{ $message }}</p>
+                @enderror
+                <div class="flex gap-2">
+                    <button
+                        wire:click="sendDocument"
+                        type="button"
+                        class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                    >
+                        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        {{ __('inbox.labels.send') }}
+                    </button>
+                    <button
+                        wire:click="$set('document', null)"
+                        type="button"
+                        class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                    >
+                        {{ __('inbox.labels.cancel') }}
+                    </button>
+                </div>
             </div>
         @endif
 
