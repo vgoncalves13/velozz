@@ -89,9 +89,29 @@
                                         {{ $lead['full_name'] }}
                                     </h4>
                                     @if($lead['email'])
-                                        <p class="text-xs text-gray-600 dark:text-gray-400">
-                                            {{ $lead['email'] }}
-                                        </p>
+                                        <div class="flex items-center gap-1 group" x-data="{ copied: false }">
+                                            <p class="text-xs text-gray-600 dark:text-gray-400 truncate min-w-0">
+                                                {{ $lead['email'] }}
+                                            </p>
+                                            <button
+                                                type="button"
+                                                @mousedown.stop
+                                                x-on:click.stop="
+                                                    navigator.clipboard.writeText({{ \Illuminate\Support\Js::from($lead['email']) }});
+                                                    copied = true;
+                                                    setTimeout(() => copied = false, 2000);
+                                                "
+                                                :title="copied ? '{{ __('kanban.labels.email_copied') }}' : '{{ __('kanban.labels.copy_email') }}'"
+                                                class="shrink-0 text-gray-300 group-hover:text-gray-500 dark:text-gray-600 dark:group-hover:text-gray-400 transition-colors"
+                                            >
+                                                <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                <svg x-show="copied" x-cloak class="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     @endif
                                 </div>
 
@@ -118,20 +138,36 @@
                                     </p>
                                 @endif
 
-                                {{-- Actions (show on hover) --}}
-                                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                                {{-- Actions --}}
+                                <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
                                     <a
                                         href="{{ \App\Filament\Client\Resources\Leads\LeadResource::getUrl('view', ['record' => $lead['id']]) }}"
                                         class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
+                                        @mousedown.stop
                                     >
                                         {{ __('kanban.actions.view') }}
                                     </a>
                                     <a
                                         href="{{ \App\Filament\Client\Resources\Leads\LeadResource::getUrl('edit', ['record' => $lead['id']]) }}"
                                         class="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400"
+                                        @mousedown.stop
                                     >
                                         {{ __('kanban.actions.edit') }}
                                     </a>
+                                    <div class="ml-auto" @mousedown.stop>
+                                        <select
+                                            title="{{ __('kanban.labels.move_to_stage') }}"
+                                            @mousedown.stop
+                                            @change.stop="$wire.moveCard({{ $lead['id'] }}, parseInt($event.target.value))"
+                                            class="text-xs rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 py-0.5 pl-1.5 pr-6 cursor-pointer focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                                        >
+                                            @foreach($stages as $s)
+                                                <option value="{{ $s->id }}" {{ $lead['pipeline_stage_id'] == $s->id ? 'selected' : '' }}>
+                                                    {{ $s->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         @empty

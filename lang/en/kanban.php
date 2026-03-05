@@ -23,6 +23,9 @@ return [
     'labels' => [
         'sla' => 'SLA',
         'drop_here' => 'Drop leads here',
+        'copy_email' => 'Copy email',
+        'email_copied' => 'Copied!',
+        'move_to_stage' => 'Move to stage',
     ],
 
     // Empty states
