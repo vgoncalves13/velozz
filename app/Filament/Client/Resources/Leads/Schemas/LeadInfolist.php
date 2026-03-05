@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Leads\Schemas;
 
+use App\Enums\LeadSource;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -32,16 +33,19 @@ class LeadInfolist
 
                         TextEntry::make('source')
                             ->badge()
-                            ->color(fn (\App\Enums\LeadSource $state): string => match ($state) {
-                                \App\Enums\LeadSource::Import => 'success',
-                                \App\Enums\LeadSource::Manual => 'info',
-                                \App\Enums\LeadSource::Api => 'warning',
-                                \App\Enums\LeadSource::Form => 'primary',
-                                \App\Enums\LeadSource::Whatsapp => 'success',
-                                \App\Enums\LeadSource::Instagram => 'warning',
-                                \App\Enums\LeadSource::FacebookMessenger => 'info',
+                            ->color(fn (LeadSource $state): string => match ($state) {
+                                LeadSource::Import => 'success',
+                                LeadSource::Manual => 'info',
+                                LeadSource::Api => 'warning',
+                                LeadSource::Form => 'primary',
+                                LeadSource::Whatsapp => 'success',
+                                LeadSource::Instagram => 'warning',
+                                LeadSource::FacebookMessenger => 'info',
+                                LeadSource::EmbeddedForm => 'gray',
+                                LeadSource::WhatsappWidget => 'success',
+                                default => 'gray',
                             })
-                            ->formatStateUsing(fn (\App\Enums\LeadSource $state): string => __('leads.source.'.$state->value)),
+                            ->formatStateUsing(fn (LeadSource $state): string => __('leads.source.'.$state->value)),
 
                         TextEntry::make('created_at')
                             ->label('Created')

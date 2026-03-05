@@ -41,6 +41,8 @@ return [
         'whatsapp' => 'WhatsApp',
         'instagram' => 'Instagram',
         'facebook_messenger' => 'Facebook Messenger',
+        'embedded_form' => 'Formulário embutido',
+        'widget_whatsapp' => 'Widget WhatsApp'
     ],
 
     'priority' => [

@@ -80,7 +80,7 @@ class LeadsTable
                         LeadSource::Instagram => 'warning',
                         LeadSource::FacebookMessenger => 'info',
                         LeadSource::EmbeddedForm => 'gray',
-                        LeadSource::WhatsappWidget => 'green',
+                        LeadSource::WhatsappWidget => 'success',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (LeadSource $state): string => __('leads.source.'.$state->value))
