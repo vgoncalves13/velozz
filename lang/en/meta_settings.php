@@ -12,6 +12,7 @@ return [
     'oauth' => [
         'success' => ':count account(s) connected successfully.',
         'denied' => 'The connection was denied.',
+        'invalid_state' => 'The connection session expired. Please try again.',
     ],
 
     'form' => [

@@ -12,6 +12,7 @@ return [
     'oauth' => [
         'success' => ':count conta(s) conectada(s) com sucesso.',
         'denied' => 'A conexão foi negada.',
+        'invalid_state' => 'A sessão de ligação expirou. Por favor, tente novamente.',
     ],
 
     'form' => [

@@ -35,7 +35,12 @@ class MetaOAuthController extends Controller
                 ->with('meta_oauth_error', __('meta_settings.oauth.denied'));
         }
 
-        $socialiteUser = Socialite::driver('facebook')->user();
+        try {
+            $socialiteUser = Socialite::driver('facebook')->user();
+        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+            return redirect($settingsUrl)
+                ->with('meta_oauth_error', __('meta_settings.oauth.invalid_state'));
+        }
         $longLivedData = $metaApi->extendToken($socialiteUser->token);
         $longLivedToken = $longLivedData['access_token'];
 
