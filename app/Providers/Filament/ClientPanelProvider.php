@@ -195,7 +195,7 @@ class ClientPanelProvider extends PanelProvider
 
                 return null;
             })
-            ->brandLogoHeight('2.5rem')
+            ->brandLogoHeight('4rem')
             ->favicon(asset('favicon.ico'))
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
