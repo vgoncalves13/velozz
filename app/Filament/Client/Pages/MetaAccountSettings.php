@@ -3,6 +3,7 @@
 namespace App\Filament\Client\Pages;
 
 use App\Enums\Channel;
+use App\Enums\ClientNavigationGroup;
 use App\Models\MetaAccount;
 use App\Services\Meta\MetaGraphApiServiceInterface;
 use BackedEnum;
@@ -31,10 +32,7 @@ class MetaAccountSettings extends Page
         return __('meta_settings.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.integrations');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Integrations;
 
     public function getAccounts()
     {

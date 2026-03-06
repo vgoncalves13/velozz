@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\AuditLogs;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\AuditLogs\Pages\ListAuditLogs;
 use App\Filament\Client\Resources\AuditLogs\Pages\ViewAuditLog;
 use App\Filament\Client\Resources\AuditLogs\Schemas\AuditLogInfolist;
@@ -21,10 +22,7 @@ class AuditLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.system');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::System;
 
     public static function getNavigationLabel(): string
     {

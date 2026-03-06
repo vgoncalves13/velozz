@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\PipelineStages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\PipelineStages\Pages\CreatePipelineStage;
 use App\Filament\Client\Resources\PipelineStages\Pages\EditPipelineStage;
 use App\Filament\Client\Resources\PipelineStages\Pages\ListPipelineStages;
@@ -37,10 +38,7 @@ class PipelineStageResource extends Resource
         return __('pipeline_stages.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.configuration');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Configuration;
 
     public static function form(Schema $schema): Schema
     {

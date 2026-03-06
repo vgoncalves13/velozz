@@ -2,8 +2,8 @@
 
 return [
     // Page
-    'title' => 'Kanban Board',
-    'navigation' => 'Kanban Board',
+    'title' => 'Qualification Kanban',
+    'navigation' => 'Qualification Kanban',
 
     // Widget
     'widget' => [

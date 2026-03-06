@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Leads;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\Leads\Pages\CreateLead;
 use App\Filament\Client\Resources\Leads\Pages\EditLead;
 use App\Filament\Client\Resources\Leads\Pages\ListLeads;
@@ -41,10 +42,7 @@ class LeadResource extends Resource
         return __('resources.leads.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.crm');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Crm;
 
     public static function form(Schema $schema): Schema
     {

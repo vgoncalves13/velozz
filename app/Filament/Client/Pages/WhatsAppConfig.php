@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Helpers\AuditHelper;
 use App\Models\WhatsAppInstance;
 use App\Services\ZApi\ZApiServiceInterface;
@@ -18,7 +19,7 @@ class WhatsAppConfig extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleBottomCenterText;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationLabel(): string
     {
@@ -30,10 +31,7 @@ class WhatsAppConfig extends Page
         return __('whatsapp_config.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'WhatsApp';
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::WhatsApp;
 
     public ?WhatsAppInstance $instance = null;
 

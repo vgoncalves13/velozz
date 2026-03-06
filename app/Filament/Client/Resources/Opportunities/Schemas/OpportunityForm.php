@@ -52,16 +52,12 @@ class OpportunityForm
                             ->step(0.01)
                             ->default(0),
 
-                        Select::make('stage')
+                        Select::make('opportunity_stage_id')
                             ->label(__('opportunities.labels.stage'))
                             ->helperText(__('opportunities.helper.stage'))
-                            ->options([
-                                'proposal' => __('opportunities.stages.proposal'),
-                                'negotiation' => __('opportunities.stages.negotiation'),
-                                'closed_won' => __('opportunities.stages.closed_won'),
-                                'closed_lost' => __('opportunities.stages.closed_lost'),
-                            ])
-                            ->default('proposal')
+                            ->relationship('opportunityStage', 'name')
+                            ->searchable()
+                            ->preload()
                             ->required(),
 
                         TextInput::make('probability')
@@ -91,8 +87,7 @@ class OpportunityForm
                         Textarea::make('loss_reason')
                             ->label(__('opportunities.labels.loss_reason'))
                             ->rows(2)
-                            ->helperText(__('opportunities.helper.loss_reason'))
-                            ->visible(fn ($get) => $get('stage') === 'closed_lost'),
+                            ->helperText(__('opportunities.helper.loss_reason')),
                     ])
                     ->collapsible(),
             ]);

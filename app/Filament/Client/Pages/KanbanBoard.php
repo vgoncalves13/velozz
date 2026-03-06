@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Enums\LeadActivityType;
 use App\Models\Lead;
 use App\Models\LeadActivity;
@@ -28,10 +29,7 @@ class KanbanBoard extends Page
         return __('kanban.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.crm');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Crm;
 
     protected string $view = 'filament.client.pages.kanban-board';
 

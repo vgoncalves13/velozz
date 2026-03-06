@@ -32,23 +32,11 @@ class OpportunitiesTable
                     ->money('EUR')
                     ->sortable(),
 
-                TextColumn::make('stage')
+                TextColumn::make('opportunityStage.name')
                     ->label(__('opportunities.labels.stage'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'proposal' => 'info',
-                        'negotiation' => 'warning',
-                        'closed_won' => 'success',
-                        'closed_lost' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'proposal' => __('opportunities.stages.proposal'),
-                        'negotiation' => __('opportunities.stages.negotiation'),
-                        'closed_won' => __('opportunities.stages.closed_won'),
-                        'closed_lost' => __('opportunities.stages.closed_lost'),
-                        default => $state,
-                    }),
+                    ->color(fn ($record): string => $record->opportunityStage?->color ?? 'gray')
+                    ->placeholder(__('opportunities.placeholders.not_set')),
 
                 TextColumn::make('probability')
                     ->label(__('opportunities.labels.probability'))

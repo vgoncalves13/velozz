@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Helpers\GoogleSheetsHelper;
 use App\Jobs\ProcessImport;
 use App\Models\Import;
@@ -46,10 +47,7 @@ class ImportLeads extends Page
         return __('import_leads.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.system');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::System;
 
     public ?array $data = [];
 

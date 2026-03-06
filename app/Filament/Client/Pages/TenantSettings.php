@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -45,10 +46,7 @@ class TenantSettings extends Page implements HasActions, HasForms
         return __('settings.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.configuration');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Configuration;
 
     public ?array $data = [];
 

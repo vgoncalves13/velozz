@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Products;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\Products\Pages\CreateProduct;
 use App\Filament\Client\Resources\Products\Pages\EditProduct;
 use App\Filament\Client\Resources\Products\Pages\ListProducts;
@@ -20,7 +21,7 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     public static function getNavigationLabel(): string
     {
@@ -37,10 +38,7 @@ class ProductResource extends Resource
         return __('products.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.catalog');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Sales;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Models\Plan;
 use App\Models\Tenant;
 use BackedEnum;
@@ -16,10 +17,7 @@ class ChoosePlan extends Page
 
     protected static ?int $navigationSort = 99;
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.system');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::System;
 
     public static function getNavigationLabel(): string
     {

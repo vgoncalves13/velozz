@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Enums\ClientNavigationGroup;
 use App\Enums\MessageDirection;
 use App\Enums\MessageStatus;
 use App\Models\Lead;
@@ -29,10 +30,7 @@ class Inbox extends Page
         return __('inbox.title');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.crm');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Crm;
 
     public ?int $selectedLeadId = null;
 

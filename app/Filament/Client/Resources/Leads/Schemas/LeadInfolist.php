@@ -259,16 +259,10 @@ class LeadInfolist
                                 TextEntry::make('value')
                                     ->money('BRL'),
 
-                                TextEntry::make('stage')
+                                TextEntry::make('opportunityStage.name')
                                     ->badge()
-                                    ->color(fn (string $state): string => match ($state) {
-                                        'proposal' => 'info',
-                                        'negotiation' => 'warning',
-                                        'closed_won' => 'success',
-                                        'closed_lost' => 'danger',
-                                        default => 'gray',
-                                    })
-                                    ->formatStateUsing(fn (string $state): string => __('opportunities.stages.'.$state)),
+                                    ->color(fn ($record): string => $record->opportunityStage?->color ?? 'gray')
+                                    ->placeholder('—'),
 
                                 TextEntry::make('probability')
                                     ->suffix('%'),

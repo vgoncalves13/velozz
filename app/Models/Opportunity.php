@@ -17,6 +17,7 @@ class Opportunity extends Model
         'product_id',
         'value',
         'stage',
+        'opportunity_stage_id',
         'probability',
         'expected_close_date',
         'loss_reason',
@@ -53,5 +54,10 @@ class Opportunity extends Model
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id');
+    }
+
+    public function opportunityStage(): BelongsTo
+    {
+        return $this->belongsTo(OpportunityStage::class);
     }
 }

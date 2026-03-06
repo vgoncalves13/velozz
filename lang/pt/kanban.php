@@ -2,8 +2,8 @@
 
 return [
     // Page
-    'title' => 'Quadro Kanban',
-    'navigation' => 'Quadro Kanban',
+    'title' => 'Kanban de Qualificação',
+    'navigation' => 'Kanban de Qualificação',
 
     // Widget
     'widget' => [

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\LeadWidgets;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\LeadWidgets\Pages\CreateEmbeddedForm;
 use App\Filament\Client\Resources\LeadWidgets\Pages\EditEmbeddedForm;
 use App\Filament\Client\Resources\LeadWidgets\Pages\ListEmbeddedForms;
@@ -37,10 +38,7 @@ class EmbeddedFormResource extends Resource
         return __('lead_widgets.embedded_forms.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.lead_widgets');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::LeadWidgets;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

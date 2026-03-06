@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Users;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\Users\Pages\CreateUser;
 use App\Filament\Client\Resources\Users\Pages\EditUser;
 use App\Filament\Client\Resources\Users\Pages\ListUsers;
@@ -37,10 +38,7 @@ class UserResource extends Resource
         return __('resources.users.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.configuration');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Configuration;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

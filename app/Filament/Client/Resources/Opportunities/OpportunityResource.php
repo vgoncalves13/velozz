@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\Opportunities;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\Opportunities\Pages\CreateOpportunity;
 use App\Filament\Client\Resources\Opportunities\Pages\EditOpportunity;
 use App\Filament\Client\Resources\Opportunities\Pages\ListOpportunities;
@@ -37,10 +38,7 @@ class OpportunityResource extends Resource
         return __('opportunities.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.crm');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::Sales;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

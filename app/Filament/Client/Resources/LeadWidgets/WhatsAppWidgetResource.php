@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\LeadWidgets;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\LeadWidgets\Pages\CreateWhatsAppWidget;
 use App\Filament\Client\Resources\LeadWidgets\Pages\EditWhatsAppWidget;
 use App\Filament\Client\Resources\LeadWidgets\Pages\ListWhatsAppWidgets;
@@ -37,10 +38,7 @@ class WhatsAppWidgetResource extends Resource
         return __('lead_widgets.whatsapp_widgets.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('navigation.groups.lead_widgets');
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::LeadWidgets;
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {

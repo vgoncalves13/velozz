@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\WhatsAppTemplates;
 
+use App\Enums\ClientNavigationGroup;
 use App\Filament\Client\Resources\WhatsAppTemplates\Pages\CreateWhatsAppTemplate;
 use App\Filament\Client\Resources\WhatsAppTemplates\Pages\EditWhatsAppTemplate;
 use App\Filament\Client\Resources\WhatsAppTemplates\Pages\ListWhatsAppTemplates;
@@ -20,7 +21,7 @@ class WhatsAppTemplateResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationLabel(): string
     {
@@ -37,10 +38,7 @@ class WhatsAppTemplateResource extends Resource
         return __('whatsapp_templates.plural');
     }
 
-    public static function getNavigationGroup(): ?string
-    {
-        return 'WhatsApp';
-    }
+    protected static string|\UnitEnum|null $navigationGroup = ClientNavigationGroup::WhatsApp;
 
     public static function form(Schema $schema): Schema
     {
