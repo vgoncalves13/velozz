@@ -64,6 +64,14 @@ class ZApiMockService implements ZApiServiceInterface
         ];
     }
 
+    public function getProfilePicture(string $instanceId, string $phone): array
+    {
+        return [
+            'success' => true,
+            'picture_url' => null,
+        ];
+    }
+
     public function getChats(string $instanceId, int $page = 0, int $pageSize = 100): array
     {
         return [

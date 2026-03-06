@@ -35,6 +35,13 @@ interface ZApiServiceInterface
     public function disconnect(string $instanceId): array;
 
     /**
+     * Get profile picture URL for a phone number
+     *
+     * @return array{success: bool, picture_url: string|null}
+     */
+    public function getProfilePicture(string $instanceId, string $phone): array;
+
+    /**
      * Get list of chats (individual contacts only, excluding groups)
      *
      * @return array{success: bool, chats: array<int, array{phone: string, name: string, last_message_at: int|null}>}

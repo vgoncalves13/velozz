@@ -214,6 +214,21 @@ class ZApiRealService implements ZApiServiceInterface
         ];
     }
 
+    public function getProfilePicture(string $instanceId, string $phone): array
+    {
+        $url = $this->buildUrl($instanceId, 'contacts/get-profile-picture').'?phone='.$phone;
+        $response = $this->request('get', $url);
+
+        if (! $response['success']) {
+            return array_merge($response, ['picture_url' => null]);
+        }
+
+        return [
+            'success' => true,
+            'picture_url' => $response['value'] ?? null,
+        ];
+    }
+
     public function getChats(string $instanceId, int $page = 0, int $pageSize = 100): array
     {
         $url = $this->buildUrl($instanceId, 'chats').'?page='.$page.'&pageSize='.$pageSize;
