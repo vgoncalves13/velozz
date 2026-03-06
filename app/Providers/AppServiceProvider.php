@@ -33,6 +33,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Gate::before(function (\App\Models\User $user, string $ability): ?bool {
+            if ($user->isAdminMaster()) {
+                return true;
+            }
+
+            return null;
+        });
+
         \App\Models\Lead::observe(\App\Observers\LeadObserver::class);
 
         // Listen to Stripe webhook events to update tenant plan
