@@ -14,13 +14,22 @@ class ChoosePlan extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
-    protected static ?string $navigationLabel = 'Choose Plan';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'System';
-
-    protected static ?string $title = 'Choose Your Plan';
-
     protected static ?int $navigationSort = 99;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('pages.choose_plan.navigation');
+    }
+
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return __('pages.choose_plan.title');
+    }
 
     public function getPlans()
     {

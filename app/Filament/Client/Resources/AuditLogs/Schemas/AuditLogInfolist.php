@@ -15,11 +15,12 @@ class AuditLogInfolist
     {
         return $schema
             ->components([
-                Section::make('Audit Details')
+                Section::make(__('audit_logs.sections.details'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 TextEntry::make('action')
+                                    ->label(__('audit_logs.columns.action'))
                                     ->badge()
                                     ->color(fn (string $state): string => match (true) {
                                         str_contains($state, 'login') => 'success',
@@ -29,19 +30,21 @@ class AuditLogInfolist
                                     }),
 
                                 TextEntry::make('entity')
+                                    ->label(__('audit_logs.columns.entity'))
                                     ->weight(FontWeight::Bold),
 
                                 TextEntry::make('entity_id')
-                                    ->label('Entity ID'),
+                                    ->label(__('audit_logs.columns.entity_id')),
                             ]),
 
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('user.name')
-                                    ->label('User')
-                                    ->default('System'),
+                                    ->label(__('audit_logs.columns.user'))
+                                    ->default(__('audit_logs.defaults.system')),
 
                                 TextEntry::make('created_at')
+                                    ->label(__('audit_logs.columns.date'))
                                     ->dateTime()
                                     ->since(),
                             ]),
@@ -49,32 +52,32 @@ class AuditLogInfolist
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('ip_address')
-                                    ->label('IP Address')
+                                    ->label(__('audit_logs.columns.ip_address'))
                                     ->copyable(),
 
                                 TextEntry::make('user_agent')
-                                    ->label('User Agent')
+                                    ->label(__('audit_logs.columns.user_agent'))
                                     ->limit(50)
                                     ->tooltip(fn ($record) => $record->user_agent),
                             ]),
                     ]),
 
-                Section::make('Previous Data')
+                Section::make(__('audit_logs.sections.previous_data'))
                     ->schema([
                         KeyValueEntry::make('previous_data')
                             ->label('')
-                            ->keyLabel('Field')
-                            ->valueLabel('Value'),
+                            ->keyLabel(__('audit_logs.fields.field'))
+                            ->valueLabel(__('audit_logs.fields.value')),
                     ])
                     ->visible(fn ($record) => ! empty($record->previous_data))
                     ->collapsed(),
 
-                Section::make('New Data')
+                Section::make(__('audit_logs.sections.new_data'))
                     ->schema([
                         KeyValueEntry::make('new_data')
                             ->label('')
-                            ->keyLabel('Field')
-                            ->valueLabel('Value'),
+                            ->keyLabel(__('audit_logs.fields.field'))
+                            ->valueLabel(__('audit_logs.fields.value')),
                     ])
                     ->visible(fn ($record) => ! empty($record->new_data))
                     ->collapsed(),

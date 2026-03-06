@@ -17,9 +17,22 @@ return [
         'navigation' => 'Config. WhatsApp',
     ],
     'choose_plan' => [
-        'title' => 'Escolher Plano',
+        'title' => 'Escolha o Seu Plano',
         'description' => 'Selecionar um plano de subscrição',
         'navigation' => 'Escolher Plano',
+        'most_popular' => 'MAIS POPULAR',
+        'per_month' => '/mês',
+        'trial_days' => ':days dias de teste gratuito',
+        'leads_per_month' => 'leads/mês',
+        'messages_per_day' => 'mensagens/dia',
+        'operators' => 'operador|operadores',
+        'whatsapp_instances' => 'instância WhatsApp|instâncias WhatsApp',
+        'choose_button' => 'Escolher :name',
+        'test_mode' => [
+            'title' => 'Modo de Teste Ativo',
+            'description' => 'Este é o Modo de Teste do Stripe. Use o cartão de teste: :card',
+            'note' => 'Não serão efetuadas cobranças reais. Qualquer data de validade futura e CVC de 3 dígitos funcionam.',
+        ],
     ],
     'tenant_settings' => [
         'title' => 'Configurações',

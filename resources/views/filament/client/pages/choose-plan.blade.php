@@ -4,7 +4,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border-2 @if($plan->name === 'Professional') border-primary-500 @else border-gray-200 dark:border-gray-700 @endif">
                 @if($plan->name === 'Professional')
                     <div class="bg-primary-500 text-white text-center py-2 text-sm font-semibold">
-                        MOST POPULAR
+                        {{ __('pages.choose_plan.most_popular') }}
                     </div>
                 @endif
 
@@ -17,12 +17,12 @@
                         <span class="text-4xl font-bold text-gray-900 dark:text-white">
                             €{{ number_format($plan->price, 2) }}
                         </span>
-                        <span class="text-gray-600 dark:text-gray-400">/month</span>
+                        <span class="text-gray-600 dark:text-gray-400">{{ __('pages.choose_plan.per_month') }}</span>
                     </div>
 
                     @if($plan->trial_days > 0)
                         <div class="mb-4 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-lg text-sm text-center">
-                            {{ $plan->trial_days }} days free trial
+                            {{ __('pages.choose_plan.trial_days', ['days' => $plan->trial_days]) }}
                         </div>
                     @endif
 
@@ -32,7 +32,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             <span class="text-gray-700 dark:text-gray-300">
-                                {{ number_format($plan->leads_limit_per_month) }} leads/month
+                                {{ number_format($plan->leads_limit_per_month) }} {{ __('pages.choose_plan.leads_per_month') }}
                             </span>
                         </li>
                         <li class="flex items-start">
@@ -40,7 +40,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             <span class="text-gray-700 dark:text-gray-300">
-                                {{ number_format($plan->messages_limit_per_day) }} messages/day
+                                {{ number_format($plan->messages_limit_per_day) }} {{ __('pages.choose_plan.messages_per_day') }}
                             </span>
                         </li>
                         <li class="flex items-start">
@@ -48,7 +48,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             <span class="text-gray-700 dark:text-gray-300">
-                                {{ $plan->operators_limit }} {{ Str::plural('operator', $plan->operators_limit) }}
+                                {{ $plan->operators_limit }} {{ trans_choice(__('pages.choose_plan.operators'), $plan->operators_limit) }}
                             </span>
                         </li>
                         <li class="flex items-start">
@@ -56,7 +56,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             <span class="text-gray-700 dark:text-gray-300">
-                                {{ $plan->whatsapp_instances_limit }} WhatsApp {{ Str::plural('instance', $plan->whatsapp_instances_limit) }}
+                                {{ $plan->whatsapp_instances_limit }} {{ trans_choice(__('pages.choose_plan.whatsapp_instances'), $plan->whatsapp_instances_limit) }}
                             </span>
                         </li>
                     </ul>
@@ -70,7 +70,7 @@
                                 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white
                             @endif"
                     >
-                        Choose {{ $plan->name }}
+                        {{ __('pages.choose_plan.choose_button', ['name' => $plan->name]) }}
                     </button>
                 </div>
             </div>
@@ -89,13 +89,13 @@
 
     <div class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
         <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">
-            Test Mode Enabled
+            {{ __('pages.choose_plan.test_mode.title') }}
         </h4>
         <p class="text-blue-800 dark:text-blue-400 text-sm mb-3">
-            This is Stripe Test Mode. Use test card: <code class="bg-white dark:bg-gray-800 px-2 py-1 rounded">4242 4242 4242 4242</code>
+            {!! __('pages.choose_plan.test_mode.description', ['card' => '<code class="bg-white dark:bg-gray-800 px-2 py-1 rounded">4242 4242 4242 4242</code>']) !!}
         </p>
         <p class="text-blue-700 dark:text-blue-500 text-xs">
-            No real charges will be made. Any future expiry date and any 3-digit CVC will work.
+            {{ __('pages.choose_plan.test_mode.note') }}
         </p>
     </div>
 </x-filament-panels::page>

@@ -16,7 +16,7 @@ class AuditLogsTable
         return $table
             ->columns([
                 TextColumn::make('action')
-                    ->label('Action')
+                    ->label(__('audit_logs.columns.action'))
                     ->badge()
                     ->searchable()
                     ->sortable()
@@ -28,28 +28,28 @@ class AuditLogsTable
                     }),
 
                 TextColumn::make('entity')
-                    ->label('Entity')
+                    ->label(__('audit_logs.columns.entity'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('entity_id')
-                    ->label('Entity ID')
+                    ->label(__('audit_logs.columns.entity_id'))
                     ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('user.name')
-                    ->label('User')
+                    ->label(__('audit_logs.columns.user'))
                     ->searchable()
                     ->sortable()
-                    ->default('System')
+                    ->default(__('audit_logs.defaults.system'))
                     ->weight(FontWeight::Medium),
 
                 TextColumn::make('ip_address')
-                    ->label('IP Address')
+                    ->label(__('audit_logs.columns.ip_address'))
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
-                    ->label('Date')
+                    ->label(__('audit_logs.columns.date'))
                     ->dateTime()
                     ->sortable()
                     ->since()
@@ -57,35 +57,23 @@ class AuditLogsTable
             ])
             ->filters([
                 SelectFilter::make('action')
-                    ->options([
-                        'login' => 'Login',
-                        'logout' => 'Logout',
-                        'import' => 'Import',
-                        'send_message' => 'Send Message',
-                        'qr_code_access' => 'QR Code Access',
-                        'lead_transfer' => 'Lead Transfer',
-                        'gdpr_anonymization' => 'GDPR Anonymization',
-                    ])
+                    ->label(__('audit_logs.filters.action'))
+                    ->options(__('audit_logs.filters.actions'))
                     ->multiple(),
 
                 SelectFilter::make('entity')
-                    ->options([
-                        'user' => 'User',
-                        'lead' => 'Lead',
-                        'import' => 'Import',
-                        'whatsapp_message' => 'WhatsApp Message',
-                        'whatsapp_instance' => 'WhatsApp Instance',
-                    ])
+                    ->label(__('audit_logs.filters.entity'))
+                    ->options(__('audit_logs.filters.entities'))
                     ->multiple(),
 
                 SelectFilter::make('user_id')
                     ->relationship('user', 'name')
-                    ->label('User')
+                    ->label(__('audit_logs.filters.user'))
                     ->searchable()
                     ->preload(),
 
                 TernaryFilter::make('system_actions')
-                    ->label('System Actions')
+                    ->label(__('audit_logs.filters.system_actions'))
                     ->nullable()
                     ->queries(
                         true: fn ($query) => $query->whereNull('user_id'),

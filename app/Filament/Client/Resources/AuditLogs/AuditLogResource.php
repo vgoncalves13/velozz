@@ -17,13 +17,29 @@ class AuditLogResource extends Resource
 {
     protected static ?string $model = AuditLog::class;
 
-    protected static ?string $navigationLabel = 'Audit Logs';
-
-    protected static string|null|\UnitEnum $navigationGroup = 'System';
-
     protected static ?int $navigationSort = 2;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('navigation.groups.system');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('resources.audit_logs.navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('resources.audit_logs.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('resources.audit_logs.plural');
+    }
 
     public static function infolist(Schema $schema): Schema
     {
