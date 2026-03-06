@@ -22,6 +22,7 @@ class EmbeddedForm extends Model
         'styles',
         'status',
         'redirect_url',
+        'success_message',
     ];
 
     protected function casts(): array

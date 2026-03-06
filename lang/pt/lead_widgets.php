@@ -54,6 +54,8 @@ return [
         'show_text' => 'Mostrar Texto',
         'status' => 'Estado',
         'created' => 'Criado em',
+        'maps_to' => 'Associar a Campo do Lead',
+        'success_message' => 'Mensagem de Sucesso',
     ],
 
     'helpers' => [
@@ -64,6 +66,25 @@ return [
         'auto_message' => 'Use {{nome}} como marcador para o nome do contacto.',
         'button_text' => 'Deixe vazio para mostrar apenas o ícone do WhatsApp.',
         'order' => 'Ordem em que os campos serão exibidos.',
+        'maps_to' => 'Selecione em qual campo do lead este valor será guardado. Campos não associados ficam em campos personalizados.',
+        'maps_to_placeholder' => 'Não associado (campo personalizado)',
+        'success_message' => 'Exibida após a submissão quando não há URL de redirecionamento. Deixe vazio para usar a mensagem padrão.',
+        'success_message_placeholder' => 'Obrigado! A sua submissão foi recebida.',
+    ],
+
+    'lead_fields' => [
+        'full_name' => 'Nome Completo',
+        'email' => 'Email',
+        'phone' => 'Telefone',
+        'whatsapp' => 'WhatsApp',
+        'street_name' => 'Nome da Rua',
+        'number' => 'Número',
+        'complement' => 'Complemento',
+        'neighborhood' => 'Bairro',
+        'city' => 'Cidade',
+        'postal_code' => 'Código Postal',
+        'country' => 'País',
+        'notes' => 'Notas',
     ],
 
     'field_types' => [

@@ -54,6 +54,8 @@ return [
         'show_text' => 'Show Text',
         'status' => 'Status',
         'created' => 'Created',
+        'maps_to' => 'Maps to Lead Field',
+        'success_message' => 'Success Message',
     ],
 
     'helpers' => [
@@ -64,6 +66,25 @@ return [
         'auto_message' => 'Use {{nome}} as placeholder for the contact\'s name.',
         'button_text' => 'Leave empty to show only the WhatsApp icon.',
         'order' => 'Order in which the fields will be displayed.',
+        'maps_to' => 'Select which lead field this value will be saved to. Unmapped fields are stored as custom fields.',
+        'maps_to_placeholder' => 'Not mapped (custom field)',
+        'success_message' => 'Shown after submission when no redirect URL is set. Leave empty to use the default message.',
+        'success_message_placeholder' => 'Thank you! Your submission was received.',
+    ],
+
+    'lead_fields' => [
+        'full_name' => 'Full Name',
+        'email' => 'Email',
+        'phone' => 'Phone',
+        'whatsapp' => 'WhatsApp',
+        'street_name' => 'Street Name',
+        'number' => 'Street Number',
+        'complement' => 'Complement',
+        'neighborhood' => 'Neighborhood',
+        'city' => 'City',
+        'postal_code' => 'Postal Code',
+        'country' => 'Country',
+        'notes' => 'Notes',
     ],
 
     'field_types' => [

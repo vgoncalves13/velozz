@@ -361,7 +361,7 @@
                             </button>
                         </form>
                         <div class="form-success" id="preview-success" style="display:none;">
-                            ✓ {{ __('Thank you! Your submission was received.') }}
+                            ✓ {{ $form->success_message ?: __('Thank you! Your submission was received.') }}
                         </div>
                     @endif
                 </div>

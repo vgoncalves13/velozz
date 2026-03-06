@@ -92,7 +92,8 @@ class EmbeddedFormTest extends TestCase
                 [
                     'type' => 'text',
                     'label' => 'Full Name',
-                    'name' => 'full_name',
+                    'name' => 'nome_completo',
+                    'maps_to' => 'full_name',
                     'required' => true,
                     'options' => [],
                     'order' => 0,
@@ -100,7 +101,8 @@ class EmbeddedFormTest extends TestCase
                 [
                     'type' => 'email',
                     'label' => 'Email',
-                    'name' => 'email',
+                    'name' => 'email_contato',
+                    'maps_to' => 'email',
                     'required' => false,
                     'options' => [],
                     'order' => 1,
@@ -109,8 +111,8 @@ class EmbeddedFormTest extends TestCase
         ]);
 
         $response = $this->postJson('/api/forms/'.$form->slug.'/submit', [
-            'full_name' => 'Jane Doe',
-            'email' => 'jane@example.com',
+            'nome_completo' => 'Jane Doe',
+            'email_contato' => 'jane@example.com',
         ]);
 
         $response->assertStatus(200);
@@ -124,6 +126,44 @@ class EmbeddedFormTest extends TestCase
         ]);
     }
 
+    public function test_unmapped_fields_are_stored_as_custom_fields(): void
+    {
+        $form = EmbeddedForm::factory()->create([
+            'status' => 'active',
+            'fields' => [
+                [
+                    'type' => 'text',
+                    'label' => 'Nome',
+                    'name' => 'nome',
+                    'maps_to' => 'full_name',
+                    'required' => true,
+                    'options' => [],
+                    'order' => 0,
+                ],
+                [
+                    'type' => 'text',
+                    'label' => 'Empresa',
+                    'name' => 'empresa',
+                    'maps_to' => null,
+                    'required' => false,
+                    'options' => [],
+                    'order' => 1,
+                ],
+            ],
+        ]);
+
+        $this->postJson('/api/forms/'.$form->slug.'/submit', [
+            'nome' => 'João Silva',
+            'empresa' => 'Acme Lda',
+        ]);
+
+        $lead = Lead::withoutGlobalScopes()->where('tenant_id', $form->tenant_id)->first();
+
+        $this->assertNotNull($lead);
+        $this->assertEquals('João Silva', $lead->full_name);
+        $this->assertEquals(['empresa' => 'Acme Lda'], $lead->custom_fields);
+    }
+
     public function test_form_submission_validates_required_fields(): void
     {
         $form = EmbeddedForm::factory()->create([
@@ -132,7 +172,8 @@ class EmbeddedFormTest extends TestCase
                 [
                     'type' => 'text',
                     'label' => 'Full Name',
-                    'name' => 'full_name',
+                    'name' => 'nome_completo',
+                    'maps_to' => 'full_name',
                     'required' => true,
                     'options' => [],
                     'order' => 0,
@@ -143,7 +184,7 @@ class EmbeddedFormTest extends TestCase
         $response = $this->postJson('/api/forms/'.$form->slug.'/submit', []);
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['full_name']);
+        $response->assertJsonValidationErrors(['nome_completo']);
     }
 
     public function test_form_submission_sets_lead_source_to_embedded_form(): void
@@ -154,7 +195,8 @@ class EmbeddedFormTest extends TestCase
                 [
                     'type' => 'text',
                     'label' => 'Full Name',
-                    'name' => 'full_name',
+                    'name' => 'nome_completo',
+                    'maps_to' => 'full_name',
                     'required' => true,
                     'options' => [],
                     'order' => 0,
@@ -163,7 +205,7 @@ class EmbeddedFormTest extends TestCase
         ]);
 
         $this->postJson('/api/forms/'.$form->slug.'/submit', [
-            'full_name' => 'Test User',
+            'nome_completo' => 'Test User',
         ]);
 
         $lead = Lead::withoutGlobalScopes()->where('tenant_id', $form->tenant_id)->first();

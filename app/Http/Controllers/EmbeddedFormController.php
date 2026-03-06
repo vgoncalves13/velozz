@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LeadField;
 use App\Enums\LeadSource;
 use App\Models\EmbeddedForm;
 use App\Models\Lead;
@@ -80,25 +81,56 @@ class EmbeddedFormController extends Controller
 
         $validated = $request->validate($rules);
 
-        $fullName = $validated['full_name'] ?? $validated['name'] ?? $validated['nome'] ?? null;
-        $email = $validated['email'] ?? null;
-        $phone = $validated['phone'] ?? $validated['whatsapp'] ?? $validated['telefone'] ?? null;
-
-        $knownFields = ['full_name', 'name', 'nome', 'email', 'phone', 'whatsapp', 'telefone'];
-        $customFields = array_filter(
-            $validated,
-            fn ($key) => ! in_array($key, $knownFields),
-            ARRAY_FILTER_USE_KEY
-        );
-
-        Lead::create([
+        $leadData = [
             'tenant_id' => $form->tenant_id,
-            'full_name' => $fullName ?? 'Unknown',
-            'email' => $email,
-            'phones' => $phone ? [$phone] : null,
             'source' => LeadSource::EmbeddedForm,
-            'custom_fields' => ! empty($customFields) ? $customFields : null,
-        ]);
+        ];
+        $phones = [];
+        $whatsapps = [];
+        $customFields = [];
+
+        foreach ($fields as $field) {
+            $value = $validated[$field['name']] ?? null;
+            $mapsTo = ! empty($field['maps_to']) ? $field['maps_to'] : null;
+
+            if ($mapsTo === null) {
+                if ($value !== null) {
+                    $customFields[$field['name']] = $value;
+                }
+
+                continue;
+            }
+
+            if ($mapsTo === LeadField::Phone->value) {
+                if ($value) {
+                    $phones[] = $value;
+                }
+            } elseif ($mapsTo === LeadField::Whatsapp->value) {
+                if ($value) {
+                    $whatsapps[] = $value;
+                }
+            } else {
+                $leadData[$mapsTo] = $value;
+            }
+        }
+
+        if (! empty($phones)) {
+            $leadData['phones'] = $phones;
+        }
+
+        if (! empty($whatsapps)) {
+            $leadData['whatsapps'] = $whatsapps;
+        }
+
+        if (! empty($customFields)) {
+            $leadData['custom_fields'] = $customFields;
+        }
+
+        if (empty($leadData['full_name'])) {
+            $leadData['full_name'] = 'Unknown';
+        }
+
+        Lead::create($leadData);
 
         return response()->json([
             'success' => true,

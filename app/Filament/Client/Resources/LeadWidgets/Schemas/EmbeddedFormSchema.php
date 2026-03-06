@@ -2,6 +2,7 @@
 
 namespace App\Filament\Client\Resources\LeadWidgets\Schemas;
 
+use App\Enums\LeadField;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -62,6 +63,13 @@ class EmbeddedFormSchema
                             ->maxLength(500)
                             ->helperText(__('lead_widgets.helpers.redirect_url'))
                             ->columnSpanFull(),
+
+                        TextInput::make('success_message')
+                            ->label(__('lead_widgets.labels.success_message'))
+                            ->maxLength(500)
+                            ->placeholder(__('lead_widgets.helpers.success_message_placeholder'))
+                            ->helperText(__('lead_widgets.helpers.success_message'))
+                            ->columnSpanFull(),
                     ])
                     ->columns(['default' => 1, 'md' => 2]),
 
@@ -101,6 +109,14 @@ class EmbeddedFormSchema
                                     ->required()
                                     ->maxLength(255)
                                     ->helperText(__('lead_widgets.helpers.field_name')),
+
+                                Select::make('maps_to')
+                                    ->label(__('lead_widgets.labels.maps_to'))
+                                    ->options(LeadField::options())
+                                    ->placeholder(__('lead_widgets.helpers.maps_to_placeholder'))
+                                    ->helperText(__('lead_widgets.helpers.maps_to'))
+                                    ->searchable()
+                                    ->nullable(),
 
                                 TextInput::make('placeholder')
                                     ->label(__('lead_widgets.labels.placeholder'))

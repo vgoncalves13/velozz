@@ -27,9 +27,9 @@ class EmbeddedFormsTable
                     ->copyable()
                     ->toggleable(),
 
-                TextColumn::make('fields')
+                TextColumn::make('fields_count')
                     ->label(__('lead_widgets.labels.fields_count'))
-                    ->formatStateUsing(fn ($state) => count((array) $state).' '.__('lead_widgets.labels.fields'))
+                    ->getStateUsing(fn ($record) => count($record->fields ?? []).' '.__('lead_widgets.labels.fields'))
                     ->badge()
                     ->color('info'),
 
@@ -55,6 +55,12 @@ class EmbeddedFormsTable
             ])
             ->filters([])
             ->recordActions([
+                Action::make('open_preview')
+                    ->label(__('lead_widgets.actions.open_preview'))
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn ($record) => route('forms.preview', $record->slug))
+                    ->openUrlInNewTab(),
                 EditAction::make(),
             ])
             ->toolbarActions([
