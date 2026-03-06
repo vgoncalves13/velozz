@@ -5,6 +5,8 @@ namespace App\Filament\Client\Resources\Leads\Schemas;
 use App\Enums\LeadSource;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\KeyValueEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\RepeatableEntry\TableColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -234,6 +236,54 @@ class LeadInfolist
                             ->columnSpanFull()
                             ->hidden(fn ($record) => empty($record->custom_fields)),
                     ]),
+
+                // Opportunities Section
+                Section::make(__('Opportunities'))
+                    ->icon('heroicon-o-currency-dollar')
+                    ->collapsible()
+                    ->schema([
+                        RepeatableEntry::make('opportunities')
+                            ->label('')
+                            ->table([
+                                TableColumn::make(__('Product')),
+                                TableColumn::make(__('Value')),
+                                TableColumn::make(__('Stage')),
+                                TableColumn::make(__('Probability')),
+                                TableColumn::make(__('Assigned To')),
+                                TableColumn::make(__('Expected Close')),
+                            ])
+                            ->schema([
+                                TextEntry::make('product.name')
+                                    ->placeholder('—'),
+
+                                TextEntry::make('value')
+                                    ->money('BRL'),
+
+                                TextEntry::make('stage')
+                                    ->badge()
+                                    ->color(fn (string $state): string => match ($state) {
+                                        'proposal' => 'info',
+                                        'negotiation' => 'warning',
+                                        'closed_won' => 'success',
+                                        'closed_lost' => 'danger',
+                                        default => 'gray',
+                                    })
+                                    ->formatStateUsing(fn (string $state): string => __('opportunities.stages.'.$state)),
+
+                                TextEntry::make('probability')
+                                    ->suffix('%'),
+
+                                TextEntry::make('assignedUser.name')
+                                    ->placeholder('—'),
+
+                                TextEntry::make('expected_close_date')
+                                    ->date()
+                                    ->placeholder('—'),
+                            ])
+                            ->columnSpanFull()
+                            ->hidden(fn ($record) => $record->opportunities()->doesntExist()),
+                    ])
+                    ->hidden(fn ($record) => $record->opportunities()->doesntExist()),
 
                 // Metadata Section
                 Section::make('Metadata')
