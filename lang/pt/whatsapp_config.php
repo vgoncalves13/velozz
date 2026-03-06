@@ -11,6 +11,7 @@ return [
         'connect' => 'Conectar WhatsApp',
         'disconnect' => 'Desconectar',
         'check_status' => 'Verificar Estado',
+        'sync_chats' => 'Sincronizar Conversas',
     ],
 
     // Form Labels
@@ -19,6 +20,8 @@ return [
         'instance_id_helper' => 'O seu ID de instância Z-API',
         'token' => 'Token',
         'token_helper' => 'O seu token Z-API',
+        'sync_days' => 'Dias a Sincronizar',
+        'sync_days_helper' => 'Importar contactos que enviaram mensagem nos últimos X dias (apenas conversas individuais, grupos são excluídos)',
     ],
 
     // Labels
@@ -68,5 +71,7 @@ return [
         'connected_title' => 'Conectado!',
         'connected_body' => 'Telefone: :phone',
         'not_connected_title' => 'Ainda não conectado',
+        'sync_started_title' => 'Sincronização iniciada!',
+        'sync_started_body' => 'A importar contactos dos últimos :days dias. Pode demorar alguns minutos.',
     ],
 ];

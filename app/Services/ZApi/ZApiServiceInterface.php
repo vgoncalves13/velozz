@@ -33,4 +33,11 @@ interface ZApiServiceInterface
      * Disconnect instance
      */
     public function disconnect(string $instanceId): array;
+
+    /**
+     * Get list of chats (individual contacts only, excluding groups)
+     *
+     * @return array{success: bool, chats: array<int, array{phone: string, name: string, last_message_at: int|null}>}
+     */
+    public function getChats(string $instanceId, int $page = 0, int $pageSize = 100): array;
 }

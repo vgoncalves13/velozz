@@ -214,6 +214,38 @@ class ZApiRealService implements ZApiServiceInterface
         ];
     }
 
+    public function getChats(string $instanceId, int $page = 0, int $pageSize = 100): array
+    {
+        $url = $this->buildUrl($instanceId, 'chats').'?page='.$page.'&pageSize='.$pageSize;
+        $response = $this->request('get', $url);
+
+        if (! $response['success']) {
+            return array_merge($response, ['chats' => []]);
+        }
+
+        // Z-API returns chats in the root array or under a 'value' key
+        $rawChats = $response['value'] ?? array_filter($response, fn ($v) => is_array($v));
+
+        $chats = [];
+        foreach ($rawChats as $chat) {
+            // Skip group chats using the isGroup flag from Z-API response
+            if ($chat['isGroup'] ?? false) {
+                continue;
+            }
+
+            $chats[] = [
+                'phone' => $chat['phone'] ?? '',
+                'name' => $chat['name'] ?? null,
+                'last_message_at' => $chat['lastMessage']['timestamp'] ?? null,
+            ];
+        }
+
+        return [
+            'success' => true,
+            'chats' => $chats,
+        ];
+    }
+
     protected function formatPhone(string $phone): string
     {
         $phone = preg_replace("/\D/", '', $phone);

@@ -66,6 +66,11 @@ class ZApiWebhookController extends Controller
             // Extract phone number (clean format)
             $phone = $request->input('phone');
 
+            // Skip group and broadcast messages
+            if ($request->boolean('isGroup') || $this->isGroupPhone($phone)) {
+                return response()->json(['status' => 'skipped', 'reason' => 'group or broadcast message']);
+            }
+
             // Find or create lead
             $lead = $this->findOrCreateLead($tenant, $phone, $request->input('chatName'));
 
@@ -173,6 +178,16 @@ class ZApiWebhookController extends Controller
         ]);
 
         return $lead;
+    }
+
+    /**
+     * Check if a phone number belongs to a group or broadcast list
+     */
+    private function isGroupPhone(string $phone): bool
+    {
+        return str_contains($phone, '@g.us')
+            || str_contains($phone, '@broadcast')
+            || str_contains($phone, '-');
     }
 
     /**

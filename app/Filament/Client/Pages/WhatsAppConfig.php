@@ -4,6 +4,7 @@ namespace App\Filament\Client\Pages;
 
 use App\Enums\ClientNavigationGroup;
 use App\Helpers\AuditHelper;
+use App\Jobs\SyncWhatsAppChats;
 use App\Models\WhatsAppInstance;
 use App\Services\ZApi\ZApiServiceInterface;
 use BackedEnum;
@@ -159,6 +160,34 @@ class WhatsAppConfig extends Page
 
                 $this->redirect(static::getUrl());
             });
+
+        if ($this->instance->isConnected()) {
+            $actions[] = Action::make('sync_chats')
+                ->label(__('whatsapp_config.actions.sync_chats'))
+                ->icon('heroicon-o-cloud-arrow-down')
+                ->color('info')
+                ->form([
+                    TextInput::make('sync_days')
+                        ->label(__('whatsapp_config.form.sync_days'))
+                        ->helperText(__('whatsapp_config.form.sync_days_helper'))
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(365)
+                        ->required()
+                        ->default($this->instance->sync_days ?? 30),
+                ])
+                ->action(function (array $data) {
+                    $this->instance->update(['sync_days' => $data['sync_days']]);
+
+                    SyncWhatsAppChats::dispatch($this->instance);
+
+                    Notification::make()
+                        ->title(__('whatsapp_config.notifications.sync_started_title'))
+                        ->body(__('whatsapp_config.notifications.sync_started_body', ['days' => $data['sync_days']]))
+                        ->info()
+                        ->send();
+                });
+        }
 
         return $actions;
     }

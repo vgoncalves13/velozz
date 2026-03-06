@@ -23,6 +23,7 @@ class WhatsAppInstance extends Model
         'phone_number',
         'webhook_url',
         'last_connected_at',
+        'sync_days',
     ];
 
     protected function casts(): array
