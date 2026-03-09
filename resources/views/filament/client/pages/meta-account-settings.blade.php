@@ -6,22 +6,6 @@
         @if(session('meta_oauth_error'))
             <x-filament::section>{{ session('meta_oauth_error') }}</x-filament::section>
         @endif
-        {{-- Webhook URL info --}}
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
-            <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                {{ __('meta_settings.webhook.title') }}
-            </h3>
-            <p class="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                {{ __('meta_settings.webhook.description') }}
-            </p>
-            <div class="flex items-center gap-2 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg px-4 py-2">
-                <code class="text-xs text-gray-700 dark:text-gray-300 break-all flex-1">{{ $this->getWebhookUrl() }}</code>
-            </div>
-            <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                {{ __('meta_settings.webhook.verify_token_hint') }}: <code class="font-mono">{{ config('services.meta.webhook_token') }}</code>
-            </p>
-        </div>
-
         {{-- Connected Accounts --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">

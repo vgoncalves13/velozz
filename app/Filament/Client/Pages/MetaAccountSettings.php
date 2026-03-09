@@ -35,12 +35,7 @@ class MetaAccountSettings extends Page
         return MetaAccount::where('tenant_id', auth()->user()->tenant_id)->get();
     }
 
-    public function getWebhookUrl(): string
-    {
-        return url('/api/webhook/meta');
-    }
-
-    protected function getHeaderActions(): array
+protected function getHeaderActions(): array
     {
         return [
             Action::make('connectInstagram')
