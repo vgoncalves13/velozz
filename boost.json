@@ -6,9 +6,14 @@
     "herd_mcp": false,
     "mcp": true,
     "nightwatch_mcp": false,
+    "packages": [
+        "filament/filament",
+        "spatie/laravel-permission"
+    ],
     "sail": true,
     "skills": [
         "tailwindcss-development",
+        "laravel-permission-development",
         "php-best-practices"
     ]
 }
