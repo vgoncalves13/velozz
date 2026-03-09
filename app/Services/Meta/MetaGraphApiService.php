@@ -243,7 +243,7 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
     public function getInstagramUserInfo(string $accessToken): array
     {
         $response = Http::get('https://graph.instagram.com/v22.0/me', [
-            'fields' => 'id,name,username',
+            'fields' => 'id,user_id,name,username',
             'access_token' => $accessToken,
         ]);
 
@@ -262,7 +262,7 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
     public function subscribeInstagramUser(string $igUserId, string $accessToken): bool
     {
         $response = Http::post("https://graph.instagram.com/v22.0/{$igUserId}/subscribed_apps", [
-            'subscribed_fields' => 'messages',
+            'subscribed_fields' => 'messages,messaging_postbacks,messaging_optins,messaging_referrals',
             'access_token' => $accessToken,
         ]);
 

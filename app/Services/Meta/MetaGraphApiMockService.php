@@ -107,7 +107,8 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
     public function getInstagramUserInfo(string $accessToken): array
     {
         return [
-            'id' => 'mock_ig_user_123',
+            'id' => 'mock_app_scoped_id_456',
+            'user_id' => 'mock_ig_user_123',
             'name' => 'Mock Instagram User',
             'username' => 'mock_ig_user',
         ];

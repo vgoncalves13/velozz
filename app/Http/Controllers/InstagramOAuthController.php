@@ -58,16 +58,20 @@ class InstagramOAuthController extends Controller
 
             $userInfo = $metaApi->getInstagramUserInfo($longLivedToken);
 
-            $metaApi->subscribeInstagramUser($userInfo['id'], $longLivedToken);
+            // user_id is the Instagram professional account ID (used in webhooks and API calls)
+            // id is the app-scoped ID (not suitable for API calls)
+            $igUserId = $userInfo['user_id'] ?? $userInfo['id'];
+
+            $metaApi->subscribeInstagramUser($igUserId, $longLivedToken);
 
             MetaAccount::updateOrCreate(
                 [
                     'tenant_id' => auth()->user()->tenant_id,
-                    'instagram_user_id' => $userInfo['id'],
+                    'instagram_user_id' => $igUserId,
                     'type' => Channel::Instagram->value,
                 ],
                 [
-                    'page_id' => $userInfo['id'],
+                    'page_id' => $igUserId,
                     'page_name' => $userInfo['username'] ?? $userInfo['name'],
                     'access_token' => $longLivedToken,
                     'source' => 'instagram_business_login',
