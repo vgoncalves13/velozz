@@ -43,4 +43,9 @@ Route::get('/embed/whatsapp-{id}/preview', [App\Http\Controllers\WhatsAppWidgetC
 Route::middleware(['auth'])->group(function () {
     Route::get('/oauth/meta/redirect', [App\Http\Controllers\MetaOAuthController::class, 'redirect'])->name('meta.oauth.redirect');
     Route::get('/oauth/meta/callback', [App\Http\Controllers\MetaOAuthController::class, 'callback'])->name('meta.oauth.callback');
+    Route::get('/oauth/instagram/redirect', [App\Http\Controllers\InstagramOAuthController::class, 'redirect'])->name('instagram.oauth.redirect');
+    Route::get('/oauth/instagram/callback', [App\Http\Controllers\InstagramOAuthController::class, 'callback'])->name('instagram.oauth.callback');
 });
+
+// Instagram compliance routes (public, no auth)
+Route::get('/data-deletion/confirm', [App\Http\Controllers\InstagramComplianceController::class, 'confirmDeletion'])->name('instagram.deletion-confirm');

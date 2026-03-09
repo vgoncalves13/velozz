@@ -197,4 +197,105 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
 
         return $response->successful();
     }
+
+    public function exchangeInstagramCode(string $code, string $redirectUri): array
+    {
+        $response = Http::asForm()->post('https://api.instagram.com/oauth/access_token', [
+            'client_id' => config('services.instagram.client_id'),
+            'client_secret' => config('services.instagram.client_secret'),
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => $redirectUri,
+            'code' => $code,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Instagram OAuth: Code exchange failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new \Exception($response->json('error_message', 'Failed to exchange Instagram authorization code'));
+        }
+
+        return $response->json();
+    }
+
+    public function getInstagramLongLivedToken(string $shortLivedToken): array
+    {
+        $response = Http::get('https://graph.instagram.com/access_token', [
+            'grant_type' => 'ig_exchange_token',
+            'client_secret' => config('services.instagram.client_secret'),
+            'access_token' => $shortLivedToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Instagram OAuth: Long-lived token exchange failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new \Exception($response->json('error.message', 'Failed to get long-lived Instagram token'));
+        }
+
+        return $response->json();
+    }
+
+    public function getInstagramUserInfo(string $accessToken): array
+    {
+        $response = Http::get('https://graph.instagram.com/v22.0/me', [
+            'fields' => 'id,name,username',
+            'access_token' => $accessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Instagram OAuth: Get user info failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            throw new \Exception($response->json('error.message', 'Failed to get Instagram user info'));
+        }
+
+        return $response->json();
+    }
+
+    public function subscribeInstagramUser(string $igUserId, string $accessToken): bool
+    {
+        $response = Http::post("https://graph.instagram.com/v22.0/{$igUserId}/subscribed_apps", [
+            'subscribed_fields' => 'messages',
+            'access_token' => $accessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Instagram OAuth: User subscription failed', [
+                'ig_user_id' => $igUserId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        }
+
+        return $response->successful();
+    }
+
+    public function sendInstagramBusinessMessage(string $igUserId, string $recipientId, string $text, string $accessToken): array
+    {
+        $response = Http::withToken($accessToken)
+            ->post("https://graph.instagram.com/v22.0/{$igUserId}/messages", [
+                'recipient' => ['id' => $recipientId],
+                'message' => ['text' => $text],
+                'messaging_type' => 'RESPONSE',
+            ]);
+
+        if (! $response->successful()) {
+            Log::error('Instagram Business API: Message send failed', [
+                'ig_user_id' => $igUserId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['success' => false, 'error' => $response->json('error.message', $response->body())];
+        }
+
+        return array_merge(['success' => true], $response->json());
+    }
 }

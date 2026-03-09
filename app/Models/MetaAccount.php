@@ -23,6 +23,7 @@ class MetaAccount extends Model
         'instagram_user_id',
         'access_token',
         'status',
+        'source',
     ];
 
     protected function casts(): array

@@ -7,12 +7,14 @@ return [
     'actions' => [
         'add_account' => 'Add Account',
         'connect_facebook' => 'Connect with Facebook',
+        'connect_instagram' => 'Connect with Instagram',
     ],
 
     'oauth' => [
         'success' => ':count account(s) connected successfully.',
         'denied' => 'The connection was denied.',
         'invalid_state' => 'The connection session expired. Please try again.',
+        'instagram_success' => 'Instagram account connected successfully.',
     ],
 
     'form' => [

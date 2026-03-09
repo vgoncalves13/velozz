@@ -64,4 +64,37 @@ interface MetaGraphApiServiceInterface
      * @return array{name: string|null, profile_pic: string|null}
      */
     public function getSenderProfile(string $senderId, string $pageAccessToken): array;
+
+    /**
+     * Exchange an Instagram authorization code for a short-lived access token
+     *
+     * @return array{access_token: string, token_type: string}
+     */
+    public function exchangeInstagramCode(string $code, string $redirectUri): array;
+
+    /**
+     * Exchange a short-lived Instagram token for a long-lived one
+     *
+     * @return array{access_token: string, token_type: string, expires_in: int}
+     */
+    public function getInstagramLongLivedToken(string $shortLivedToken): array;
+
+    /**
+     * Get the Instagram user info for the authenticated user
+     *
+     * @return array{id: string, name: string, username?: string}
+     */
+    public function getInstagramUserInfo(string $accessToken): array;
+
+    /**
+     * Subscribe an Instagram user to receive webhook message events
+     */
+    public function subscribeInstagramUser(string $igUserId, string $accessToken): bool;
+
+    /**
+     * Send a message via Instagram Business Login (direct Instagram Graph API)
+     *
+     * @return array{success: bool, message_id?: string}
+     */
+    public function sendInstagramBusinessMessage(string $igUserId, string $recipientId, string $text, string $accessToken): array;
 }

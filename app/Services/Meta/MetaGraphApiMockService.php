@@ -85,4 +85,45 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
     {
         return true;
     }
+
+    public function exchangeInstagramCode(string $code, string $redirectUri): array
+    {
+        return [
+            'access_token' => 'mock_ig_short_token',
+            'token_type' => 'bearer',
+            'user_id' => 'mock_ig_user_123',
+        ];
+    }
+
+    public function getInstagramLongLivedToken(string $shortLivedToken): array
+    {
+        return [
+            'access_token' => 'mock_ig_long_token',
+            'token_type' => 'bearer',
+            'expires_in' => 5184000,
+        ];
+    }
+
+    public function getInstagramUserInfo(string $accessToken): array
+    {
+        return [
+            'id' => 'mock_ig_user_123',
+            'name' => 'Mock Instagram User',
+            'username' => 'mock_ig_user',
+        ];
+    }
+
+    public function subscribeInstagramUser(string $igUserId, string $accessToken): bool
+    {
+        return true;
+    }
+
+    public function sendInstagramBusinessMessage(string $igUserId, string $recipientId, string $text, string $accessToken): array
+    {
+        return [
+            'success' => true,
+            'message_id' => 'mock_ig_biz_'.Str::uuid(),
+            'recipient_id' => $recipientId,
+        ];
+    }
 }

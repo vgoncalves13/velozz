@@ -28,3 +28,7 @@ Route::get('/webhook/meta', [MetaWebhookController::class, 'verify'])
     ->name('meta.webhook.verify');
 Route::post('/webhook/meta', [MetaWebhookController::class, 'receive'])
     ->name('meta.webhook.receive');
+
+// Instagram compliance endpoints (required by Meta Developer Portal)
+Route::post('/instagram/deauthorize', [App\Http\Controllers\InstagramComplianceController::class, 'deauthorize'])->name('instagram.deauthorize');
+Route::post('/instagram/delete-data', [App\Http\Controllers\InstagramComplianceController::class, 'deleteData'])->name('instagram.delete-data');

@@ -97,11 +97,20 @@ class SendSocialMessage implements ShouldQueue
                     $metaAccount->access_token
                 );
             } elseif ($this->channel === Channel::Instagram) {
-                $response = $metaApi->sendInstagramMessage(
-                    $recipientId,
-                    $this->content,
-                    $metaAccount->access_token
-                );
+                if ($metaAccount->source === 'instagram_business_login') {
+                    $response = $metaApi->sendInstagramBusinessMessage(
+                        $metaAccount->instagram_user_id,
+                        $recipientId,
+                        $this->content,
+                        $metaAccount->access_token
+                    );
+                } else {
+                    $response = $metaApi->sendInstagramMessage(
+                        $recipientId,
+                        $this->content,
+                        $metaAccount->access_token
+                    );
+                }
             } else {
                 $response = $metaApi->sendFacebookMessage(
                     $metaAccount->page_id,
