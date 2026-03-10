@@ -19,6 +19,8 @@ class MetaOAuthController extends Controller
                 'pages_show_list',
                 'pages_manage_metadata',
                 'pages_messaging',
+                'pages_manage_ads',
+                'leads_retrieval',
                 'instagram_basic',
                 'instagram_manage_messages',
                 'pages_read_engagement',
