@@ -55,8 +55,8 @@ return [
     ],
 
     'instagram' => [
-        'client_id' => env('META_APP_ID'),
-        'client_secret' => env('META_APP_SECRET'),
+        'client_id' => env('INSTAGRAM_APP_ID'),
+        'client_secret' => env('INSTAGRAM_APP_SECRET'),
         'redirect' => '/oauth/instagram/callback',
     ],
 
