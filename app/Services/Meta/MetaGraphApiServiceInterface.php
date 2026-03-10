@@ -97,4 +97,25 @@ interface MetaGraphApiServiceInterface
      * @return array{success: bool, message_id?: string}
      */
     public function sendInstagramBusinessMessage(string $igUserId, string $recipientId, string $text, string $accessToken): array;
+
+    /**
+     * List all lead gen forms for a Facebook Page
+     *
+     * @return array{data: array<int, array{id: string, name: string, status: string, leads_count: int}>}
+     */
+    public function getPageLeadForms(string $pageId, string $pageAccessToken): array;
+
+    /**
+     * List leads already submitted in a lead gen form
+     *
+     * @return array{data: array<int, array{id: string, created_time: string, field_data: array<int, array{name: string, values: array<int, string>}>}>}
+     */
+    public function getFormLeads(string $formId, string $pageAccessToken): array;
+
+    /**
+     * Retrieve full data for a single lead by its leadgen_id
+     *
+     * @return array{id: string, created_time: string, field_data: array<int, array{name: string, values: array<int, string>}>}
+     */
+    public function getLeadData(string $leadgenId, string $pageAccessToken): array;
 }

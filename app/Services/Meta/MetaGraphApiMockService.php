@@ -127,4 +127,43 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
             'recipient_id' => $recipientId,
         ];
     }
+
+    public function getPageLeadForms(string $pageId, string $pageAccessToken): array
+    {
+        return [
+            'data' => [
+                ['id' => 'mock_form_1', 'name' => 'Mock Lead Form', 'status' => 'ACTIVE', 'leads_count' => 5],
+            ],
+        ];
+    }
+
+    public function getFormLeads(string $formId, string $pageAccessToken): array
+    {
+        return [
+            'data' => [
+                [
+                    'id' => 'mock_lead_1',
+                    'created_time' => now()->toISOString(),
+                    'field_data' => [
+                        ['name' => 'full_name', 'values' => ['Mock Lead']],
+                        ['name' => 'email', 'values' => ['mock@example.com']],
+                        ['name' => 'phone_number', 'values' => ['+5511999999999']],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function getLeadData(string $leadgenId, string $pageAccessToken): array
+    {
+        return [
+            'id' => $leadgenId,
+            'created_time' => now()->toISOString(),
+            'field_data' => [
+                ['name' => 'full_name', 'values' => ['Mock Lead']],
+                ['name' => 'email', 'values' => ['mock@example.com']],
+                ['name' => 'phone_number', 'values' => ['+5511999999999']],
+            ],
+        ];
+    }
 }

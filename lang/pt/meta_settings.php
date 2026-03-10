@@ -43,6 +43,18 @@ return [
         'delete_confirm' => 'Tem a certeza que pretende eliminar esta conta? Esta ação não pode ser revertida.',
     ],
 
+    'lead_forms' => [
+        'title' => 'Formulários de Lead Ads',
+        'loading' => 'A carregar formulários...',
+        'empty' => 'Nenhum formulário encontrado para esta página.',
+        'leads' => 'leads',
+        'last_sync' => 'Última sincronização',
+        'sync_now' => 'Sincronizar agora',
+        'sync_started' => 'Sincronização iniciada.',
+        'subscribed' => 'Formulário ":name" activado. Os leads existentes estão a ser importados.',
+        'unsubscribed' => 'Formulário ":name" desactivado.',
+    ],
+
     'notifications' => [
         'invalid_token_title' => 'Token Inválido',
         'invalid_token_body' => 'O token de acesso não pôde ser validado. Por favor, verifique as suas credenciais.',

@@ -9,6 +9,7 @@ use App\Enums\MessageDirection;
 use App\Enums\MessageStatus;
 use App\Enums\MessageType;
 use App\Events\SocialMessageReceived;
+use App\Models\FacebookLeadForm;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\MetaAccount;
@@ -97,6 +98,15 @@ class MetaWebhookController extends Controller
                 }
 
                 $tenant = $metaAccount->tenant;
+
+                // Handle leadgen changes (Facebook Lead Ads)
+                foreach ($entry['changes'] ?? [] as $change) {
+                    if (($change['field'] ?? '') !== 'leadgen') {
+                        continue;
+                    }
+
+                    $this->handleLeadgenEvent($change['value'] ?? [], $metaAccount);
+                }
 
                 foreach ($entry['messaging'] ?? [] as $event) {
                     if (! isset($event['message'])) {
@@ -188,6 +198,72 @@ class MetaWebhookController extends Controller
 
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    private function handleLeadgenEvent(array $value, MetaAccount $metaAccount): void
+    {
+        $leadgenId = (string) ($value['leadgen_id'] ?? '');
+        $formId = (string) ($value['form_id'] ?? '');
+
+        if (! $leadgenId || ! $formId) {
+            return;
+        }
+
+        $form = FacebookLeadForm::withoutGlobalScopes()
+            ->where('meta_account_id', $metaAccount->id)
+            ->where('form_id', $formId)
+            ->where('active', true)
+            ->first();
+
+        if (! $form) {
+            Log::info('Lead Ads: lead received for unregistered or inactive form', [
+                'form_id' => $formId,
+                'meta_account_id' => $metaAccount->id,
+            ]);
+
+            return;
+        }
+
+        $leadData = $this->metaApi->getLeadData($leadgenId, $metaAccount->access_token);
+
+        if (empty($leadData)) {
+            return;
+        }
+
+        $fields = collect($leadData['field_data'] ?? [])->pluck('values.0', 'name');
+
+        $fullName = $fields->get('full_name')
+            ?? trim(($fields->get('first_name') ?? '').' '.($fields->get('last_name') ?? ''))
+            ?: 'Lead sem nome';
+
+        $existing = Lead::withoutGlobalScopes()
+            ->where('tenant_id', $metaAccount->tenant_id)
+            ->whereJsonContains('custom_fields->facebook_lead_id', $leadgenId)
+            ->first();
+
+        if ($existing) {
+            return;
+        }
+
+        $lead = Lead::create([
+            'tenant_id' => $metaAccount->tenant_id,
+            'full_name' => $fullName,
+            'email' => $fields->get('email') ?? $fields->get('email_address'),
+            'phone' => $fields->get('phone_number') ?? $fields->get('phone'),
+            'source' => LeadSource::FacebookLeadAd,
+            'consent_status' => 'pending',
+            'custom_fields' => [
+                'facebook_lead_id' => $leadgenId,
+                'facebook_form_id' => $formId,
+            ],
+        ]);
+
+        LeadActivity::create([
+            'tenant_id' => $metaAccount->tenant_id,
+            'lead_id' => $lead->id,
+            'type' => LeadActivityType::Creation,
+            'description' => 'Lead criado via Facebook Lead Ads (formulário: '.$form->form_name.')',
+        ]);
     }
 
     private function findOrCreateLeadBySenderId(Tenant $tenant, string $senderId, Channel $channel, string $pageAccessToken): Lead

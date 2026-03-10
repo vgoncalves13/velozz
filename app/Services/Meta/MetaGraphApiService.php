@@ -191,7 +191,7 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
     public function subscribePage(string $pageId, string $pageAccessToken): bool
     {
         $response = Http::post("{$this->baseUrl}/{$pageId}/subscribed_apps", [
-            'subscribed_fields' => 'messages,messaging_postbacks',
+            'subscribed_fields' => 'messages,messaging_postbacks,leadgen',
             'access_token' => $pageAccessToken,
         ]);
 
@@ -305,5 +305,65 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
         }
 
         return array_merge(['success' => true], $response->json());
+    }
+
+    public function getPageLeadForms(string $pageId, string $pageAccessToken): array
+    {
+        $response = Http::get("{$this->baseUrl}/{$pageId}/leadgen_forms", [
+            'fields' => 'id,name,status,leads_count',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Meta Graph API: Failed to fetch lead forms', [
+                'page_id' => $pageId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['data' => []];
+        }
+
+        return $response->json();
+    }
+
+    public function getFormLeads(string $formId, string $pageAccessToken): array
+    {
+        $response = Http::get("{$this->baseUrl}/{$formId}/leads", [
+            'fields' => 'id,created_time,field_data',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Meta Graph API: Failed to fetch form leads', [
+                'form_id' => $formId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['data' => []];
+        }
+
+        return $response->json();
+    }
+
+    public function getLeadData(string $leadgenId, string $pageAccessToken): array
+    {
+        $response = Http::get("{$this->baseUrl}/{$leadgenId}", [
+            'fields' => 'id,created_time,field_data',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Meta Graph API: Failed to fetch lead data', [
+                'leadgen_id' => $leadgenId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return [];
+        }
+
+        return $response->json();
     }
 }

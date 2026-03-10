@@ -43,6 +43,18 @@ return [
         'delete_confirm' => 'Are you sure you want to delete this account? This cannot be undone.',
     ],
 
+    'lead_forms' => [
+        'title' => 'Lead Ads Forms',
+        'loading' => 'Loading forms...',
+        'empty' => 'No forms found for this page.',
+        'leads' => 'leads',
+        'last_sync' => 'Last sync',
+        'sync_now' => 'Sync now',
+        'sync_started' => 'Sync started.',
+        'subscribed' => 'Form ":name" activated. Existing leads are being imported.',
+        'unsubscribed' => 'Form ":name" deactivated.',
+    ],
+
     'notifications' => [
         'invalid_token_title' => 'Invalid Token',
         'invalid_token_body' => 'The access token could not be validated. Please check your credentials.',

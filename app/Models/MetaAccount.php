@@ -44,6 +44,11 @@ class MetaAccount extends Model
         return $this->hasMany(SocialMessage::class);
     }
 
+    public function facebookLeadForms(): HasMany
+    {
+        return $this->hasMany(FacebookLeadForm::class);
+    }
+
     public function scopeForTenant(Builder $query, int $tenantId): Builder
     {
         return $query->where('tenant_id', $tenantId);
