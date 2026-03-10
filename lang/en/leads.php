@@ -42,7 +42,8 @@ return [
         'instagram' => 'Instagram',
         'facebook_messenger' => 'Facebook Messenger',
         'embedded_form' => 'Embedded Form',
-        'widget_whatsapp' => 'Widget WhatsApp'
+        'widget_whatsapp' => 'Widget WhatsApp',
+        'facebook_lead_ad' => 'Facebook Lead Ads',
     ],
 
     'priority' => [
