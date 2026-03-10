@@ -166,18 +166,32 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
 
     public function getSenderProfile(string $senderId, string $pageAccessToken): array
     {
-        $response = Http::get("{$this->baseUrl}/{$senderId}", [
+        // Try Instagram Graph API first (for Instagram Business Login senders)
+        $instagramResponse = Http::get("https://graph.instagram.com/v22.0/{$senderId}", [
+            'fields' => 'name,username,profile_pic',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if ($instagramResponse->successful() && $instagramResponse->json('name')) {
+            return [
+                'name' => $instagramResponse->json('name'),
+                'profile_pic' => $instagramResponse->json('profile_pic'),
+            ];
+        }
+
+        // Fall back to Facebook Graph API (for Facebook Messenger senders)
+        $facebookResponse = Http::get("{$this->baseUrl}/{$senderId}", [
             'fields' => 'name,profile_pic',
             'access_token' => $pageAccessToken,
         ]);
 
-        if (! $response->successful()) {
+        if (! $facebookResponse->successful()) {
             return ['name' => null, 'profile_pic' => null];
         }
 
         return [
-            'name' => $response->json('name'),
-            'profile_pic' => $response->json('profile_pic'),
+            'name' => $facebookResponse->json('name'),
+            'profile_pic' => $facebookResponse->json('profile_pic'),
         ];
     }
 
