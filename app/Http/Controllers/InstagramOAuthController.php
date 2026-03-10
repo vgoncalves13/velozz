@@ -20,7 +20,7 @@ class InstagramOAuthController extends Controller
         $query = http_build_query([
             'client_id' => config('services.instagram.client_id'),
             'redirect_uri' => url(config('services.instagram.redirect')),
-            'scope' => 'instagram_business_basic,instagram_business_manage_messages',
+            'scope' => 'instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish,instagram_business_manage_insights',
             'response_type' => 'code',
             'state' => $state,
         ]);
