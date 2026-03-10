@@ -37,11 +37,16 @@ class SendSocialMessage implements ShouldQueue
     public function handle(MetaGraphApiServiceInterface $metaApi): void
     {
         try {
-            // Get MetaAccount for this tenant and channel
+            // Get MetaAccount that has message history with this lead (page-scoped IDs require the same page)
             $metaAccount = MetaAccount::where('tenant_id', $this->lead->tenant_id)
                 ->where('type', $this->channel->value)
                 ->where('status', 'connected')
-                ->first();
+                ->whereHas('socialMessages', fn ($q) => $q->where('lead_id', $this->lead->id))
+                ->first()
+                ?? MetaAccount::where('tenant_id', $this->lead->tenant_id)
+                    ->where('type', $this->channel->value)
+                    ->where('status', 'connected')
+                    ->first();
 
             if (! $metaAccount) {
                 throw new \Exception("No connected {$this->channel->value} account found for this tenant");

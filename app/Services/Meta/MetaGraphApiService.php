@@ -164,34 +164,27 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
         return $response->json('instagram_business_account.id');
     }
 
-    public function getSenderProfile(string $senderId, string $pageAccessToken): array
+    public function getSenderProfile(string $senderId, string $pageAccessToken, \App\Enums\Channel $channel): array
     {
-        // Try Instagram Graph API first (for Instagram Business Login senders)
-        $instagramResponse = Http::get("https://graph.instagram.com/v22.0/{$senderId}", [
-            'fields' => 'name,username,profile_pic',
-            'access_token' => $pageAccessToken,
-        ]);
-
-        if ($instagramResponse->successful() && $instagramResponse->json('name')) {
-            return [
-                'name' => $instagramResponse->json('name'),
-                'profile_pic' => $instagramResponse->json('profile_pic'),
-            ];
+        if ($channel === \App\Enums\Channel::Instagram) {
+            $response = Http::get("https://graph.instagram.com/v22.0/{$senderId}", [
+                'fields' => 'name,username,profile_pic',
+                'access_token' => $pageAccessToken,
+            ]);
+        } else {
+            $response = Http::get("{$this->baseUrl}/{$senderId}", [
+                'fields' => 'name,profile_pic',
+                'access_token' => $pageAccessToken,
+            ]);
         }
 
-        // Fall back to Facebook Graph API (for Facebook Messenger senders)
-        $facebookResponse = Http::get("{$this->baseUrl}/{$senderId}", [
-            'fields' => 'name,profile_pic',
-            'access_token' => $pageAccessToken,
-        ]);
-
-        if (! $facebookResponse->successful()) {
+        if (! $response->successful()) {
             return ['name' => null, 'profile_pic' => null];
         }
 
         return [
-            'name' => $facebookResponse->json('name'),
-            'profile_pic' => $facebookResponse->json('profile_pic'),
+            'name' => $response->json('name'),
+            'profile_pic' => $response->json('profile_pic'),
         ];
     }
 

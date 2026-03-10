@@ -204,7 +204,7 @@ class MetaWebhookController extends Controller
         }
 
         // Fetch sender profile from Meta Graph API
-        $profile = $this->metaApi->getSenderProfile($senderId, $pageAccessToken);
+        $profile = $this->metaApi->getSenderProfile($senderId, $pageAccessToken, $channel);
         $fullName = $profile['name'] ?? 'Unknown Contact ('.$channel->value.')';
 
         // Create new lead

@@ -76,7 +76,7 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
         return null;
     }
 
-    public function getSenderProfile(string $senderId, string $pageAccessToken): array
+    public function getSenderProfile(string $senderId, string $pageAccessToken, \App\Enums\Channel $channel): array
     {
         return ['name' => 'Mock User', 'profile_pic' => null];
     }

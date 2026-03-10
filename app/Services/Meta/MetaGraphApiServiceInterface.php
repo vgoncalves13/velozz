@@ -63,7 +63,7 @@ interface MetaGraphApiServiceInterface
      *
      * @return array{name: string|null, profile_pic: string|null}
      */
-    public function getSenderProfile(string $senderId, string $pageAccessToken): array;
+    public function getSenderProfile(string $senderId, string $pageAccessToken, \App\Enums\Channel $channel): array;
 
     /**
      * Exchange an Instagram authorization code for a short-lived access token
