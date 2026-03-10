@@ -262,7 +262,7 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
     public function subscribeInstagramUser(string $igUserId, string $accessToken): bool
     {
         $response = Http::post("https://graph.instagram.com/v22.0/{$igUserId}/subscribed_apps", [
-            'subscribed_fields' => 'messages,messaging_postbacks,messaging_optins,messaging_referrals',
+            'subscribed_fields' => 'messages,messaging_postbacks,messaging_optins,messaging_referral',
             'access_token' => $accessToken,
         ]);
 
