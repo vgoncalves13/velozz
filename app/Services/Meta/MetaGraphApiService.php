@@ -104,9 +104,10 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
 
     public function verifySignature(string $payload, string $signature): bool
     {
-        $expectedSignature = 'sha256='.hash_hmac('sha256', $payload, config('services.meta.app_secret', ''));
+        $metaSignature = 'sha256='.hash_hmac('sha256', $payload, config('services.meta.app_secret', ''));
+        $instagramSignature = 'sha256='.hash_hmac('sha256', $payload, config('services.instagram.client_secret', ''));
 
-        return hash_equals($expectedSignature, $signature);
+        return hash_equals($metaSignature, $signature) || hash_equals($instagramSignature, $signature);
     }
 
     public function extendToken(string $shortLivedToken): array
