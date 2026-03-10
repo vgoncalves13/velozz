@@ -37,11 +37,13 @@ class SendSocialMessage implements ShouldQueue
     public function handle(MetaGraphApiServiceInterface $metaApi): void
     {
         try {
-            // Get MetaAccount that has message history with this lead (page-scoped IDs require the same page)
+            // Get MetaAccount that received an incoming message from this lead.
+            // Page-scoped IDs (PSID/sender_id) are tied to the page that received them,
+            // so we must reply using the same page.
             $metaAccount = MetaAccount::where('tenant_id', $this->lead->tenant_id)
                 ->where('type', $this->channel->value)
                 ->where('status', 'connected')
-                ->whereHas('socialMessages', fn ($q) => $q->where('lead_id', $this->lead->id))
+                ->whereHas('socialMessages', fn ($q) => $q->where('lead_id', $this->lead->id)->where('direction', 'incoming'))
                 ->first()
                 ?? MetaAccount::where('tenant_id', $this->lead->tenant_id)
                     ->where('type', $this->channel->value)
