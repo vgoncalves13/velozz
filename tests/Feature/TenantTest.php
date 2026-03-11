@@ -2,11 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Tenants\Pages\CreateTenant;
+use App\Jobs\SendInviteEmail;
 use App\Models\Lead;
 use App\Models\Plan;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class TenantTest extends TestCase
@@ -184,5 +188,61 @@ class TenantTest extends TestCase
 
         $this->assertInstanceOf(Plan::class, $tenant->plan);
         $this->assertEquals('Pro Plan', $tenant->plan->name);
+    }
+
+    public function test_create_tenant_creates_admin_user_and_dispatches_invite(): void
+    {
+        Queue::fake();
+
+        $masterAdmin = User::factory()->create(['tenant_id' => null, 'role' => 'admin_master']);
+        $this->actingAs($masterAdmin);
+
+        Livewire::test(CreateTenant::class)
+            ->fillForm([
+                'name' => 'Acme Corp',
+                'slug' => 'acme-corp',
+                'domain' => 'acme-corp.velozz.digital',
+                'status' => 'trial',
+                'admin_name' => 'Jane Admin',
+                'admin_email' => 'jane@acme.com',
+                'admin_phone' => '+351912345678',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('tenants', ['slug' => 'acme-corp']);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'jane@acme.com',
+            'name' => 'Jane Admin',
+            'role' => 'admin_client',
+            'status' => 'invited',
+        ]);
+
+        $admin = User::where('email', 'jane@acme.com')->first();
+        $this->assertEquals(Tenant::where('slug', 'acme-corp')->first()->id, $admin->tenant_id);
+
+        Queue::assertPushed(SendInviteEmail::class, fn ($job) => $job->user->email === 'jane@acme.com');
+    }
+
+    public function test_create_tenant_without_admin_email_skips_invite(): void
+    {
+        Queue::fake();
+
+        $masterAdmin = User::factory()->create(['tenant_id' => null, 'role' => 'admin_master']);
+        $this->actingAs($masterAdmin);
+
+        Livewire::test(CreateTenant::class)
+            ->fillForm([
+                'name' => 'No Admin Corp',
+                'slug' => 'no-admin-corp',
+                'domain' => 'no-admin-corp.velozz.digital',
+                'status' => 'trial',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('tenants', ['slug' => 'no-admin-corp']);
+        Queue::assertNotPushed(SendInviteEmail::class);
     }
 }

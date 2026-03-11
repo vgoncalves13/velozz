@@ -70,11 +70,9 @@ class TenantForm
                 Section::make('Admin Details')
                     ->schema([
                         Forms\Components\TextInput::make('admin_name')
-                            ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('admin_email')
-                            ->required()
                             ->email()
                             ->maxLength(255),
 
