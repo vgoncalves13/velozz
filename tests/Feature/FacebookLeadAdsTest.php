@@ -180,7 +180,7 @@ class FacebookLeadAdsTest extends TestCase
         $this->assertDatabaseCount('leads', 1);
     }
 
-    public function test_toggle_lead_form_creates_subscription_and_dispatches_sync(): void
+    public function test_toggle_lead_form_creates_subscription_and_opens_mapping_modal(): void
     {
         Queue::fake();
 
@@ -188,7 +188,9 @@ class FacebookLeadAdsTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test(\App\Filament\Client\Pages\MetaAccountSettings::class)
-            ->call('toggleLeadForm', $this->metaAccount->id, 'mock_form_1', 'Test Form');
+            ->call('toggleLeadForm', $this->metaAccount->id, 'mock_form_1', 'Test Form')
+            ->assertSet('showMappingModal', true)
+            ->assertSet('mappingFormName', 'Test Form');
 
         $this->assertDatabaseHas('facebook_lead_forms', [
             'meta_account_id' => $this->metaAccount->id,
@@ -197,7 +199,7 @@ class FacebookLeadAdsTest extends TestCase
             'active' => true,
         ]);
 
-        Queue::assertPushed(SyncFacebookLeadFormLeads::class);
+        Queue::assertNotPushed(SyncFacebookLeadFormLeads::class);
     }
 
     public function test_toggle_lead_form_removes_existing_subscription(): void
@@ -224,5 +226,86 @@ class FacebookLeadAdsTest extends TestCase
         ]);
 
         Queue::assertNotPushed(SyncFacebookLeadFormLeads::class);
+    }
+
+    public function test_save_mapping_and_sync_dispatches_job_and_saves_mapping(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create(['tenant_id' => $this->tenant->id]);
+        $this->actingAs($user);
+
+        $form = FacebookLeadForm::create([
+            'tenant_id' => $this->tenant->id,
+            'meta_account_id' => $this->metaAccount->id,
+            'form_id' => 'mock_form_1',
+            'form_name' => 'Test Form',
+            'active' => true,
+        ]);
+
+        Livewire::test(\App\Filament\Client\Pages\MetaAccountSettings::class)
+            ->set('mappingFormDbId', $form->id)
+            ->set('mappedNameField', 'full_name')
+            ->set('mappedEmailField', 'email')
+            ->set('mappedPhoneField', 'phone_number')
+            ->call('saveMappingAndSync')
+            ->assertSet('showMappingModal', false);
+
+        Queue::assertPushed(SyncFacebookLeadFormLeads::class);
+
+        $this->assertDatabaseHas('facebook_lead_forms', [
+            'id' => $form->id,
+        ]);
+
+        $form->refresh();
+        $this->assertEquals('full_name', $form->field_mapping['name']);
+        $this->assertEquals('email', $form->field_mapping['email']);
+        $this->assertEquals('phone_number', $form->field_mapping['phone']);
+    }
+
+    public function test_sync_job_respects_field_mapping(): void
+    {
+        $form = FacebookLeadForm::create([
+            'tenant_id' => $this->tenant->id,
+            'meta_account_id' => $this->metaAccount->id,
+            'form_id' => 'mock_form_1',
+            'form_name' => 'Mock Lead Form',
+            'active' => true,
+            'field_mapping' => [
+                'name' => 'full_name',
+                'email' => 'email',
+                'phone' => 'phone_number',
+            ],
+        ]);
+
+        (new SyncFacebookLeadFormLeads($form))->handle(new MetaGraphApiMockService);
+
+        $this->assertDatabaseHas('leads', [
+            'tenant_id' => $this->tenant->id,
+            'source' => LeadSource::FacebookLeadAd->value,
+            'full_name' => 'Mock Lead',
+            'email' => 'mock@example.com',
+        ]);
+    }
+
+    public function test_open_mapping_modal_populates_available_fields(): void
+    {
+        $user = User::factory()->create(['tenant_id' => $this->tenant->id]);
+        $this->actingAs($user);
+
+        $form = FacebookLeadForm::create([
+            'tenant_id' => $this->tenant->id,
+            'meta_account_id' => $this->metaAccount->id,
+            'form_id' => 'mock_form_1',
+            'form_name' => 'Test Form',
+            'active' => true,
+        ]);
+
+        $livewire = Livewire::test(\App\Filament\Client\Pages\MetaAccountSettings::class)
+            ->call('openMappingModal', $form->id)
+            ->assertSet('showMappingModal', true)
+            ->assertSet('mappingFormName', 'Test Form');
+
+        $this->assertNotEmpty($livewire->get('availableFormFields'));
     }
 }

@@ -366,4 +366,24 @@ class MetaGraphApiService implements MetaGraphApiServiceInterface
 
         return $response->json();
     }
+
+    public function getFormQuestions(string $formId, string $pageAccessToken): array
+    {
+        $response = Http::get("{$this->baseUrl}/{$formId}", [
+            'fields' => 'questions',
+            'access_token' => $pageAccessToken,
+        ]);
+
+        if (! $response->successful()) {
+            Log::error('Meta Graph API: Failed to fetch form questions', [
+                'form_id' => $formId,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['questions' => []];
+        }
+
+        return ['questions' => $response->json('questions', [])];
+    }
 }

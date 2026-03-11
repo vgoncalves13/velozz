@@ -166,4 +166,15 @@ class MetaGraphApiMockService implements MetaGraphApiServiceInterface
             ],
         ];
     }
+
+    public function getFormQuestions(string $formId, string $pageAccessToken): array
+    {
+        return [
+            'questions' => [
+                ['key' => 'full_name', 'label' => 'Full Name', 'type' => 'FULL_NAME'],
+                ['key' => 'email', 'label' => 'Email', 'type' => 'EMAIL'],
+                ['key' => 'phone_number', 'label' => 'Phone Number', 'type' => 'PHONE'],
+            ],
+        ];
+    }
 }

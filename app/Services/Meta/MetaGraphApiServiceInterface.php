@@ -118,4 +118,11 @@ interface MetaGraphApiServiceInterface
      * @return array{id: string, created_time: string, field_data: array<int, array{name: string, values: array<int, string>}>}
      */
     public function getLeadData(string $leadgenId, string $pageAccessToken): array;
+
+    /**
+     * Fetch the question fields defined in a lead gen form
+     *
+     * @return array{questions: array<int, array{key: string, label: string, type: string}>}
+     */
+    public function getFormQuestions(string $formId, string $pageAccessToken): array;
 }

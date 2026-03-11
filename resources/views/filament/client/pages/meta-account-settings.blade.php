@@ -1,4 +1,60 @@
 <x-filament-panels::page>
+    {{-- Field Mapping Modal --}}
+    <x-filament::modal wire:model="showMappingModal" width="lg">
+        <x-slot name="heading">
+            {{ __('meta_settings.lead_forms.mapping_title', ['name' => $mappingFormName]) }}
+        </x-slot>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ __('meta_settings.lead_forms.mapping_name_field') }}
+                </label>
+                <select wire:model="mappedNameField" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">{{ __('meta_settings.lead_forms.mapping_no_field') }}</option>
+                    @foreach($availableFormFields as $field)
+                        <option value="{{ $field['key'] }}">{{ $field['label'] ?? $field['key'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ __('meta_settings.lead_forms.mapping_email_field') }}
+                </label>
+                <select wire:model="mappedEmailField" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">{{ __('meta_settings.lead_forms.mapping_no_field') }}</option>
+                    @foreach($availableFormFields as $field)
+                        <option value="{{ $field['key'] }}">{{ $field['label'] ?? $field['key'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ __('meta_settings.lead_forms.mapping_phone_field') }}
+                </label>
+                <select wire:model="mappedPhoneField" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">{{ __('meta_settings.lead_forms.mapping_no_field') }}</option>
+                    @foreach($availableFormFields as $field)
+                        <option value="{{ $field['key'] }}">{{ $field['label'] ?? $field['key'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <x-slot name="footer">
+            <div class="flex gap-3">
+                <x-filament::button wire:click="saveMappingAndSync">
+                    {{ __('meta_settings.lead_forms.save_and_sync') }}
+                </x-filament::button>
+                <x-filament::button color="gray" wire:click="$set('showMappingModal', false)">
+                    {{ __('meta_settings.lead_forms.cancel') }}
+                </x-filament::button>
+            </div>
+        </x-slot>
+    </x-filament::modal>
+
     <div class="space-y-6">
         @if(session('meta_oauth_success'))
             <x-filament::section>{{ session('meta_oauth_success') }}</x-filament::section>

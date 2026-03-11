@@ -51,8 +51,16 @@ return [
         'last_sync' => 'Última sincronização',
         'sync_now' => 'Sincronizar agora',
         'sync_started' => 'Sincronização iniciada.',
-        'subscribed' => 'Formulário ":name" activado. Os leads existentes estão a ser importados.',
+        'subscribed' => 'Formulário ":name" activado. Configure o mapeamento de campos abaixo.',
         'unsubscribed' => 'Formulário ":name" desactivado.',
+        'mapping_title' => 'Mapeamento de Campos — :name',
+        'mapping_name_field' => 'Campo de Nome',
+        'mapping_email_field' => 'Campo de Email',
+        'mapping_phone_field' => 'Campo de Telefone',
+        'mapping_no_field' => '— Não mapear —',
+        'save_and_sync' => 'Salvar e Sincronizar',
+        'cancel' => 'Cancelar',
+        'mapping_saved' => 'Mapeamento salvo e sincronização iniciada.',
     ],
 
     'notifications' => [

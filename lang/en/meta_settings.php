@@ -51,8 +51,16 @@ return [
         'last_sync' => 'Last sync',
         'sync_now' => 'Sync now',
         'sync_started' => 'Sync started.',
-        'subscribed' => 'Form ":name" activated. Existing leads are being imported.',
+        'subscribed' => 'Form ":name" activated. Configure field mapping below.',
         'unsubscribed' => 'Form ":name" deactivated.',
+        'mapping_title' => 'Field Mapping — :name',
+        'mapping_name_field' => 'Name Field',
+        'mapping_email_field' => 'Email Field',
+        'mapping_phone_field' => 'Phone Field',
+        'mapping_no_field' => '— Do not map —',
+        'save_and_sync' => 'Save and Sync',
+        'cancel' => 'Cancel',
+        'mapping_saved' => 'Mapping saved and sync started.',
     ],
 
     'notifications' => [

@@ -16,6 +16,7 @@ class FacebookLeadForm extends Model
         'form_id',
         'form_name',
         'active',
+        'field_mapping',
         'last_synced_at',
     ];
 
@@ -23,6 +24,7 @@ class FacebookLeadForm extends Model
     {
         return [
             'active' => 'boolean',
+            'field_mapping' => 'array',
             'last_synced_at' => 'datetime',
         ];
     }

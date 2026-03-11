@@ -231,10 +231,24 @@ class MetaWebhookController extends Controller
         }
 
         $fields = collect($leadData['field_data'] ?? [])->pluck('values.0', 'name');
+        $mapping = $form->field_mapping ?? [];
 
-        $fullName = $fields->get('full_name')
+        $nameKey = $mapping['name'] ?? null;
+        $emailKey = $mapping['email'] ?? null;
+        $phoneKey = $mapping['phone'] ?? null;
+
+        $fullName = ($nameKey ? $fields->get($nameKey) : null)
+            ?? $fields->get('full_name')
             ?? trim(($fields->get('first_name') ?? '').' '.($fields->get('last_name') ?? ''))
             ?: 'Lead sem nome';
+
+        $email = ($emailKey ? $fields->get($emailKey) : null)
+            ?? $fields->get('email')
+            ?? $fields->get('email_address');
+
+        $phone = ($phoneKey ? $fields->get($phoneKey) : null)
+            ?? $fields->get('phone_number')
+            ?? $fields->get('phone');
 
         $existing = Lead::withoutGlobalScopes()
             ->where('tenant_id', $metaAccount->tenant_id)
@@ -248,8 +262,8 @@ class MetaWebhookController extends Controller
         $lead = Lead::create([
             'tenant_id' => $metaAccount->tenant_id,
             'full_name' => $fullName,
-            'email' => $fields->get('email') ?? $fields->get('email_address'),
-            'phone' => $fields->get('phone_number') ?? $fields->get('phone'),
+            'email' => $email,
+            'phone' => $phone,
             'source' => LeadSource::FacebookLeadAd,
             'consent_status' => 'pending',
             'custom_fields' => [

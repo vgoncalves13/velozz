@@ -53,10 +53,24 @@ class SyncFacebookLeadFormLeads implements ShouldQueue
         }
 
         $fields = collect($leadData['field_data'] ?? [])->pluck('values.0', 'name');
+        $mapping = $form->field_mapping ?? [];
 
-        $fullName = $fields->get('full_name')
+        $nameKey = $mapping['name'] ?? null;
+        $emailKey = $mapping['email'] ?? null;
+        $phoneKey = $mapping['phone'] ?? null;
+
+        $fullName = ($nameKey ? $fields->get($nameKey) : null)
+            ?? $fields->get('full_name')
             ?? trim(($fields->get('first_name') ?? '').' '.($fields->get('last_name') ?? ''))
             ?: null;
+
+        $email = ($emailKey ? $fields->get($emailKey) : null)
+            ?? $fields->get('email')
+            ?? $fields->get('email_address');
+
+        $phone = ($phoneKey ? $fields->get($phoneKey) : null)
+            ?? $fields->get('phone_number')
+            ?? $fields->get('phone');
 
         $existing = Lead::withoutGlobalScopes()
             ->where('tenant_id', $tenantId)
@@ -70,8 +84,8 @@ class SyncFacebookLeadFormLeads implements ShouldQueue
         $lead = Lead::create([
             'tenant_id' => $tenantId,
             'full_name' => $fullName ?? 'Lead sem nome',
-            'email' => $fields->get('email') ?? $fields->get('email_address'),
-            'phone' => $fields->get('phone_number') ?? $fields->get('phone'),
+            'email' => $email,
+            'phone' => $phone,
             'source' => LeadSource::FacebookLeadAd,
             'consent_status' => 'pending',
             'custom_fields' => [
