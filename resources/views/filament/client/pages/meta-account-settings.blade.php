@@ -41,6 +41,18 @@
                     @endforeach
                 </select>
             </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {{ __('meta_settings.lead_forms.mapping_whatsapp_field') }}
+                </label>
+                <select wire:model="mappedWhatsappField" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">{{ __('meta_settings.lead_forms.mapping_no_field') }}</option>
+                    @foreach($availableFormFields as $field)
+                        <option value="{{ $field['key'] }}">{{ $field['label'] ?? $field['key'] }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
         <x-slot name="footer">

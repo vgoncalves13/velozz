@@ -57,6 +57,7 @@ return [
         'mapping_name_field' => 'Name Field',
         'mapping_email_field' => 'Email Field',
         'mapping_phone_field' => 'Phone Field',
+        'mapping_whatsapp_field' => 'WhatsApp Field',
         'mapping_no_field' => '— Do not map —',
         'save_and_sync' => 'Save and Sync',
         'cancel' => 'Cancel',

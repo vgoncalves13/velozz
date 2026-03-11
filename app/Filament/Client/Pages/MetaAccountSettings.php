@@ -32,6 +32,8 @@ class MetaAccountSettings extends Page
 
     public ?string $mappedPhoneField = null;
 
+    public ?string $mappedWhatsappField = null;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
     protected static ?int $navigationSort = 2;
@@ -176,6 +178,7 @@ class MetaAccountSettings extends Page
         $this->mappedNameField = $mapping['name'] ?? null;
         $this->mappedEmailField = $mapping['email'] ?? null;
         $this->mappedPhoneField = $mapping['phone'] ?? null;
+        $this->mappedWhatsappField = $mapping['whatsapp'] ?? null;
 
         $this->dispatch('open-modal', id: 'lead-form-field-mapping');
     }
@@ -191,6 +194,7 @@ class MetaAccountSettings extends Page
                 'name' => $this->mappedNameField ?: null,
                 'email' => $this->mappedEmailField ?: null,
                 'phone' => $this->mappedPhoneField ?: null,
+                'whatsapp' => $this->mappedWhatsappField ?: null,
             ],
         ]);
 

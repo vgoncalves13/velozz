@@ -236,6 +236,7 @@ class MetaWebhookController extends Controller
         $nameKey = $mapping['name'] ?? null;
         $emailKey = $mapping['email'] ?? null;
         $phoneKey = $mapping['phone'] ?? null;
+        $whatsappKey = $mapping['whatsapp'] ?? null;
 
         $fullName = ($nameKey ? $fields->get($nameKey) : null)
             ?? $fields->get('full_name')
@@ -246,9 +247,11 @@ class MetaWebhookController extends Controller
             ?? $fields->get('email')
             ?? $fields->get('email_address');
 
-        $phone = ($phoneKey ? $fields->get($phoneKey) : null)
+        $phoneNumber = ($phoneKey ? $fields->get($phoneKey) : null)
             ?? $fields->get('phone_number')
             ?? $fields->get('phone');
+
+        $whatsappNumber = ($whatsappKey ? $fields->get($whatsappKey) : null);
 
         $existing = Lead::withoutGlobalScopes()
             ->where('tenant_id', $metaAccount->tenant_id)
@@ -264,7 +267,8 @@ class MetaWebhookController extends Controller
             'tenant_id' => $metaAccount->tenant_id,
             'full_name' => $fullName,
             'email' => $email,
-            'phone' => $phone,
+            'phones' => $phoneNumber ? [$phoneNumber] : null,
+            'whatsapps' => $whatsappNumber ? [$whatsappNumber] : null,
             'source' => LeadSource::FacebookLeadAd,
             'consent_status' => 'pending',
             'custom_fields' => [
