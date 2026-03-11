@@ -2,30 +2,29 @@
 
 namespace App\Filament\Client\Widgets;
 
-use App\Models\SocialMessage;
-use App\Models\WhatsAppMessage;
+use App\Models\Opportunity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class ChannelVolumeChart extends ApexChartWidget
+class RevenueChart extends ApexChartWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 3;
 
     protected int|string|array $columnSpan = 'full';
 
-    protected static ?string $chartId = 'channelVolumeChart';
+    protected static ?string $chartId = 'revenueChart';
 
     public ?string $filter = '30';
 
     protected function getHeading(): string
     {
-        return __('dashboard.channel_volume_heading');
+        return __('dashboard.revenue_heading');
     }
 
     protected function getSubheading(): string
     {
-        return __('dashboard.channel_volume_subheading');
+        return __('dashboard.revenue_subheading');
     }
 
     protected function getFilters(): ?array
@@ -49,32 +48,25 @@ class ChannelVolumeChart extends ApexChartWidget
             $dateRange->push(Carbon::now()->subDays($i)->format('Y-m-d'));
         }
 
-        $whatsapp = WhatsAppMessage::where('tenant_id', $tenantId)
-            ->where('direction', 'outgoing')
+        // Revenue closed (won) per day
+        $closedRevenue = Opportunity::where('tenant_id', $tenantId)
+            ->where('stage', 'closed_won')
+            ->whereNotNull('closed_at')
+            ->whereBetween('closed_at', [$start, $end])
+            ->selectRaw('DATE(closed_at) as date, sum(value) as total')
+            ->groupBy(DB::raw('DATE(closed_at)'))
+            ->pluck('total', 'date');
+
+        // New pipeline value added per day (proposal or negotiation)
+        $pipelineAdded = Opportunity::where('tenant_id', $tenantId)
+            ->whereIn('stage', ['proposal', 'negotiation'])
             ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE(created_at) as date, count(*) as total')
+            ->selectRaw('DATE(created_at) as date, sum(value) as total')
             ->groupBy(DB::raw('DATE(created_at)'))
             ->pluck('total', 'date');
 
-        $instagram = SocialMessage::where('tenant_id', $tenantId)
-            ->where('channel', 'instagram')
-            ->where('direction', 'outgoing')
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE(created_at) as date, count(*) as total')
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->pluck('total', 'date');
-
-        $facebook = SocialMessage::where('tenant_id', $tenantId)
-            ->where('channel', 'facebook_messenger')
-            ->where('direction', 'outgoing')
-            ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('DATE(created_at) as date, count(*) as total')
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->pluck('total', 'date');
-
-        $whatsappData = $dateRange->map(fn ($date) => $whatsapp->get($date, 0))->values()->toArray();
-        $instagramData = $dateRange->map(fn ($date) => $instagram->get($date, 0))->values()->toArray();
-        $facebookData = $dateRange->map(fn ($date) => $facebook->get($date, 0))->values()->toArray();
+        $closedData = $dateRange->map(fn ($date) => (float) ($closedRevenue->get($date, 0)))->values()->toArray();
+        $pipelineData = $dateRange->map(fn ($date) => (float) ($pipelineAdded->get($date, 0)))->values()->toArray();
         $categories = $dateRange->map(fn ($date) => Carbon::parse($date)->format('d/m'))->values()->toArray();
 
         return [
@@ -85,22 +77,24 @@ class ChannelVolumeChart extends ApexChartWidget
                 'zoom' => ['enabled' => false],
             ],
             'series' => [
-                ['name' => 'WhatsApp', 'data' => $whatsappData],
-                ['name' => 'Instagram', 'data' => $instagramData],
-                ['name' => 'Facebook', 'data' => $facebookData],
+                ['name' => __('dashboard.revenue_series_closed'), 'data' => $closedData],
+                ['name' => __('dashboard.revenue_series_pipeline'), 'data' => $pipelineData],
             ],
-            'colors' => ['#25D366', '#E1306C', '#1877F2'],
+            'colors' => ['#10b981', '#6366f1'],
             'fill' => [
                 'type' => 'gradient',
                 'gradient' => [
-                    'opacityFrom' => 0.5,
+                    'opacityFrom' => 0.45,
                     'opacityTo' => 0.0,
                 ],
             ],
             'stroke' => ['curve' => 'smooth', 'width' => 2],
             'dataLabels' => ['enabled' => false],
             'legend' => ['position' => 'top'],
-            'tooltip' => ['shared' => true, 'intersect' => false],
+            'tooltip' => [
+                'shared' => true,
+                'intersect' => false,
+            ],
             'xaxis' => [
                 'categories' => $categories,
                 'labels' => ['style' => ['colors' => '#9ca3af', 'fontWeight' => 600]],

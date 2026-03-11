@@ -10,7 +10,7 @@ use Filament\Widgets\TableWidget;
 
 class TeamPerformanceWidget extends TableWidget
 {
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -40,12 +40,13 @@ class TeamPerformanceWidget extends TableWidget
                     ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=7F9CF5&background=EBF4FF'),
 
                 TextColumn::make('name')
-                    ->label('Operator')
+                    ->label(__('dashboard.team_col_operator'))
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('role')
+                    ->label(__('dashboard.team_col_role'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin_client' => 'danger',
@@ -57,28 +58,28 @@ class TeamPerformanceWidget extends TableWidget
                     ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', ucwords($state, '_'))),
 
                 TextColumn::make('assigned_leads_count')
-                    ->label('Assigned Leads')
+                    ->label(__('dashboard.team_col_assigned_leads'))
                     ->sortable()
                     ->alignCenter()
                     ->badge()
                     ->color('primary'),
 
                 TextColumn::make('sent_messages_count')
-                    ->label('Messages Sent')
+                    ->label(__('dashboard.team_col_messages_sent'))
                     ->sortable()
                     ->alignCenter()
                     ->badge()
                     ->color('success'),
 
                 TextColumn::make('received_messages_count')
-                    ->label('Responses')
+                    ->label(__('dashboard.team_col_responses'))
                     ->sortable()
                     ->alignCenter()
                     ->badge()
                     ->color('info'),
 
                 TextColumn::make('response_rate')
-                    ->label('Response Rate')
+                    ->label(__('dashboard.team_col_response_rate'))
                     ->alignCenter()
                     ->badge()
                     ->state(function ($record) {
@@ -105,14 +106,14 @@ class TeamPerformanceWidget extends TableWidget
                     }),
 
                 TextColumn::make('last_login_at')
-                    ->label('Last Active')
+                    ->label(__('dashboard.team_col_last_active'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->placeholder('Never')
+                    ->placeholder(__('dashboard.team_never'))
                     ->toggleable(),
             ])
             ->defaultSort('sent_messages_count', 'desc')
-            ->heading('Team Performance')
-            ->description('Performance metrics for all active team members');
+            ->heading(__('dashboard.team_heading'))
+            ->description(__('dashboard.team_description'));
     }
 }

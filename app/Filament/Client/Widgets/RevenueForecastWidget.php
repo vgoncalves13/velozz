@@ -14,7 +14,6 @@ class RevenueForecastWidget extends StatsOverviewWidget
     {
         $tenantId = auth()->user()->tenant_id;
 
-        // Predicted Revenue (sum of value * probability / 100)
         $predictedRevenue = Opportunity::where('tenant_id', $tenantId)
             ->whereIn('stage', ['proposal', 'negotiation'])
             ->get()
@@ -22,39 +21,36 @@ class RevenueForecastWidget extends StatsOverviewWidget
                 return $opportunity->value * ($opportunity->probability / 100);
             });
 
-        // Closed Revenue (closed won)
         $closedRevenue = Opportunity::where('tenant_id', $tenantId)
             ->where('stage', 'closed_won')
             ->sum('value');
 
-        // Open Opportunities
         $openOpportunities = Opportunity::where('tenant_id', $tenantId)
             ->whereIn('stage', ['proposal', 'negotiation'])
             ->count();
 
-        // Total Opportunity Value
         $totalValue = Opportunity::where('tenant_id', $tenantId)
             ->whereIn('stage', ['proposal', 'negotiation'])
             ->sum('value');
 
         return [
-            Stat::make('Predicted Revenue', '€' . number_format($predictedRevenue, 2, ',', '.'))
-                ->description('Based on probability weighted value')
+            Stat::make(__('dashboard.predicted_revenue'), '€'.number_format($predictedRevenue, 2, ',', '.'))
+                ->description(__('dashboard.predicted_revenue_desc'))
                 ->descriptionIcon('heroicon-o-arrow-trending-up')
                 ->color('info'),
 
-            Stat::make('Closed Revenue', '€' . number_format($closedRevenue, 2, ',', '.'))
-                ->description('Total closed won opportunities')
+            Stat::make(__('dashboard.closed_revenue'), '€'.number_format($closedRevenue, 2, ',', '.'))
+                ->description(__('dashboard.closed_revenue_desc'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make('Open Opportunities', $openOpportunities)
-                ->description('In proposal or negotiation')
+            Stat::make(__('dashboard.open_opportunities'), $openOpportunities)
+                ->description(__('dashboard.open_opportunities_desc'))
                 ->descriptionIcon('heroicon-o-briefcase')
                 ->color('warning'),
 
-            Stat::make('Total Pipeline Value', '€' . number_format($totalValue, 2, ',', '.'))
-                ->description('Sum of all open opportunities')
+            Stat::make(__('dashboard.total_pipeline_value'), '€'.number_format($totalValue, 2, ',', '.'))
+                ->description(__('dashboard.total_pipeline_value_desc'))
                 ->descriptionIcon('heroicon-o-currency-euro')
                 ->color('primary'),
         ];

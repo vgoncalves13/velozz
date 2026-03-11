@@ -15,15 +15,12 @@ class LeadsStatsWidget extends StatsOverviewWidget
     {
         $tenantId = auth()->user()->tenant_id;
 
-        // Total Leads
         $totalLeads = Lead::where('tenant_id', $tenantId)->count();
 
-        // Leads Today
         $leadsToday = Lead::where('tenant_id', $tenantId)
             ->whereDate('created_at', today())
             ->count();
 
-        // Contact Rate (leads with at least 1 outgoing message / total leads)
         $leadsWithMessages = Lead::where('tenant_id', $tenantId)
             ->whereHas('whatsappMessages', function ($query) {
                 $query->where('direction', 'outgoing');
@@ -34,7 +31,6 @@ class LeadsStatsWidget extends StatsOverviewWidget
             ? round(($leadsWithMessages / $totalLeads) * 100, 1)
             : 0;
 
-        // Messages Sent
         $messagesSent = WhatsAppMessage::whereHas('lead', function ($query) use ($tenantId) {
             $query->where('tenant_id', $tenantId);
         })
@@ -42,23 +38,23 @@ class LeadsStatsWidget extends StatsOverviewWidget
             ->count();
 
         return [
-            Stat::make('Total Leads', number_format($totalLeads, 0, ',', '.'))
-                ->description('All leads in the system')
+            Stat::make(__('dashboard.total_leads'), number_format($totalLeads, 0, ',', '.'))
+                ->description(__('dashboard.total_leads_desc'))
                 ->descriptionIcon('heroicon-o-users')
                 ->color('primary'),
 
-            Stat::make('Leads Today', $leadsToday)
-                ->description('Created today')
+            Stat::make(__('dashboard.leads_today'), $leadsToday)
+                ->description(__('dashboard.leads_today_desc'))
                 ->descriptionIcon('heroicon-o-calendar')
                 ->color('success'),
 
-            Stat::make('Contact Rate', $contactRate . '%')
-                ->description('Leads contacted at least once')
+            Stat::make(__('dashboard.contact_rate'), $contactRate.'%')
+                ->description(__('dashboard.contact_rate_desc'))
                 ->descriptionIcon('heroicon-o-chat-bubble-left-right')
                 ->color('info'),
 
-            Stat::make('Messages Sent', number_format($messagesSent, 0, ',', '.'))
-                ->description('Total outgoing messages')
+            Stat::make(__('dashboard.messages_sent'), number_format($messagesSent, 0, ',', '.'))
+                ->description(__('dashboard.messages_sent_desc'))
                 ->descriptionIcon('heroicon-o-paper-airplane')
                 ->color('warning'),
         ];

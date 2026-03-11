@@ -7,13 +7,16 @@ use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class LeadsBySourceChart extends ApexChartWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 5;
 
     protected int|string|array $columnSpan = 1;
 
     protected static ?string $chartId = 'leadsBySourceChart';
 
-    protected static ?string $heading = 'Leads por Origem';
+    protected function getHeading(): string
+    {
+        return __('dashboard.leads_by_source_heading');
+    }
 
     protected function getOptions(): array
     {
