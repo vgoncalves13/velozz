@@ -23,7 +23,7 @@ class TenantForm
                             ->afterStateUpdated(function (string $operation, $state, Set $set) {
                                 if ($operation === 'create') {
                                     $set('slug', Str::slug($state));
-                                    $set('domain', Str::slug($state).'.velozz.test');
+                                    $set('domain', Str::slug($state).'.velozz.digital');
                                 }
                             }),
 
@@ -38,7 +38,7 @@ class TenantForm
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true)
-                            ->helperText('Full domain (e.g., client1.velozz.test)'),
+                            ->helperText('Full domain (e.g., client1.velozz.digital)'),
 
                         Forms\Components\Select::make('status')
                             ->required()
