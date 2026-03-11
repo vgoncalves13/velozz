@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     {{-- Field Mapping Modal --}}
-    <x-filament::modal wire:model="showMappingModal" width="lg">
+    <x-filament::modal id="lead-form-field-mapping" width="lg">
         <x-slot name="heading">
             {{ __('meta_settings.lead_forms.mapping_title', ['name' => $mappingFormName]) }}
         </x-slot>
@@ -48,7 +48,7 @@
                 <x-filament::button wire:click="saveMappingAndSync">
                     {{ __('meta_settings.lead_forms.save_and_sync') }}
                 </x-filament::button>
-                <x-filament::button color="gray" wire:click="$set('showMappingModal', false)">
+                <x-filament::button color="gray" x-on:click="$dispatch('close-modal', { id: 'lead-form-field-mapping' })">
                     {{ __('meta_settings.lead_forms.cancel') }}
                 </x-filament::button>
             </div>

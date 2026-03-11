@@ -177,7 +177,7 @@ class MetaAccountSettings extends Page
         $this->mappedEmailField = $mapping['email'] ?? null;
         $this->mappedPhoneField = $mapping['phone'] ?? null;
 
-        $this->showMappingModal = true;
+        $this->dispatch('open-modal', id: 'lead-form-field-mapping');
     }
 
     public function saveMappingAndSync(): void
@@ -196,7 +196,7 @@ class MetaAccountSettings extends Page
 
         SyncFacebookLeadFormLeads::dispatch($form);
 
-        $this->showMappingModal = false;
+        $this->dispatch('close-modal', id: 'lead-form-field-mapping');
 
         Notification::make()
             ->title(__('meta_settings.lead_forms.mapping_saved'))

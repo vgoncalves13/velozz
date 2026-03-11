@@ -189,7 +189,7 @@ class FacebookLeadAdsTest extends TestCase
 
         Livewire::test(\App\Filament\Client\Pages\MetaAccountSettings::class)
             ->call('toggleLeadForm', $this->metaAccount->id, 'mock_form_1', 'Test Form')
-            ->assertSet('showMappingModal', true)
+            ->assertDispatched('open-modal', id: 'lead-form-field-mapping')
             ->assertSet('mappingFormName', 'Test Form');
 
         $this->assertDatabaseHas('facebook_lead_forms', [
@@ -249,7 +249,7 @@ class FacebookLeadAdsTest extends TestCase
             ->set('mappedEmailField', 'email')
             ->set('mappedPhoneField', 'phone_number')
             ->call('saveMappingAndSync')
-            ->assertSet('showMappingModal', false);
+            ->assertDispatched('close-modal', id: 'lead-form-field-mapping');
 
         Queue::assertPushed(SyncFacebookLeadFormLeads::class);
 
@@ -303,7 +303,7 @@ class FacebookLeadAdsTest extends TestCase
 
         $livewire = Livewire::test(\App\Filament\Client\Pages\MetaAccountSettings::class)
             ->call('openMappingModal', $form->id)
-            ->assertSet('showMappingModal', true)
+            ->assertDispatched('open-modal', id: 'lead-form-field-mapping')
             ->assertSet('mappingFormName', 'Test Form');
 
         $this->assertNotEmpty($livewire->get('availableFormFields'));
