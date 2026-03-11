@@ -7,11 +7,10 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Database\Eloquent\Builder;
 
 class TeamPerformanceWidget extends TableWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 6;
 
     protected int|string|array $columnSpan = 'full';
 

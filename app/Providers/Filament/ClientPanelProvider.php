@@ -26,6 +26,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class ClientPanelProvider extends PanelProvider
 {
@@ -233,6 +234,9 @@ class ClientPanelProvider extends PanelProvider
                 InitializeTenancy::class,
                 CheckTenantLimits::class,
             ], isPersistent: true)
+            ->plugins([
+                FilamentApexChartsPlugin::make(),
+            ])
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\Filament\Client\Resources')
             ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\Filament\Client\Pages')
             ->pages([
