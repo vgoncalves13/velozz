@@ -124,15 +124,22 @@
                     @if($account->type === \App\Enums\Channel::FacebookMessenger && $account->status === 'connected')
                         <div
                             x-data="{ open: false, forms: [], loading: false }"
-                            x-init="$watch('open', value => {
-                                if (value && forms.length === 0) {
-                                    loading = true;
-                                    $wire.getLeadForms({{ $account->id }}).then(result => {
-                                        forms = result;
-                                        loading = false;
-                                    });
-                                }
-                            })"
+                            x-init="
+                                $watch('open', value => {
+                                    if (value && forms.length === 0) {
+                                        loading = true;
+                                        $wire.getLeadForms({{ $account->id }}).then(result => {
+                                            forms = result;
+                                            loading = false;
+                                        });
+                                    }
+                                });
+                                $listen('lead-forms-reload', e => {
+                                    if (e.metaAccountId === {{ $account->id }} && open) {
+                                        $wire.getLeadForms({{ $account->id }}).then(result => { forms = result; });
+                                    }
+                                });
+                            "
                             class="mt-4 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden"
                         >
                             <button
@@ -167,26 +174,19 @@
                                             </p>
                                         </div>
                                         <div class="flex items-center gap-3">
-                                            <template x-if="form.subscribed">
-                                                @foreach(\App\Models\FacebookLeadForm::where('meta_account_id', $account->id)->get() as $savedForm)
-                                                    <span
-                                                        x-show="form.id === '{{ $savedForm->form_id }}'"
-                                                        class="text-xs text-gray-400 dark:text-gray-500"
+                                            <template x-if="form.subscribed && form.last_synced_at_human">
+                                                <span class="text-xs text-gray-400 dark:text-gray-500">
+                                                    {{ __('meta_settings.lead_forms.last_sync') }}: <span x-text="form.last_synced_at_human"></span>
+                                                    <button
+                                                        @click="$wire.syncLeadForm(form.db_id)"
+                                                        class="ml-2 text-primary-600 dark:text-primary-400 hover:underline"
                                                     >
-                                                        @if($savedForm->last_synced_at)
-                                                            {{ __('meta_settings.lead_forms.last_sync') }}: {{ $savedForm->last_synced_at->diffForHumans() }}
-                                                            <button
-                                                                wire:click="syncLeadForm({{ $savedForm->id }})"
-                                                                class="ml-2 text-primary-600 dark:text-primary-400 hover:underline"
-                                                            >
-                                                                {{ __('meta_settings.lead_forms.sync_now') }}
-                                                            </button>
-                                                        @endif
-                                                    </span>
-                                                @endforeach
+                                                        {{ __('meta_settings.lead_forms.sync_now') }}
+                                                    </button>
+                                                </span>
                                             </template>
                                             <button
-                                                @click="$wire.toggleLeadForm({{ $account->id }}, form.id, form.name).then(() => { forms = []; $wire.getLeadForms({{ $account->id }}).then(r => forms = r); })"
+                                                @click="$wire.toggleLeadForm({{ $account->id }}, form.id, form.name).then(() => { $wire.getLeadForms({{ $account->id }}).then(r => forms = r); })"
                                                 x-bind:class="form.subscribed ? 'bg-primary-600' : 'bg-gray-200 dark:bg-gray-600'"
                                                 class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
                                                 role="switch"

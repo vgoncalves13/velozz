@@ -111,11 +111,19 @@ class MetaAccountSettings extends Page
         $response = $apiService->getPageLeadForms($account->page_id, $account->access_token);
         $apiForms = collect($response['data'] ?? []);
 
-        $activeForms = FacebookLeadForm::where('meta_account_id', $metaAccountId)->pluck('form_id')->toArray();
+        $savedForms = FacebookLeadForm::where('meta_account_id', $metaAccountId)
+            ->get()
+            ->keyBy('form_id');
 
-        return $apiForms->map(fn (array $form) => array_merge($form, [
-            'subscribed' => in_array($form['id'], $activeForms),
-        ]));
+        return $apiForms->map(function (array $form) use ($savedForms) {
+            $saved = $savedForms->get($form['id']);
+
+            return array_merge($form, [
+                'subscribed' => $saved !== null,
+                'db_id' => $saved?->id,
+                'last_synced_at_human' => $saved?->last_synced_at?->diffForHumans(),
+            ]);
+        });
     }
 
     public function toggleLeadForm(int $metaAccountId, string $formId, string $formName): void
@@ -198,9 +206,10 @@ class MetaAccountSettings extends Page
             ],
         ]);
 
-        SyncFacebookLeadFormLeads::dispatch($form);
+        SyncFacebookLeadFormLeads::dispatch($form->fresh());
 
         $this->dispatch('close-modal', id: 'lead-form-field-mapping');
+        $this->dispatch('lead-forms-reload', metaAccountId: $form->meta_account_id);
 
         Notification::make()
             ->title(__('meta_settings.lead_forms.mapping_saved'))
