@@ -49,6 +49,6 @@ class AcceptInviteController extends Controller
             return redirect()->route('filament.admin.pages.dashboard');
         }
 
-        return redirect()->route('filament.client.pages.dashboard');
+        return redirect()->route('filament.client.pages.dashboard', ['tenant' => $user->tenant]);
     }
 }
