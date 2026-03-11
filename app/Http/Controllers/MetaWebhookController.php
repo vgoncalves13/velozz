@@ -253,6 +253,7 @@ class MetaWebhookController extends Controller
         $existing = Lead::withoutGlobalScopes()
             ->where('tenant_id', $metaAccount->tenant_id)
             ->whereJsonContains('custom_fields->facebook_lead_id', $leadgenId)
+            ->whereNull('deleted_at')
             ->first();
 
         if ($existing) {

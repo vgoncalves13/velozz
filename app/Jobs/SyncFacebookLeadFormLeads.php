@@ -75,6 +75,7 @@ class SyncFacebookLeadFormLeads implements ShouldQueue
         $existing = Lead::withoutGlobalScopes()
             ->where('tenant_id', $tenantId)
             ->whereJsonContains('custom_fields->facebook_lead_id', $leadgenId)
+            ->whereNull('deleted_at')
             ->exists();
 
         if ($existing) {
